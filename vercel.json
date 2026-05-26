@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/oportunia-integrado.html" }
+  ],
+  "cleanUrls": false
+}
