@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Opportunia — Vagas em Bauru e região</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #0f1117; --ink-2: #3a3d4a; --ink-3: #7a7f94;
+    --surface: #f5f4f0; --white: #ffffff;
+    --accent: #e8440a; --accent-light: #fff0eb;
+    --blue: #1a3c6e; --blue-light: #e8eef8;
+    --green: #0f6b3a; --green-light: #e6f4ed;
+    --gold: #c9920a; --gold-light: #fdf3dc;
+    --border: rgba(15,17,23,0.1); --border-strong: rgba(15,17,23,0.2);
+    --radius: 12px; --radius-sm: 8px; --radius-lg: 20px; --radius-pill: 100px;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 2.5rem;
+    background: rgba(245,244,240,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--ink); text-decoration: none; letter-spacing: -0.02em; }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+  .nav-links a { text-decoration: none; color: var(--ink-2); font-size: 0.9rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-cta { background: var(--ink) !important; color: var(--white) !important; padding: 0.5rem 1.25rem; border-radius: var(--radius-pill); font-weight: 500 !important; transition: background 0.2s !important; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; }
+  .nav-cta:hover { background: var(--accent) !important; }
+  #nav-user-area { display: flex; align-items: center; gap: 1rem; }
+  .nav-user-name { font-size: 0.88rem; color: var(--ink-2); }
+  .nav-dropdown { position: relative; }
+  .nav-dropdown-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--ink); cursor: pointer; transition: all 0.15s; }
+  .nav-dropdown-btn:hover { border-color: var(--ink); }
+  .nav-dropdown-btn .avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--blue-light); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--blue); }
+  .nav-dropdown-menu { position: absolute; top: calc(100% + 8px); right: 0; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.5rem; min-width: 200px; box-shadow: 0 8px 24px rgba(15,17,23,0.12); display: none; z-index: 200; }
+  .nav-dropdown-menu.open { display: block; }
+  .nav-dropdown-menu a { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); text-decoration: none; font-size: 0.88rem; color: var(--ink-2); transition: all 0.15s; cursor: pointer; }
+  .nav-dropdown-menu a:hover { background: var(--surface); color: var(--ink); }
+  .nav-dropdown-divider { height: 1px; background: var(--border); margin: 0.4rem 0; }
+  .nav-dropdown-menu .logout { color: var(--red, #b91c1c); cursor: pointer; background: none; border: none; width: 100%; text-align: left; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); transition: all 0.15s; }
+  .nav-dropdown-menu .logout:hover { background: #fde8e8; }
+
+  /* HERO */
+  .hero { min-height: auto; display: flex; align-items: center; padding: 5rem 5vw 3rem; position: relative; overflow: hidden; }
+  .hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: flex-start; max-width: 1200px; margin: 0 auto; width: 100%; }
+  .hero-left { display: flex; flex-direction: column; }
+  .hero-right { display: flex; align-items: flex-start; justify-content: center; padding-top: 3.2rem; }
+  .hero-card-preview { background: var(--white); border-radius: 20px; padding: 1.75rem; box-shadow: 0 20px 60px rgba(15,17,23,0.12); width: 100%; max-width: 380px; }
+  .hcp-title { font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 1rem; }
+  .hcp-vaga { display: flex; flex-direction: column; gap: 0.6rem; padding: 0.9rem; background: var(--surface); border-radius: 12px; margin-bottom: 0.6rem; border: 1px solid var(--border); transition: all 0.2s; }
+  .hcp-vaga:last-child { margin-bottom: 0; }
+  .hcp-vaga-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .hcp-vaga-titulo { font-weight: 600; font-size: 0.9rem; color: var(--ink); }
+  .hcp-vaga-empresa { font-size: 0.78rem; color: var(--ink-3); }
+  .hcp-vaga-sal { font-size: 0.85rem; font-weight: 600; color: var(--accent); }
+  .hcp-badge { font-size: 0.65rem; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 500; }
+  .hcp-b-new { background: var(--green-light); color: var(--green); }
+  .hcp-b-hot { background: var(--accent-light); color: var(--accent); }
+  .hcp-stat { display: flex; justify-content: space-between; padding: 0.75rem 0; border-top: 1px solid var(--border); margin-top: 0.75rem; }
+  .hcp-stat-item { text-align: center; }
+  .hcp-stat-num { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--ink); }
+  .hcp-stat-lbl { font-size: 0.68rem; color: var(--ink-3); margin-top: 1px; }
+  .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 80% 50%, rgba(232,68,10,0.08) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 10% 80%, rgba(26,60,110,0.06) 0%, transparent 60%); pointer-events: none; }
+  .hero-eyebrow { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: 500; color: var(--accent); background: var(--accent-light); border: 1px solid rgba(232,68,10,0.2); padding: 0.35rem 1rem; border-radius: var(--radius-pill); margin-bottom: 1.5rem; width: fit-content; animation: fadeUp 0.6s ease both; }
+  .hero-eyebrow::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s ease infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.7); } }
+  .hero h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2rem, 4.5vw, 4rem); line-height: 1.0; letter-spacing: -0.03em; color: var(--ink); max-width: 900px; animation: fadeUp 0.6s 0.1s ease both; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero-sub { font-size: 1.15rem; color: var(--ink-2); max-width: 600px; margin: 1.75rem 0 3rem; font-weight: 300; line-height: 1.8; animation: fadeUp 0.6s 0.2s ease both; }
+  .hero-search { display: flex; gap: 0; max-width: 800px; width: 100%; background: var(--white); border: 1.5px solid var(--border-strong); border-radius: var(--radius-pill); padding: 0.5rem 0.5rem 0.5rem 1.5rem; box-shadow: 0 4px 24px rgba(15,17,23,0.08); animation: fadeUp 0.6s 0.3s ease both; }
+  .hero-search input { flex: 1; border: none; outline: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 1rem; color: var(--ink); }
+  .hero-search input::placeholder { color: var(--ink-3); }
+  .hero-search button { background: var(--accent); color: var(--white); border: none; padding: 0.85rem 2rem; border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+  .hero-search button:hover { background: #c93a08; }
+  .hero-bottom { width: 100%; margin: 0 auto; display: flex; flex-direction: column; align-items: center; padding: 0 2rem; } .hero-bottom .hero-search { width: 100%; max-width: 600px; } .hero-bottom .hero-stats { justify-content: center; } .hero-stats { display: flex; gap: 3.5rem; animation: fadeUp 0.6s 0.4s ease both; }
+  .hero-stat-num { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 700; color: var(--ink); line-height: 1; }
+  .hero-stat-lbl { font-size: 0.8rem; color: var(--ink-3); margin-top: 2px; }
+  .hero-divider { width: 1px; background: var(--border); height: 40px; align-self: center; }
+
+  /* SECTIONS */
+  .section { padding: 0 2.5rem 5rem; }
+  .section-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 0.5rem; }
+  .section-sub { font-size: 0.95rem; color: var(--ink-3); margin-bottom: 2rem; }
+
+  /* CHIPS/FILTERS */
+  .chips-wrap { position: relative; margin-bottom: 2.5rem; }
+  .chips-scroll { display: flex; gap: 0.5rem; overflow-x: auto; scroll-behavior: smooth; padding-bottom: 4px; scrollbar-width: none; -ms-overflow-style: none; }
+  .chips-scroll::-webkit-scrollbar { display: none; }
+  .chips-fade-left { position: absolute; left: 0; top: 0; bottom: 4px; width: 48px; background: linear-gradient(to right, var(--surface), transparent); pointer-events: none; opacity: 0; transition: opacity 0.2s; }
+  .chips-fade-right { position: absolute; right: 0; top: 0; bottom: 4px; width: 48px; background: linear-gradient(to left, var(--surface), transparent); pointer-events: none; transition: opacity 0.2s; }
+  .chips-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; background: var(--white); border: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; color: var(--ink-2); transition: all 0.15s; z-index: 2; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .chips-arrow:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
+  .chips-arrow-left { left: 4px; }
+  .chips-arrow-right { right: 4px; }
+  .chips { display: flex; gap: 0.5rem; flex-wrap: nowrap; }
+  .chip { padding: 0.4rem 1rem; border-radius: var(--radius-pill); border: 1px solid var(--border); background: var(--white); font-size: 0.85rem; color: var(--ink-2); cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; white-space: nowrap; flex-shrink: 0; }
+  .chip:hover, .chip.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+  /* JOBS */
+  .jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+  .job-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+  .job-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.25s ease; }
+  .job-card:hover { border-color: var(--border-strong); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(15,17,23,0.08); }
+  .job-card:hover::after { transform: scaleX(1); }
+  .job-card.featured { border-color: rgba(232,68,10,0.3); background: #fffaf8; }
+  .job-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+  .company-avatar { width: 44px; height: 44px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--ink-2); }
+  .badge { font-size: 0.72rem; font-weight: 500; padding: 0.25rem 0.7rem; border-radius: var(--radius-pill); }
+  .badge-featured { background: var(--accent-light); color: var(--accent); }
+  .badge-new { background: var(--green-light); color: var(--green); }
+  .badge-remote { background: var(--blue-light); color: var(--blue); }
+  .job-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1rem; color: var(--ink); margin-bottom: 0.25rem; }
+  .job-company { font-size: 0.85rem; color: var(--ink-3); margin-bottom: 1rem; }
+  .job-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .job-tag { font-size: 0.78rem; color: var(--ink-3); background: var(--surface); padding: 0.2rem 0.6rem; border-radius: var(--radius-pill); }
+  .job-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+  .job-salary { font-weight: 500; font-size: 0.9rem; color: var(--ink); }
+  .job-ago { font-size: 0.78rem; color: var(--ink-3); }
+
+  /* LOADING / EMPTY */
+  .jobs-loading { text-align: center; padding: 3rem; color: var(--ink-3); font-size: 0.9rem; grid-column: 1/-1; }
+  .jobs-empty { text-align: center; padding: 3rem; color: var(--ink-3); grid-column: 1/-1; }
+  .jobs-empty p { font-size: 1.5rem; margin-bottom: 0.5rem; }
+
+  /* COMO FUNCIONA */
+  .how-section { background: var(--ink); padding: 5rem 2.5rem; }
+  .how-section .section-label { color: #ff6b35; }
+  .how-section .section-title { color: var(--white); }
+  .how-section .section-sub { color: rgba(255,255,255,0.5); }
+  .how-tabs { display: flex; gap: 0.5rem; margin-bottom: 3rem; }
+  .how-tab { padding: 0.5rem 1.25rem; border-radius: var(--radius-pill); border: 1px solid rgba(255,255,255,0.15); background: transparent; color: rgba(255,255,255,0.5); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+  .how-tab.active { background: var(--accent); border-color: var(--accent); color: var(--white); }
+  .how-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+  .how-step { padding: 1.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius); }
+  .step-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 1rem; }
+  .step-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1rem; color: var(--white); margin-bottom: 0.5rem; }
+  .step-desc { font-size: 0.85rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+  /* PLANOS */
+  .plans-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 900px; margin: 0 auto; }
+  .plan-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem 1.5rem; position: relative; transition: all 0.2s; }
+  .plan-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(15,17,23,0.1); }
+  .plan-card.popular { border: 2px solid var(--accent); background: #fffaf8; }
+  .popular-badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--white); font-size: 0.72rem; font-weight: 600; padding: 0.3rem 1rem; border-radius: var(--radius-pill); white-space: nowrap; }
+  .plan-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--ink); margin-bottom: 0.25rem; }
+  .plan-desc { font-size: 0.82rem; color: var(--ink-3); margin-bottom: 1.5rem; }
+  .plan-price { font-family: 'Syne', sans-serif; font-size: 2.4rem; font-weight: 800; color: var(--ink); line-height: 1; }
+  .plan-price sup { font-size: 1rem; font-weight: 500; vertical-align: super; }
+  .plan-price span { font-size: 0.85rem; font-weight: 400; color: var(--ink-3); }
+  .plan-divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem; }
+  .plan-features li { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; color: var(--ink-2); }
+  .plan-features li::before { content: '✓'; color: var(--green); font-weight: 600; flex-shrink: 0; margin-top: 1px; }
+  .plan-features li.disabled::before { content: '✕'; color: var(--ink-3); }
+  .plan-features li.disabled { color: var(--ink-3); }
+  .btn { display: block; width: 100%; text-align: center; padding: 0.75rem; border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; }
+  .btn-ink { background: var(--ink); color: var(--white); }
+  .btn-ink:hover { background: var(--accent); }
+  .btn-accent { background: var(--accent); color: var(--white); }
+  .btn-accent:hover { background: #c93a08; }
+  .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--border-strong); }
+  .btn-ghost:hover { border-color: var(--ink); }
+
+  /* CTA */
+  .cta-section { background: #0f0f0f; padding: 5rem 2.5rem; text-align: center; position: relative; overflow: hidden; }
+  .cta-section::before { content: 'Opportunia'; position: absolute; font-family: 'Syne', sans-serif; font-size: 20vw; font-weight: 800; color: rgba(255,255,255,0.03); top: 50%; left: 50%; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none; }
+  .cta-section .section-label { color: rgba(255,255,255,0.5); }
+  .cta-section .section-title { color: var(--white); font-size: clamp(1.8rem, 3.5vw, 3rem); }
+  .cta-section .section-sub { color: rgba(255,255,255,0.6); max-width: 480px; margin: 0 auto 2rem; }
+  .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-white { background: var(--white); color: var(--ink); }
+  .btn-white:hover { background: var(--surface); }
+  .btn-outline-white { background: transparent; color: var(--white); border: 1px solid rgba(255,255,255,0.3); }
+  .btn-outline-white:hover { background: rgba(255,255,255,0.1); }
+
+  /* FOOTER */
+  footer { background: var(--ink); color: rgba(255,255,255,0.5); padding: 3rem 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  .footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; color: var(--white); }
+  .footer-logo span { color: var(--accent); }
+  .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .footer-links a { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--white); }
+
+  /* MODAL AUTH */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,17,23,0.6); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: var(--radius-lg); padding: 2.5rem; max-width: 420px; width: 90%; animation: fadeUp 0.25s ease; }
+  .modal-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+  .modal-tab { flex: 1; text-align: center; padding: 0.6rem; font-size: 0.88rem; color: var(--ink-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+  .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+  .modal h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.4rem; margin-bottom: 0.25rem; }
+  .modal p { font-size: 0.85rem; color: var(--ink-3); margin-bottom: 1.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 500; color: var(--ink-2); margin-bottom: 0.4rem; }
+  .form-group input, .form-group select { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--ink); background: var(--surface); outline: none; transition: border-color 0.2s; }
+  .form-group input:focus, .form-group select:focus { border-color: var(--accent); background: var(--white); }
+  .btn-submit { width: 100%; padding: 0.85rem; background: var(--accent); color: var(--white); border: none; border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
+  .btn-submit:hover { background: #c93a08; }
+  .btn-submit:disabled { background: var(--ink-3); cursor: not-allowed; }
+  .modal-close { position: absolute; top: 1rem; right: 1rem; background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; color: var(--ink-3); }
+  .modal-error { color: #b91c1c; font-size: 0.82rem; margin-top: 0.5rem; background: #fde8e8; padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); display: none; }
+  .modal-error.show { display: block; }
+  .modal-success { color: var(--green); font-size: 0.82rem; margin-top: 0.5rem; background: var(--green-light); padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); display: none; }
+  .modal-success.show { display: block; }
+
+  /* MODAL CANDIDATURA */
+  .cand-modal { max-width: 480px; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.25rem; }
+    .nav-links { display: none; }
+    .hero { padding: 5rem 1.25rem 3rem; }
+    .hero-inner { grid-template-columns: 1fr; gap: 2rem; }
+    .hero-right { display: none; }
+    .hero-stats { gap: 1.25rem; }
+    .section { padding: 3.5rem 1.25rem; }
+    .how-section { padding: 3.5rem 1.25rem; }
+    .plans-grid { grid-template-columns: 1fr; max-width: 100%; }
+    .cta-section { padding: 4rem 1.25rem; }
+    footer { padding: 2rem 1.25rem; flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Opportu<span>nia</span><sup style="font-size:1rem;font-weight:500;vertical-align:super;letter-spacing:0;color:var(--ink-3);margin-left:2px">®</sup></a>
+  <ul class="nav-links">
+    <li><a href="oportunia-vagas.html">Vagas</a></li>
+    <li><a href="#como-funciona">Como funciona</a></li>
+    <li><a href="#planos">Para empresas</a></li>
+    <li><a href="oportunia-sobre.html">Sobre nós</a></li>
+  </ul>
+  <div id="nav-user-area">
+    <button class="nav-cta" id="btn-login" onclick="openAuthModal('candidato')">Entrar / Cadastrar</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner" style="grid-template-columns:1fr;text-align:center;align-items:center">
+    <div class="hero-left" style="align-items:center">
+      <h1 style="text-align:center;font-size:clamp(1.8rem,3.5vw,3.5rem);margin-top:2rem;margin-bottom:2rem">A ponte certa entre<br><em>talentos</em> e empresas</h1>
+      <p class="hero-sub" style="text-align:center;margin:0 auto">Vagas reais com salários visíveis. Candidatura em um clique. <strong>Cadastro e participação sempre gratuitos para quem busca emprego.</strong></p>
+    </div>
+
+  </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section class="how-section" id="como-funciona" style="scroll-margin-top:70px;text-align:center">
+  <div class="section-label" style="font-size:1.4rem">Como funciona?</div>
+  <div class="section-title" style="color:white">Simples para os dois lados</div>
+  <p class="section-sub">Candidato ou empresa — aqui o processo é direto ao ponto.</p>
+  <div class="how-tabs" style="justify-content:center">
+    <button class="how-tab active" onclick="setTab('candidato', this)">Sou candidato</button>
+    <button class="how-tab" onclick="setTab('empresa', this)">Sou empresa</button>
+  </div>
+  <div id="tab-candidato" class="how-steps">
+    <div class="how-step"><div class="step-num">01</div><div class="step-title">Crie seu perfil</div><p class="step-desc">Crie seu perfil de maneira totalmente gratuita em menos de 5 minutos. Sem cartão, sem mensalidade.</p></div>
+    <div class="how-step"><div class="step-num">02</div><div class="step-title">Encontre vagas</div><p class="step-desc">Filtre por área, salário e modalidade. Transparência em cada oportunidade.</p></div>
+    <div class="how-step"><div class="step-num">03</div><div class="step-title">Complete seu perfil</div><p class="step-desc">Quanto mais completo seu perfil, mais compatível você aparece para as empresas. Preencha tudo para se destacar.</p></div>
+    <div class="how-step"><div class="step-num">04</div><div class="step-title">Candidate-se</div><p class="step-desc">Candidate-se de maneira totalmente gratuita com um clique. Acompanhe o status em tempo real.</p></div>
+    <div class="how-step"><div class="step-num">05</div><div class="step-title">Seja contratado</div><p class="step-desc">A empresa entra em contato direto. Sem intermediários.</p></div>
+  </div>
+  <div id="tab-empresa" class="how-steps" style="display:none">
+    <div class="how-step"><div class="step-num">01</div><div class="step-title">Cadastre a empresa</div><p class="step-desc">Crie sua conta em minutos. Verificamos para garantir credibilidade.</p></div>
+    <div class="how-step"><div class="step-num">02</div><div class="step-title">Publique a vaga</div><p class="step-desc">Formulário simples. Vagas com salário recebem 3x mais candidaturas.</p></div>
+    <div class="how-step"><div class="step-num">03</div><div class="step-title">Receba candidatos</div><p class="step-desc">Cada candidatura vem com um score de aderência de 0 a 100%, calculado automaticamente com base no perfil e nos requisitos da vaga.</p></div>
+    <div class="how-step"><div class="step-num">04</div><div class="step-title">Contrate mais rápido</div><p class="step-desc">Candidatos locais e motivados. Reduza seu ciclo de contratação.</p></div>
+  </div>
+</section>
+
+<!-- BUSCA -->
+<section style="background:var(--surface);padding:2.5rem 2.5rem 0;text-align:center">
+  <div style="max-width:700px;margin:0 auto">
+    <div class="hero-search" style="margin-bottom:1.25rem">
+      <input type="text" id="search-input" placeholder="Cargo, área ou palavra-chave…" />
+      <button onclick="buscarVagas()">Buscar vagas →</button>
+    </div>
+    <div class="hero-stats" style="margin-bottom:0">
+      <div>
+        <div class="hero-stat-num" id="stat-vagas">—</div>
+        <div class="hero-stat-lbl">Vagas ativas</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div>
+        <div class="hero-stat-num">100%</div>
+        <div class="hero-stat-lbl">Salários visíveis</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div>
+        <div class="hero-stat-num">Bauru</div>
+        <div class="hero-stat-lbl">Foco local</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VAGAS -->
+<section class="section" id="vagas" style="padding-top:2rem;padding-bottom:2.5rem;text-align:center;scroll-margin-top:70px">
+  <div class="section-title">Oportunidades de hoje</div>
+  <p class="section-sub">Todas com salário transparente e empresa verificada.</p>
+
+  <div class="chips-wrap" id="chips-wrap">
+    <div class="chips-fade-left" id="chips-fade-left"></div>
+    <div class="chips-fade-right" id="chips-fade-right"></div>
+    <div class="chips-arrow chips-arrow-left" id="chips-prev" onclick="scrollChips(-1)" style="display:none">‹</div>
+    <div class="chips-arrow chips-arrow-right" id="chips-next" onclick="scrollChips(1)" style="display:none">›</div>
+    <div class="chips-scroll" id="filtros" onscroll="updateChipsArrows()">
+      <div class="chips">
+        <div class="chip active" onclick="filtrarArea('', this)">Todas as áreas</div>
+        <div class="chip" onclick="filtrarArea('Administrativo', this)">Administrativo</div>
+        <div class="chip" onclick="filtrarArea('Saúde', this)">Saúde</div>
+        <div class="chip" onclick="filtrarArea('TI e Tecnologia', this)">TI & Tech</div>
+        <div class="chip" onclick="filtrarArea('Vendas', this)">Vendas</div>
+        <div class="chip" onclick="filtrarArea('Indústria', this)">Indústria</div>
+        <div class="chip" onclick="filtrarArea('Construção Civil', this)">Construção Civil</div>
+        <div class="chip" onclick="filtrarArea('Logística e Transporte', this)">Logística</div>
+        <div class="chip" onclick="filtrarArea('Marketing', this)">Marketing</div>
+        <div class="chip" onclick="filtrarArea('Contabilidade e Finanças', this)">Financeiro</div>
+        <div class="chip" onclick="filtrarArea('Educação', this)">Educação</div>
+        <div class="chip" onclick="filtrarArea('Engenharia', this)">Engenharia</div>
+        <div class="chip" onclick="filtrarArea('Atendimento ao Cliente', this)">Atendimento</div>
+        <div class="chip" onclick="filtrarArea('Agronegócio', this)">Agronegócio</div>
+        <div class="chip" onclick="filtrarArea('Design', this)">Design</div>
+        <div class="chip" onclick="filtrarArea('RH e Pessoas', this)">RH</div>
+        <div class="chip" onclick="filtrarArea('Jurídico', this)">Jurídico</div>
+        <div class="chip" onclick="filtrarArea('Qualidade', this)">Qualidade</div>
+        <div class="chip" onclick="filtrarArea('Segurança do Trabalho', this)">Segurança</div>
+        <div class="chip" onclick="filtrarArea('CLT', this)">CLT</div>
+        <div class="chip" onclick="filtrarArea('Remoto', this)">Remoto</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="jobs-grid" id="jobs-grid">
+    <div class="jobs-loading">Carregando vagas…</div>
+  </div>
+
+  <div id="ver-todas-wrap" style="display:none;justify-content:center;margin-top:2.5rem">
+    <a href="oportunia-vagas.html" style="display:inline-flex;align-items:center;gap:0.6rem;padding:0.85rem 2.5rem;border-radius:var(--radius-pill);background:var(--ink);color:var(--white);font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:500;text-decoration:none;transition:background 0.2s" onmouseover="this.style.background='var(--accent)'" onmouseout="this.style.background='var(--ink)'">
+      Ver todas as vagas <span id="ver-todas-count" style="background:rgba(255,255,255,0.15);padding:2px 10px;border-radius:100px;font-size:0.82rem"></span> →
+    </a>
+  </div>
+</section>
+
+<!-- PLANOS -->
+<section class="section" id="planos" style="padding-top:1.5rem;scroll-margin-top:70px;text-align:center">
+  <div class="section-label" style="font-size:1rem">Para empresas</div>
+  <div class="section-title">Planos que crescem com você</div>
+  <p class="section-sub">Comece grátis. Escale quando precisar.</p>
+  <div class="plans-grid">
+    <div class="plan-card">
+      <div class="plan-name">Gratuito</div>
+      <p class="plan-desc">Para conhecer a plataforma</p>
+      <div class="plan-price"><sup>R$</sup>0<span>/mês</span></div>
+      <hr class="plan-divider" />
+      <ul class="plan-features">
+        <li>1 vaga ativa</li>
+        <li>Painel de candidaturas</li>
+        <li>Perfil da empresa</li>
+        <li>Candidatos ilimitados por vaga</li>
+      </ul>
+      <button class="btn btn-ghost" onclick="openAuthModal('empresa')">Começar grátis</button>
+    </div>
+    <div class="plan-card popular">
+      <div class="popular-badge">⭐ Mais popular</div>
+      <div class="plan-name">Pro</div>
+      <p class="plan-desc">Para quem contrata com frequência</p>
+      <div class="plan-price"><sup>R$</sup>79<span>/mês</span></div>
+      <hr class="plan-divider" />
+      <ul class="plan-features">
+        <li>5 vagas ativas</li>
+        <li>1 vaga em destaque</li>
+        <li>Painel de candidaturas</li>
+        <li>Perfil da empresa</li>
+        <li>Candidatos ilimitados por vaga</li>
+      </ul>
+      <button class="btn btn-accent" onclick="window.open('mailto:contato.opportunia@gmail.com?subject=Interesse no Plano Pro&body=Olá! Tenho interesse no Plano Pro da Opportunia.', '_blank')">Assinar plano Pro</button>
+    </div>
+    <div class="plan-card">
+      <div class="plan-name">Empresa</div>
+      <p class="plan-desc">Para RH e grandes operações</p>
+      <div class="plan-price"><sup>R$</sup>179<span>/mês</span></div>
+      <hr class="plan-divider" />
+      <ul class="plan-features">
+        <li>15 vagas ativas</li>
+        <li>Até 5 vagas em destaque</li>
+        <li>Painel de candidaturas</li>
+        <li>Perfil da empresa</li>
+        <li>Candidatos ilimitados por vaga</li>
+      </ul>
+      <button class="btn btn-ink" onclick="window.open('mailto:contato.opportunia@gmail.com?subject=Interesse no Plano Empresa&body=Olá! Tenho interesse no Plano Empresa da Opportunia.', '_blank')">Falar com vendas</button>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="candidatos">
+  <div class="section-title">Sua próxima oportunidade<br>está aqui</div>
+  <p class="section-sub">Crie seu perfil <strong style="color:white">gratuitamente</strong> e apareça para as melhores empresas da cidade. Sem pagar nada, nunca.</p>
+  <div class="cta-btns">
+    <button class="btn btn-white" style="padding:0.8rem 2rem;width:auto" onclick="openAuthModal('candidato')">Criar perfil grátis</button>
+    <a href="oportunia-vagas.html" class="btn btn-outline-white" style="padding:0.8rem 2rem;width:auto">Ver todas as vagas</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Opportu<span>nia</span><sup style="font-size:0.95rem;font-weight:500;vertical-align:super;letter-spacing:0;color:rgba(255,255,255,0.35);margin-left:2px">®</sup></div>
+  <div class="footer-links">
+    <a href="oportunia-sobre.html">Sobre nós</a>
+    <a href="oportunia-faq.html">FAQ</a>
+    <a href="oportunia-privacidade.html">Privacidade</a>
+    <a href="oportunia-termos.html">Termos de Uso</a>
+  </div>
+  <div style="font-size:0.8rem;text-align:center"><div>© 2026 <a href="oportunia-admin.html" style="color:rgba(255,255,255,.15);text-decoration:none" title="">Opportunia®</a> · Bauru, SP</div><div>Todos os direitos reservados.</div></div>
+</footer>
+
+<!-- MODAL AUTH -->
+<div class="modal-overlay" id="modal-auth" onclick="if(event.target===this)closeAuthModal()">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    <div class="modal-tabs">
+      <div class="modal-tab active" id="tab-login" onclick="switchAuthTab('login')">Entrar</div>
+      <div class="modal-tab" id="tab-cadastro" onclick="switchAuthTab('cadastro')">Criar conta</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="form-login">
+      <h2>Bem-vindo de volta</h2>
+      <p>Entre na sua conta Opportunia</p>
+      <div class="form-group"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')document.getElementById('login-senha').focus()" /></div>
+      <div class="form-group"><label>Senha</label><input type="password" id="login-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()" /></div>
+      <div class="modal-error" id="login-error"></div>
+      <button class="btn-submit" id="btn-login-submit" onclick="fazerLogin()">Entrar →</button>
+    </div>
+
+    <!-- CADASTRO -->
+    <div id="form-cadastro" style="display:none">
+      <h2>Criar sua conta</h2>
+      <p>Gratuito para candidatos · sempre</p>
+      <div class="form-group"><label>Tipo de conta</label>
+        <select id="tipo-conta">
+          <option value="candidato">Sou candidato</option>
+          <option value="empresa">Sou empresa</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Nome completo / Empresa</label><input type="text" id="cad-nome" placeholder="Seu nome ou nome da empresa" /></div>
+      <div class="form-group"><label>E-mail</label><input type="email" id="cad-email" placeholder="seu@email.com" /></div>
+      <div class="form-group"><label>Senha</label><input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres" /></div>
+      <div class="modal-error" id="cad-error"></div>
+      <div class="modal-success" id="cad-success"></div>
+      <label style="display:flex;align-items:flex-start;gap:0.6rem;font-size:0.82rem;color:var(--ink-3);cursor:pointer;margin-bottom:0.5rem">
+        <input type="checkbox" id="aceite-termos" style="margin-top:3px;flex-shrink:0;accent-color:var(--accent)" />
+        <span>Li e aceito os <a href="oportunia-termos.html" target="_blank" style="color:var(--accent)">Termos de Uso</a> e a <a href="oportunia-privacidade.html" target="_blank" style="color:var(--accent)">Política de Privacidade</a></span>
+      </label>
+      <button class="btn-submit" id="btn-cad-submit" onclick="criarConta()">Criar conta grátis →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CANDIDATURA -->
+<div class="modal-overlay" id="modal-cand" onclick="if(event.target===this)closeCandModal()">
+  <div class="modal cand-modal" style="position:relative">
+    <button class="modal-close" onclick="closeCandModal()">✕</button>
+    <h2>Sua candidatura</h2>
+    <p id="cand-vaga-titulo" style="color:var(--accent);font-weight:500;margin-bottom:1.5rem"></p>
+    <div class="form-group"><label>Nome completo</label><input type="text" id="cand-nome" placeholder="Seu nome" /></div>
+    <div class="form-group"><label>E-mail</label><input type="email" id="cand-email" placeholder="seu@email.com" /></div>
+    <div class="form-group"><label>WhatsApp</label><input type="tel" id="cand-tel" placeholder="(14) 99999-0000" /></div>
+    <div class="form-group"><label>Por que você quer essa vaga? <span style="color:var(--ink-3)">(opcional)</span></label>
+      <input type="text" id="cand-msg" placeholder="Conte brevemente sua experiência…" />
+    </div>
+    <div class="modal-error" id="cand-error"></div>
+    <div class="modal-success" id="cand-success"></div>
+    <button class="btn-submit" id="btn-cand-submit" onclick="enviarCandidatura()">Enviar candidatura →</button>
+  </div>
+</div>
+
+<script>
+// =============================================
+// SUPABASE CONFIG
+// =============================================
+const SUPABASE_URL = 'https://lvexahtskdhgujwrlkex.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_AvhhaT_r4vsz3iuiZpZ3AA_zW7rxPo4';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let vagaAtual = null;
+let todasVagas = [];
+let usuarioLogado = null;
+
+// =============================================
+// INIT
+// =============================================
+document.addEventListener('DOMContentLoaded', async () => {
+  await verificarSessao();
+  await carregarVagas();
+
+  document.getElementById('search-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') buscarVagas();
+  });
+});
+
+// =============================================
+// AUTH
+// =============================================
+async function carregarHeroCard() {
+  const { data: vagas } = await sb.from('vagas')
+    .select('id, titulo, area, salario_min, salario_max, destaque, empresas(nome, logo)')
+    .eq('status', 'ativa')
+    .order('destaque', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  const el = document.getElementById('hero-card-vagas');
+  if (!vagas || !vagas.length) {
+    el.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--ink-3);font-size:0.85rem">Em breve novas vagas!</div>';
+    return;
+  }
+
+  el.innerHTML = vagas.map(v => {
+    const sal = v.salario_min
+      ? `R$ ${Number(v.salario_min).toLocaleString('pt-BR')}${v.salario_max && v.salario_max !== v.salario_min ? ' – R$ ' + Number(v.salario_max).toLocaleString('pt-BR') : ''}`
+      : 'A combinar';
+    const badge = v.destaque
+      ? `<span class="hcp-badge hcp-b-hot">⭐ Destaque</span>`
+      : `<span class="hcp-badge hcp-b-new">Nova</span>`;
+    const empresa = v.empresas?.nome || 'Empresa';
+    return `
+      <div class="hcp-vaga" onclick="window.location.href='oportunia-vaga-integrado.html?id=${v.id}'" style="cursor:pointer">
+        <div class="hcp-vaga-top">
+          <div>
+            <div class="hcp-vaga-titulo">${v.titulo}</div>
+            <div class="hcp-vaga-empresa">${empresa}</div>
+          </div>
+          ${badge}
+        </div>
+        <div class="hcp-vaga-sal">${sal}</div>
+      </div>`;
+  }).join('');
+}
+
+async function verificarSessao() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    usuarioLogado = session.user;
+    atualizarNavUsuario(session.user);
+  }
+
+  sb.auth.onAuthStateChange((event, session) => {
+    if (session) {
+      usuarioLogado = session.user;
+      atualizarNavUsuario(session.user);
+      closeAuthModal();
+      // Verifica se há vaga pendente
+      const vagaPendente = sessionStorage.getItem('vagaPendente');
+      const vagaTitulo = sessionStorage.getItem('vagaPendenteTitulo');
+      if (vagaPendente && vagaTitulo) {
+        sessionStorage.removeItem('vagaPendente');
+        sessionStorage.removeItem('vagaPendenteTitulo');
+        setTimeout(() => abrirCandidatura(vagaPendente, vagaTitulo), 500);
+      }
+    } else {
+      usuarioLogado = null;
+      document.getElementById('nav-user-area').innerHTML = `<button class="nav-cta" id="btn-login" onclick="openAuthModal('candidato')">Entrar / Cadastrar</button>`;
+    }
+  });
+}
+
+async function atualizarNavUsuario(user) {
+  const email = user.email || '';
+  const tipo = user.user_metadata?.tipo || 'candidato';
+  let nome = user.user_metadata?.nome || email.split('@')[0];
+  let iniciais = nome.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+
+  // Verifica se é admin
+  const isAdmin = email === 'caueokiyama.adm@gmail.com';
+
+  const destino1 = isAdmin ? 'oportunia-admin.html' : tipo === 'empresa' ? 'oportunia-painel-empresa.html' : 'oportunia-perfil-candidato-v2.html';
+  const destino2 = isAdmin ? 'oportunia-admin.html?page=vagas' : tipo === 'empresa' ? 'oportunia-painel-empresa.html?page=vagas' : 'oportunia-perfil-candidato-v2.html?page=candidaturas';
+  const destino3 = tipo === 'empresa' ? 'oportunia-painel-empresa.html?page=candidatos' : null;
+  const label1 = isAdmin ? '🔐 Painel Admin' : tipo === 'empresa' ? '📊 Painel da empresa' : '👤 Meu perfil';
+  const label2 = isAdmin ? '📊 Dashboard' : tipo === 'empresa' ? '📋 Minhas vagas' : '📋 Minhas candidaturas';
+  const label3 = isAdmin ? null : tipo === 'empresa' ? '👥 Candidatos' : null;
+
+  document.getElementById('nav-user-area').innerHTML = `
+    <div style="position:relative" id="nav-dd-wrap">
+      <button onclick="document.getElementById('nav-dd').style.display=document.getElementById('nav-dd').style.display==='block'?'none':'block'" style="display:flex;align-items:center;gap:.5rem;padding:.5rem 1rem;border-radius:100px;border:1px solid rgba(15,17,23,.2);background:#fff;font-family:'DM Sans',sans-serif;font-size:.88rem;color:#0f1117;cursor:pointer">
+        <span style="width:26px;height:26px;border-radius:50%;background:#e8eef8;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#1a3c6e">${iniciais}</span>
+        ${nome.split(' ')[0]} ▾
+      </button>
+      <div id="nav-dd" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid rgba(15,17,23,.1);border-radius:12px;padding:.5rem;min-width:200px;box-shadow:0 8px 24px rgba(15,17,23,.12);z-index:200">
+        <div style="padding:.5rem .75rem .4rem;font-size:.75rem;color:#7a7f94">${email}</div>
+        <div style="height:1px;background:rgba(15,17,23,.1);margin:.4rem 0"></div>
+        <button onclick="window.location.href='${destino1}'" style="display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;border-radius:8px;font-size:.88rem;color:#3a3d4a;cursor:pointer;width:100%;border:none;background:none;text-align:left;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#f5f4f0'" onmouseout="this.style.background='none'">${label1}</button>
+        <button onclick="window.location.href='${destino2}'" style="display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;border-radius:8px;font-size:.88rem;color:#3a3d4a;cursor:pointer;width:100%;border:none;background:none;text-align:left;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#f5f4f0'" onmouseout="this.style.background='none'">${label2}</button>
+        ${label3 ? `<button onclick="window.location.href='${destino3}'" style="display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;border-radius:8px;font-size:.88rem;color:#3a3d4a;cursor:pointer;width:100%;border:none;background:none;text-align:left;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#f5f4f0'" onmouseout="this.style.background='none'">${label3}</button>` : ''}
+        <div style="height:1px;background:rgba(15,17,23,.1);margin:.4rem 0"></div>
+        <button onclick="fazerLogout()" style="display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;border-radius:8px;font-size:.88rem;color:#b91c1c;cursor:pointer;width:100%;border:none;background:none;text-align:left;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#fde8e8'" onmouseout="this.style.background='none'">🚪 Sair da conta</button>
+      </div>
+    </div>
+  `;
+
+  // Fecha ao clicar fora
+  setTimeout(() => {
+    document.addEventListener('click', function closeDD(e) {
+      const wrap = document.getElementById('nav-dd-wrap');
+      const dd = document.getElementById('nav-dd');
+      if (wrap && !wrap.contains(e.target)) {
+        if (dd) dd.style.display = 'none';
+      }
+    });
+  }, 100);
+}
+
+
+function toggleDropdown() {
+  const menu = document.getElementById('nav-dropdown-menu');
+  menu.classList.toggle('open');
+}
+
+// Fecha dropdown ao clicar fora
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('nav-dropdown');
+  const menu = document.getElementById('nav-dropdown-menu');
+  if (dropdown && !dropdown.contains(e.target)) {
+    menu?.classList.remove('open');
+  }
+  // Se clicou em um link dentro do menu, navega
+  if (e.target.tagName === 'A' && menu?.contains(e.target)) {
+    const href = e.target.getAttribute('href');
+    if (href) {
+      e.preventDefault();
+      menu.classList.remove('open');
+      setTimeout(() => { window.location.href = href; }, 50);
+    }
+  }
+});
+
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const btn = document.getElementById('btn-login-submit');
+  const err = document.getElementById('login-error');
+
+  if (!email || !senha) { mostrarErro(err, 'Preencha e-mail e senha.'); return; }
+  btn.disabled = true; btn.textContent = 'Entrando…';
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+
+  if (error) {
+    mostrarErro(err, 'E-mail ou senha incorretos.');
+    btn.disabled = false; btn.textContent = 'Entrar →';
+    return;
+  }
+
+  // Redireciona para o painel correto
+  const user = data.user;
+  const tipo = user.user_metadata?.tipo || 'candidato';
+  const isAdmin = user.email === 'caueokiyama.adm@gmail.com';
+
+  if (isAdmin) {
+    window.location.href = 'oportunia-admin.html';
+  } else if (tipo === 'empresa') {
+    window.location.href = 'oportunia-painel-empresa.html';
+  } else {
+    window.location.href = 'oportunia-perfil-candidato-v2.html';
+  }
+}
+
+async function criarConta() {
+  const nome = document.getElementById('cad-nome').value.trim();
+  const email = document.getElementById('cad-email').value.trim();
+  const senha = document.getElementById('cad-senha').value;
+  const tipo = document.getElementById('tipo-conta').value;
+  const btn = document.getElementById('btn-cad-submit');
+  const err = document.getElementById('cad-error');
+  const suc = document.getElementById('cad-success');
+
+  if (!nome || !email || !senha) { mostrarErro(err, 'Preencha todos os campos.'); return; }
+  if (senha.length < 6) { mostrarErro(err, 'Senha deve ter no mínimo 6 caracteres.'); return; }
+  if (!document.getElementById('aceite-termos')?.checked) { mostrarErro(err, 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Criando conta…';
+
+  const { data, error } = await sb.auth.signUp({
+    email,
+    password: senha,
+    options: { data: { nome, tipo } }
+  });
+
+  if (error) {
+    mostrarErro(err, error.message === 'User already registered' ? 'Este e-mail já está cadastrado.' : 'Erro ao criar conta. Tente novamente.');
+    btn.disabled = false; btn.textContent = 'Criar conta grátis →';
+    return;
+  }
+
+  if (data.user) {
+    if (tipo === 'candidato') {
+      await sb.from('candidatos').insert({ user_id: data.user.id, nome, email });
+    } else {
+      await sb.from('empresas').insert({ user_id: data.user.id, nome, email, tipo: 'empresa' });
+    }
+  }
+
+  err.classList.remove('show');
+  suc.textContent = '✓ Conta criada! Verifique seu e-mail para confirmar.';
+  suc.classList.add('show');
+  btn.textContent = 'Conta criada!';
+}
+
+async function fazerLogout() {
+  await sb.auth.signOut();
+}
+
+// =============================================
+// VAGAS
+// =============================================
+async function carregarVagas(filtro = {}) {
+  const grid = document.getElementById('jobs-grid');
+  grid.innerHTML = '<div class="jobs-loading">Carregando vagas…</div>';
+
+  let query = sb.from('vagas').select('*, empresas(nome, logo)').eq('status', 'ativa').order('destaque', { ascending: false }).order('created_at', { ascending: false });
+
+  if (filtro.area) query = query.eq('area', filtro.area);
+  if (filtro.contrato) query = query.eq('contrato', filtro.contrato);
+  if (filtro.modalidade) query = query.eq('modalidade', filtro.modalidade);
+  if (filtro.busca) query = query.ilike('titulo', `%${filtro.busca}%`);
+
+  const { data, error } = await query;
+
+  if (error || !data) {
+    grid.innerHTML = '<div class="jobs-empty"><p>⚠️</p>Erro ao carregar vagas. Tente novamente.</div>';
+    return;
+  }
+
+  todasVagas = data;
+  document.getElementById('stat-vagas').textContent = data.length + '+';
+
+  if (data.length === 0) {
+    grid.innerHTML = '<div class="jobs-empty"><p>🔍</p>Nenhuma vaga encontrada para esse filtro.</div>';
+    document.getElementById('ver-todas-wrap').style.display = 'none';
+    return;
+  }
+
+  const HOME_LIMIT = 15;
+  const exibir = data.slice(0, HOME_LIMIT);
+  grid.innerHTML = exibir.map(v => renderVaga(v)).join('');
+
+  // Mostra/esconde botão "Ver todas"
+  const verTodasWrap = document.getElementById('ver-todas-wrap');
+  if (data.length > HOME_LIMIT) {
+    verTodasWrap.style.display = 'flex';
+    document.getElementById('ver-todas-count').textContent = data.length;
+  } else {
+    verTodasWrap.style.display = 'none';
+  }
+}
+
+function renderVaga(v) {
+  const iniciais = v.titulo ? v.titulo.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase() : 'VG';
+  const empLogo = v.empresas?.logo;
+  const salario = v.salario_min && v.salario_max && v.salario_min !== v.salario_max
+    ? `R$ ${Number(v.salario_min).toLocaleString('pt-BR')} – R$ ${Number(v.salario_max).toLocaleString('pt-BR')}`
+    : v.salario_min ? `R$ ${Number(v.salario_min).toLocaleString('pt-BR')}` : 'A combinar';
+  const badge = v.destaque ? `<span class="badge badge-featured">⭐ Destaque</span>` : `<span class="badge badge-new">Nova</span>`;
+  const tempo = tempoRelativo(v.created_at);
+
+  return `
+    <div class="job-card ${v.destaque ? 'featured' : ''}" onclick="window.location.href='oportunia-vaga-integrado.html?id=${v.id}'" style="cursor:pointer">
+      <div class="job-top">
+        ${v.empresas?.logo ? `<img src="${v.empresas.logo}" class="company-avatar" style="object-fit:cover" />` : `<div class="company-avatar">${iniciais}</div>`}
+        ${badge}
+      </div>
+      <div class="job-title">${v.titulo}</div>
+      <div class="job-company">${v.empresas?.nome || ''} · ${v.cidade || 'Bauru'}, SP</div>
+      <div class="job-tags">
+        ${v.modalidade ? `<span class="job-tag">${v.modalidade}</span>` : ''}
+        ${v.contrato ? `<span class="job-tag">${v.contrato}</span>` : ''}
+        ${v.nivel ? `<span class="job-tag">${v.nivel}</span>` : ''}
+      </div>
+      <div class="job-footer">
+        <div class="job-salary">${salario}</div>
+        <div class="job-ago">${tempo}</div>
+      </div>
+    </div>
+  `;
+}
+
+function tempoRelativo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const h = Math.floor(diff / 36e5);
+  if (h < 1) return 'agora';
+  if (h < 24) return `há ${h}h`;
+  const d = Math.floor(h / 24);
+  if (d === 1) return 'há 1 dia';
+  return `há ${d} dias`;
+}
+
+function buscarVagas() {
+  const busca = document.getElementById('search-input').value.trim();
+  carregarVagas({ busca });
+}
+
+let filtroAtivo = {};
+function scrollChips(dir) {
+  const scroll = document.getElementById('filtros');
+  scroll.scrollBy({ left: dir * 220, behavior: 'smooth' });
+}
+
+function updateChipsArrows() {
+  const scroll = document.getElementById('filtros');
+  if (!scroll) return;
+  const atStart = scroll.scrollLeft <= 4;
+  const atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 4;
+  const prev = document.getElementById('chips-prev');
+  const next = document.getElementById('chips-next');
+  const fadeL = document.getElementById('chips-fade-left');
+  const fadeR = document.getElementById('chips-fade-right');
+  if (prev) prev.style.display = atStart ? 'none' : 'flex';
+  if (next) next.style.display = atEnd ? 'none' : 'flex';
+  if (fadeL) fadeL.style.opacity = atStart ? '0' : '1';
+  if (fadeR) fadeR.style.opacity = atEnd ? '0' : '1';
+}
+
+// Inicializa setas após carregar
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(updateChipsArrows, 300);
+  window.addEventListener('resize', updateChipsArrows);
+});
+
+function filtrarArea(area, el) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  filtroAtivo = area ? { area } : {};
+  if (area === 'CLT') filtroAtivo = { contrato: 'CLT' };
+  if (area === 'Remoto') filtroAtivo = { modalidade: 'Remoto' };
+  carregarVagas(filtroAtivo);
+}
+
+// =============================================
+// CANDIDATURA
+// =============================================
+function abrirCandidatura(vagaId, vagaTitulo) {
+  // Exige login para candidatura
+  if (!usuarioLogado) {
+    openAuthModal('candidato');
+    // Salva vaga para abrir após login
+    sessionStorage.setItem('vagaPendente', vagaId);
+    sessionStorage.setItem('vagaPendenteTitulo', vagaTitulo);
+    return;
+  }
+
+  vagaAtual = vagaId;
+  document.getElementById('cand-vaga-titulo').textContent = vagaTitulo;
+  document.getElementById('cand-error').classList.remove('show');
+  document.getElementById('cand-success').classList.remove('show');
+  document.getElementById('btn-cand-submit').disabled = false;
+  document.getElementById('btn-cand-submit').textContent = 'Enviar candidatura →';
+  document.getElementById('cand-email').value = usuarioLogado.email || '';
+  document.getElementById('modal-cand').classList.add('open');
+}
+
+function closeCandModal() {
+  document.getElementById('modal-cand').classList.remove('open');
+}
+
+async function enviarCandidatura() {
+  const nome = document.getElementById('cand-nome').value.trim();
+  const email = document.getElementById('cand-email').value.trim();
+  const tel = document.getElementById('cand-tel').value.trim();
+  const msg = document.getElementById('cand-msg').value.trim();
+  const btn = document.getElementById('btn-cand-submit');
+  const err = document.getElementById('cand-error');
+  const suc = document.getElementById('cand-success');
+
+  if (!nome || !email) { mostrarErro(err, 'Nome e e-mail são obrigatórios.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Enviando…';
+
+  // Busca perfil do candidato logado
+  const { data: cand } = await sb.from('candidatos').select('id, nome, telefone').eq('user_id', usuarioLogado.id).single();
+  const payload = { 
+    vaga_id: vagaAtual, 
+    candidato_id: cand?.id || null, 
+    nome: cand?.nome || nome, 
+    email, 
+    telefone: cand?.telefone || tel, 
+    mensagem: msg 
+  };
+
+  const { error } = await sb.from('candidaturas').insert(payload);
+
+  if (error) {
+    if (error.code === '23505') {
+      mostrarErro(err, 'Você já se candidatou a esta vaga!');
+    } else {
+      mostrarErro(err, 'Erro ao enviar. Tente novamente.');
+    }
+    btn.disabled = false; btn.textContent = 'Enviar candidatura →';
+    return;
+  }
+
+  err.classList.remove('show');
+  suc.textContent = '✓ Candidatura enviada! Boa sorte!';
+  suc.classList.add('show');
+  btn.textContent = 'Enviado! ✓';
+}
+
+// =============================================
+// UI HELPERS
+// =============================================
+function openAuthModal(tipo) {
+  document.getElementById('modal-auth').classList.add('open');
+  if (tipo === 'empresa') {
+    switchAuthTab('cadastro');
+    document.getElementById('tipo-conta').value = 'empresa';
+  }
+}
+
+function closeAuthModal() {
+  document.getElementById('modal-auth').classList.remove('open');
+}
+
+function switchAuthTab(tab) {
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-cadastro').style.display = tab === 'cadastro' ? 'block' : 'none';
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-cadastro').classList.toggle('active', tab === 'cadastro');
+}
+
+function setTab(tab, el) {
+  document.getElementById('tab-candidato').style.display = tab === 'candidato' ? 'grid' : 'none';
+  document.getElementById('tab-empresa').style.display = tab === 'empresa' ? 'grid' : 'none';
+  document.querySelectorAll('.how-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function mostrarErro(el, msg) {
+  el.textContent = msg;
+  el.classList.add('show');
+}
+</script>
+
+<!-- BANNER DE COOKIES -->
+<div id="cookie-banner" style="display:none;position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:999;background:var(--ink);color:var(--white);padding:0.75rem 1.25rem;border-radius:var(--radius-pill);display:flex;align-items:center;gap:1rem;box-shadow:0 8px 32px rgba(15,17,23,0.25);white-space:nowrap;max-width:90vw">
+  <span style="font-size:0.82rem;color:rgba(255,255,255,0.75)">🍪 Usamos cookies essenciais. <a href="oportunia-privacidade.html" style="color:var(--accent);text-decoration:none">Política de Privacidade</a></span>
+  <div style="display:flex;gap:0.5rem;flex-shrink:0">
+    <button onclick="recusarCookies()" style="padding:0.35rem 0.85rem;border-radius:var(--radius-pill);border:1px solid rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.6);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer">Rejeitar</button>
+    <button onclick="aceitarCookies()" style="padding:0.35rem 0.85rem;border-radius:var(--radius-pill);border:none;background:var(--accent);color:var(--white);font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:500;cursor:pointer">Aceitar</button>
+  </div>
+</div>
+
+<script>
+function aceitarCookies() {
+  localStorage.setItem('opp_cookies', 'aceito');
+  document.getElementById('cookie-banner').style.display = 'none';
+}
+function recusarCookies() {
+  localStorage.setItem('opp_cookies', 'recusado');
+  document.getElementById('cookie-banner').style.display = 'none';
+}
+if (!localStorage.getItem('opp_cookies')) {
+  document.getElementById('cookie-banner').style.display = 'flex';
+}
+</script>
+</body>
+</html>

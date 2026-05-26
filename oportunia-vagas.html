@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vagas de Emprego em Bauru e Região | Opportunia</title>
+<meta name="description" content="Encontre vagas de emprego em Bauru e região com salários visíveis. Filtre por área, modalidade e nível. Candidatura gratuita em um clique." />
+<meta name="keywords" content="vagas emprego Bauru, vagas Bauru SP, empregos Bauru, trabalho Bauru, oportunidades emprego Bauru região" />
+<meta name="robots" content="index, follow" />
+<meta name="author" content="Opportunia" />
+<link rel="canonical" href="https://opportunia.com.br/oportunia-vagas.html" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://opportunia.com.br/oportunia-vagas.html" />
+<meta property="og:title" content="Vagas de Emprego em Bauru e Região | Opportunia" />
+<meta property="og:description" content="Encontre vagas de emprego em Bauru e região com salários visíveis. Filtre por área, modalidade e nível. Candidatura gratuita em um clique." />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:site_name" content="Opportunia" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Vagas de Emprego em Bauru e Região | Opportunia" />
+<meta name="twitter:description" content="Encontre vagas de emprego em Bauru e região com salários visíveis. Filtre por área, modalidade e nível. Candidatura gratuita em um clique." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #0f1117; --ink-2: #3a3d4a; --ink-3: #7a7f94;
+    --surface: #f5f4f0; --white: #ffffff;
+    --accent: #e8440a; --accent-light: #fff0eb;
+    --blue: #1a3c6e; --blue-light: #e8eef8;
+    --green: #0f6b3a; --green-light: #e6f4ed;
+    --gold: #c9920a; --gold-light: #fdf3dc;
+    --border: rgba(15,17,23,0.1); --border-strong: rgba(15,17,23,0.2);
+    --radius: 12px; --radius-sm: 8px; --radius-lg: 20px; --radius-pill: 100px;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); font-size: 16px; line-height: 1.6; }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1rem 2.5rem; background: rgba(245,244,240,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--ink); text-decoration: none; letter-spacing: -0.02em; }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+  .nav-links a { text-decoration: none; color: var(--ink-2); font-size: 0.9rem; transition: color 0.2s; cursor: pointer; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-cta { background: var(--ink); color: var(--white); padding: 0.5rem 1.25rem; border-radius: var(--radius-pill); font-weight: 500; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; text-decoration: none; }
+  .nav-cta:hover { background: var(--accent); }
+  #nav-user-area { display: flex; align-items: center; }
+
+  /* PAGE HEADER */
+  .page-header { padding: 6.5rem 2.5rem 2rem; background: var(--white); border-bottom: 1px solid var(--border); }
+  .page-header-inner { max-width: 1200px; margin: 0 auto; }
+  .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--ink-3); margin-bottom: 1rem; }
+  .breadcrumb a { color: var(--ink-3); text-decoration: none; } 
+  .breadcrumb a:hover { color: var(--accent); }
+  .page-header h1 { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 0.4rem; }
+  .page-header p { font-size: 0.9rem; color: var(--ink-3); }
+
+  /* SEARCH BAR */
+  .search-bar { max-width: 1200px; margin: 1.5rem auto 0; display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .search-input-wrap { flex: 1; min-width: 240px; display: flex; align-items: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-pill); padding: 0.5rem 1rem; }
+  .search-input-wrap input { flex: 1; border: none; outline: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--ink); }
+  .search-input-wrap input::placeholder { color: var(--ink-3); }
+  .search-icon { color: var(--ink-3); font-size: 0.85rem; flex-shrink: 0; }
+  .filter-select { padding: 0.5rem 1rem; border: 1px solid var(--border-strong); border-radius: var(--radius-pill); background: var(--surface); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--ink-2); cursor: pointer; outline: none; }
+  .filter-select:focus { border-color: var(--accent); }
+  .btn-buscar { padding: 0.55rem 1.5rem; background: var(--accent); color: var(--white); border: none; border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+  .btn-buscar:hover { background: #c93a08; }
+  .btn-limpar { padding: 0.55rem 1.25rem; background: transparent; color: var(--ink-3); border: 1px solid var(--border); border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: pointer; white-space: nowrap; }
+  .btn-limpar:hover { border-color: var(--ink-3); color: var(--ink); }
+
+  /* MAIN CONTENT */
+  .main { max-width: 1200px; margin: 0 auto; padding: 2rem 2.5rem 4rem; }
+  .results-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem; }
+  .results-count { font-size: 0.88rem; color: var(--ink-3); }
+  .results-count strong { color: var(--ink); }
+  .sort-wrap { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--ink-3); }
+  .sort-select { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.3rem 0.75rem; background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--ink-2); cursor: pointer; outline: none; }
+
+  /* GRID */
+  .jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+  .job-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+  .job-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.25s ease; }
+  .job-card:hover { border-color: var(--border-strong); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(15,17,23,0.08); }
+  .job-card:hover::after { transform: scaleX(1); }
+  .job-card.featured { border-color: rgba(232,68,10,0.3); background: #fffaf8; }
+  .job-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+  .company-avatar { width: 44px; height: 44px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--ink-2); overflow: hidden; }
+  .company-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-sm); }
+  .badge { font-size: 0.72rem; font-weight: 500; padding: 0.25rem 0.7rem; border-radius: var(--radius-pill); }
+  .badge-featured { background: var(--accent-light); color: var(--accent); }
+  .badge-new { background: var(--green-light); color: var(--green); }
+  .job-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1rem; color: var(--ink); margin-bottom: 0.25rem; }
+  .job-company { font-size: 0.85rem; color: var(--ink-3); margin-bottom: 1rem; }
+  .job-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .job-tag { font-size: 0.78rem; color: var(--ink-3); background: var(--surface); padding: 0.2rem 0.6rem; border-radius: var(--radius-pill); }
+  .job-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+  .job-salary { font-weight: 500; font-size: 0.9rem; color: var(--ink); }
+  .job-ago { font-size: 0.78rem; color: var(--ink-3); }
+
+  /* EMPTY / LOADING */
+  .jobs-loading { text-align: center; padding: 4rem; color: var(--ink-3); font-size: 0.9rem; grid-column: 1/-1; }
+  .jobs-empty { text-align: center; padding: 4rem; color: var(--ink-3); grid-column: 1/-1; }
+  .jobs-empty p { font-size: 2rem; margin-bottom: 0.75rem; }
+  .jobs-empty h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; color: var(--ink); margin-bottom: 0.5rem; }
+
+  /* PAGINAÇÃO */
+  .pagination { display: flex; justify-content: center; align-items: center; gap: 0.4rem; margin-top: 2.5rem; flex-wrap: wrap; }
+  .pag-btn { width: 36px; height: 36px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--ink-2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .pag-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .pag-btn.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+  .pag-btn:disabled { opacity: 0.35; cursor: default; }
+  .pag-btn.pag-arrow { font-size: 1rem; }
+
+  /* CHIPS ÁREA */
+  .area-chips { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; margin-top: 1rem; }
+  .area-chips::-webkit-scrollbar { display: none; }
+  .area-chip { padding: 0.3rem 0.85rem; border-radius: var(--radius-pill); border: 1px solid var(--border); background: var(--white); font-size: 0.82rem; color: var(--ink-2); cursor: pointer; white-space: nowrap; flex-shrink: 0; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .area-chip:hover, .area-chip.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+  /* ACTIVE FILTERS */
+  .active-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+  .active-filter-tag { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--accent-light); border: 1px solid rgba(232,68,10,0.2); color: var(--accent); padding: 0.25rem 0.75rem; border-radius: var(--radius-pill); font-size: 0.8rem; font-weight: 500; }
+  .active-filter-tag button { border: none; background: none; cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 0; line-height: 1; }
+  footer { background: var(--ink); color: rgba(255,255,255,0.5); padding: 2rem 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
+  .footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--white); }
+  .footer-logo span { color: var(--accent); }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--white); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="oportunia-integrado.html" class="nav-logo">Opportu<span>nia</span><sup style="font-size:1rem;font-weight:500;vertical-align:super;letter-spacing:0;color:var(--ink-3);margin-left:1px">®</sup></a>
+  <ul class="nav-links">
+    <li><a href="oportunia-vagas.html" style="color:var(--accent);font-weight:500">Vagas</a></li>
+    <li><a href="oportunia-integrado.html#como-funciona">Como funciona</a></li>
+    <li><a href="oportunia-integrado.html#para-empresas">Para empresas</a></li>
+  </ul>
+  <div id="nav-user-area">
+    <a href="oportunia-integrado.html" class="nav-cta">← Voltar à home</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="breadcrumb">
+      <a href="oportunia-integrado.html">Home</a>
+      <span>›</span>
+      <span>Vagas</span>
+    </div>
+    <h1>Vagas em Bauru e região</h1>
+    <p id="header-count">Carregando vagas disponíveis…</p>
+
+    <!-- SEARCH BAR -->
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="busca-input" placeholder="Cargo, área ou palavra-chave..." onkeydown="if(event.key==='Enter')buscar()" />
+      </div>
+      <select class="filter-select" id="f-area">
+        <option value="">Todas as áreas</option>
+        <option>Administrativo</option>
+        <option>Agronegócio</option>
+        <option>Alimentação e Gastronomia</option>
+        <option>Arquitetura e Urbanismo</option>
+        <option>Atendimento ao Cliente</option>
+        <option>Comunicação e Publicidade</option>
+        <option>Compras e Suprimentos</option>
+        <option>Construção Civil</option>
+        <option>Contabilidade e Finanças</option>
+        <option>Design</option>
+        <option>Educação</option>
+        <option>Engenharia</option>
+        <option>Estética e Beleza</option>
+        <option>Indústria</option>
+        <option>Jurídico</option>
+        <option>Logística e Transporte</option>
+        <option>Marketing</option>
+        <option>Operações</option>
+        <option>Produção e Manufatura</option>
+        <option>Qualidade</option>
+        <option>RH e Pessoas</option>
+        <option>Saúde</option>
+        <option>Segurança do Trabalho</option>
+        <option>TI e Tecnologia</option>
+        <option>Vendas</option>
+        <option>Outro</option>
+      </select>
+      <select class="filter-select" id="f-contrato">
+        <option value="">Contrato</option>
+        <option>CLT</option>
+        <option>PJ</option>
+        <option>Estágio</option>
+        <option>Temporário</option>
+      </select>
+      <select class="filter-select" id="f-modalidade">
+        <option value="">Modalidade</option>
+        <option>Presencial</option>
+        <option>Híbrido</option>
+        <option>Remoto</option>
+      </select>
+      <select class="filter-select" id="f-nivel">
+        <option value="">Nível</option>
+        <option>Estágio</option>
+        <option>Júnior</option>
+        <option>Pleno</option>
+        <option>Sênior</option>
+        <option>Gestor</option>
+        <option>Diretor</option>
+      </select>
+<select class="filter-select" id="f-cidade"><option value="">Cidade</option></select>
+      <select class="filter-select" id="f-salario">
+        <option value="">Salário</option>
+        <option value="1500">A partir de R$ 1.500</option>
+        <option value="2000">A partir de R$ 2.000</option>
+        <option value="3000">A partir de R$ 3.000</option>
+        <option value="5000">A partir de R$ 5.000</option>
+        <option value="8000">A partir de R$ 8.000</option>
+        <option value="10000">A partir de R$ 10.000</option>
+        <option value="15000">A partir de R$ 15.000</option>
+        <option value="20000">A partir de R$ 20.000</option>
+      </select>
+      <select class="filter-select" id="f-empresa">
+        <option value="">Empresa</option>
+      </select>
+      <button class="btn-buscar" onclick="buscar()">Buscar</button>
+      <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="results-bar">
+    <div class="results-count" id="results-count"></div>
+    <div class="sort-wrap">
+      Ordenar por
+      <select class="sort-select" id="f-ordem" onchange="buscar()">
+        <option value="destaque">Destaques primeiro</option>
+        <option value="recente">Mais recentes</option>
+        <option value="salario">Maior salário</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="active-filters" class="active-filters"></div>
+
+  <div class="jobs-grid" id="jobs-grid">
+    <div class="jobs-loading">Carregando vagas…</div>
+  </div>
+
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://lvexahtskdhgujwrlkex.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_AvhhaT_r4vsz3iuiZpZ3AA_zW7rxPo4';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const PER_PAGE = 20;
+let paginaAtual = 1;
+let todasVagas = [];
+let vagasFiltradas = [];
+
+// Lê params da URL (vindos da home via chip de área)
+function lerUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('area')) document.getElementById('f-area').value = params.get('area');
+  if (params.get('busca')) document.getElementById('busca-input').value = params.get('busca');
+  if (params.get('contrato')) document.getElementById('f-contrato').value = params.get('contrato');
+  if (params.get('modalidade')) document.getElementById('f-modalidade').value = params.get('modalidade');
+}
+
+async function carregarVagas() {
+  const grid = document.getElementById('jobs-grid');
+  grid.innerHTML = '<div class="jobs-loading">Carregando vagas…</div>';
+
+  const { data, error } = await sb.from('vagas')
+    .select('*, empresas(nome, logo)')
+    .eq('status', 'ativa')
+    .order('destaque', { ascending: false })
+    .order('created_at', { ascending: false });
+
+  if (error || !data) {
+    grid.innerHTML = '<div class="jobs-empty"><p>⚠️</p><h3>Erro ao carregar vagas</h3><p>Tente novamente mais tarde.</p></div>';
+    return;
+  }
+
+  todasVagas = data;
+  popularCidades(data);
+  popularEmpresas(data);
+  aplicarFiltros();
+}
+
+function popularCidades(vagas) {
+  const cidadeEl = document.getElementById('f-cidade');
+  const temRemoto = vagas.some(v => v.modalidade === 'Remoto');
+  
+  // Pega cidades únicas das vagas, excluindo vazias
+  const cidades = [...new Set(vagas.map(v => v.cidade).filter(Boolean))].sort();
+  
+  cidadeEl.innerHTML = '<option value="">Cidade</option>';
+  cidades.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    cidadeEl.appendChild(opt);
+  });
+  
+  if (temRemoto) {
+    const opt = document.createElement('option');
+    opt.value = 'Remoto';
+    opt.textContent = 'Remoto';
+    cidadeEl.appendChild(opt);
+  }
+}
+
+function popularEmpresas(vagas) {
+  const empresaEl = document.getElementById('f-empresa');
+  const empresas = [...new Set(vagas.map(v => v.empresas?.nome).filter(Boolean))].sort();
+  empresaEl.innerHTML = '<option value="">Empresa</option>';
+  empresas.forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e;
+    opt.textContent = e;
+    empresaEl.appendChild(opt);
+  });
+}
+
+function buscar() {
+  paginaAtual = 1;
+  aplicarFiltros();
+}
+
+function limparFiltros() {
+  document.getElementById('busca-input').value = '';
+  document.getElementById('f-area').value = '';
+  document.getElementById('f-contrato').value = '';
+  document.getElementById('f-modalidade').value = '';
+  document.getElementById('f-nivel').value = '';
+  document.getElementById('f-cidade').value = '';
+  document.getElementById('f-empresa').value = '';
+  document.getElementById('f-salario').value = '';
+  document.getElementById('f-ordem').value = 'destaque';
+  paginaAtual = 1;
+  aplicarFiltros();
+}
+
+function aplicarFiltros() {
+  const busca = document.getElementById('busca-input').value.trim().toLowerCase();
+  const area = document.getElementById('f-area').value;
+  const contrato = document.getElementById('f-contrato').value;
+  const modalidade = document.getElementById('f-modalidade').value;
+  const nivel = document.getElementById('f-nivel').value;
+  const cidade = document.getElementById('f-cidade').value;
+  const salarioMin = parseInt(document.getElementById('f-salario').value) || 0;
+  const empresa = document.getElementById('f-empresa').value;
+  const ordem = document.getElementById('f-ordem').value;
+
+  let resultado = todasVagas.filter(v => {
+    if (busca && !v.titulo?.toLowerCase().includes(busca) && !v.area?.toLowerCase().includes(busca) && !v.descricao?.toLowerCase().includes(busca)) return false;
+    if (area && v.area !== area) return false;
+    if (contrato && v.contrato !== contrato) return false;
+    if (modalidade && v.modalidade !== modalidade) return false;
+    if (nivel && v.nivel !== nivel) return false;
+    if (cidade) {
+      if (cidade === 'Remoto') { if (v.modalidade !== 'Remoto') return false; }
+      else if (v.cidade && v.cidade !== cidade) return false;
+    }
+    if (salarioMin && (v.salario_min || 0) < salarioMin) return false;
+    if (empresa && v.empresas?.nome !== empresa) return false;
+    return true;
+  });
+
+  // Ordenação
+  if (ordem === 'recente') {
+    resultado.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  } else if (ordem === 'salario') {
+    resultado.sort((a, b) => (b.salario_min || 0) - (a.salario_min || 0));
+  } else {
+    resultado.sort((a, b) => (b.destaque ? 1 : 0) - (a.destaque ? 1 : 0) || new Date(b.created_at) - new Date(a.created_at));
+  }
+
+  vagasFiltradas = resultado;
+
+  // Atualiza contadores
+  const total = resultado.length;
+  document.getElementById('header-count').textContent = total + ' vaga' + (total !== 1 ? 's' : '') + ' disponível' + (total !== 1 ? 'eis' : '');
+  document.getElementById('results-count').innerHTML = '<strong>' + total + '</strong> vaga' + (total !== 1 ? 's' : '') + ' encontrada' + (total !== 1 ? 's' : '');
+
+  // Filtros ativos
+  const tags = [];
+  if (busca) tags.push({ label: '"' + busca + '"', campo: 'busca' });
+  if (area) tags.push({ label: area, campo: 'area' });
+  if (contrato) tags.push({ label: contrato, campo: 'contrato' });
+  if (modalidade) tags.push({ label: modalidade, campo: 'modalidade' });
+  if (nivel) tags.push({ label: nivel, campo: 'nivel' });
+  if (cidade) tags.push({ label: cidade, campo: 'cidade' });
+  if (empresa) tags.push({ label: empresa, campo: 'empresa' });
+  if (salarioMin) tags.push({ label: 'A partir de R$ ' + salarioMin.toLocaleString('pt-BR'), campo: 'salario' });
+  const afEl = document.getElementById('active-filters');
+  afEl.innerHTML = tags.map(t => `<span class="active-filter-tag">${t.label}<button onclick="limparCampo('${t.campo}')">×</button></span>`).join('');
+
+  renderPagina();
+}
+
+function limparCampo(campo) {
+  if (campo === 'busca') document.getElementById('busca-input').value = '';
+  else if (campo === 'area') document.getElementById('f-area').value = '';
+  else if (campo === 'contrato') document.getElementById('f-contrato').value = '';
+  else if (campo === 'modalidade') document.getElementById('f-modalidade').value = '';
+  else if (campo === 'nivel') document.getElementById('f-nivel').value = '';
+  else if (campo === 'cidade') document.getElementById('f-cidade').value = '';
+  else if (campo === 'salario') document.getElementById('f-salario').value = '';
+  else if (campo === 'empresa') document.getElementById('f-empresa').value = '';
+  paginaAtual = 1;
+  aplicarFiltros();
+}
+
+function renderPagina() {
+  const grid = document.getElementById('jobs-grid');
+  const total = vagasFiltradas.length;
+  const totalPags = Math.ceil(total / PER_PAGE);
+
+  if (total === 0) {
+    grid.innerHTML = '<div class="jobs-empty"><p>🔍</p><h3>Nenhuma vaga encontrada</h3><p style="font-size:0.88rem">Tente outros filtros ou limpe a busca.</p></div>';
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  const inicio = (paginaAtual - 1) * PER_PAGE;
+  const fim = Math.min(inicio + PER_PAGE, total);
+  const pagina = vagasFiltradas.slice(inicio, fim);
+
+  grid.innerHTML = pagina.map(v => renderVaga(v)).join('');
+  renderPaginacao(totalPags);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderPaginacao(totalPags) {
+  const el = document.getElementById('pagination');
+  if (totalPags <= 1) { el.innerHTML = ''; return; }
+
+  let html = '';
+  html += `<button class="pag-btn pag-arrow" onclick="irPagina(${paginaAtual - 1})" ${paginaAtual === 1 ? 'disabled' : ''}>‹</button>`;
+
+  for (let i = 1; i <= totalPags; i++) {
+    if (i === 1 || i === totalPags || (i >= paginaAtual - 2 && i <= paginaAtual + 2)) {
+      html += `<button class="pag-btn ${i === paginaAtual ? 'active' : ''}" onclick="irPagina(${i})">${i}</button>`;
+    } else if (i === paginaAtual - 3 || i === paginaAtual + 3) {
+      html += `<span style="padding:0 4px;color:var(--ink-3)">…</span>`;
+    }
+  }
+
+  html += `<button class="pag-btn pag-arrow" onclick="irPagina(${paginaAtual + 1})" ${paginaAtual === totalPags ? 'disabled' : ''}>›</button>`;
+  el.innerHTML = html;
+}
+
+function irPagina(n) {
+  const totalPags = Math.ceil(vagasFiltradas.length / PER_PAGE);
+  if (n < 1 || n > totalPags) return;
+  paginaAtual = n;
+  renderPagina();
+}
+
+function renderVaga(v) {
+  const iniciais = v.titulo ? v.titulo.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase() : 'VG';
+  const empLogo = v.empresas?.logo;
+  const logoHtml = empLogo
+    ? `<div class="company-avatar"><img src="${empLogo}" alt="${v.empresas?.nome || ''}" /></div>`
+    : `<div class="company-avatar">${iniciais}</div>`;
+  const salario = v.salario_min && v.salario_max && v.salario_min !== v.salario_max
+    ? `R$ ${Number(v.salario_min).toLocaleString('pt-BR')} – R$ ${Number(v.salario_max).toLocaleString('pt-BR')}`
+    : v.salario_min ? `R$ ${Number(v.salario_min).toLocaleString('pt-BR')}` : 'A combinar';
+  const badge = v.destaque ? `<span class="badge badge-featured">⭐ Destaque</span>` : `<span class="badge badge-new">Nova</span>`;
+  const tempo = tempoRelativo(v.created_at);
+  const tags = [v.modalidade, v.contrato, v.nivel].filter(Boolean);
+  return `
+    <div class="job-card${v.destaque ? ' featured' : ''}" onclick="abrirVaga('${v.id}')">
+      <div class="job-top">
+        ${logoHtml}
+        ${badge}
+      </div>
+      <div class="job-title">${v.titulo || ''}</div>
+      <div class="job-company">${v.empresas?.nome || ''} · ${v.cidade || 'Bauru'}, SP</div>
+      <div class="job-tags">${tags.map(t => `<span class="job-tag">${t}</span>`).join('')}${v.area ? `<span class="job-tag" style="color:var(--accent)">${v.area}</span>` : ''}</div>
+      <div class="job-footer">
+        <span class="job-salary">${salario}</span>
+        <span class="job-ago">${tempo}</span>
+      </div>
+    </div>`;
+}
+
+function abrirVaga(id) {
+  window.location.href = `oportunia-vaga-integrado.html?id=${id}`;
+}
+
+function tempoRelativo(d) {
+  if (!d) return '';
+  const diff = Math.floor((Date.now() - new Date(d)) / 60000);
+  if (diff < 2) return 'agora';
+  if (diff < 60) return `há ${diff} min`;
+  const h = Math.floor(diff / 60);
+  if (h < 24) return `há ${h}h`;
+  const dias = Math.floor(h / 24);
+  if (dias === 1) return 'há 1 dia';
+  if (dias < 30) return `há ${dias} dias`;
+  return `há ${Math.floor(dias / 30)} meses`;
+}
+
+// Inicialização
+lerUrlParams();
+carregarVagas();
+</script>
+<footer>
+  <div class="footer-logo">Opportu<span>nia</span><sup style="font-size:0.95rem;font-weight:500;vertical-align:super;letter-spacing:0;color:rgba(255,255,255,0.35);margin-left:2px">®</sup></div>
+  <div class="footer-links">
+    <a href="oportunia-sobre.html">Sobre nós</a>
+    <a href="oportunia-faq.html">FAQ</a>
+    <a href="oportunia-privacidade.html">Privacidade</a>
+    <a href="oportunia-termos.html">Termos de Uso</a>
+  </div>
+  <div style="font-size:0.8rem;text-align:center"><div>© 2026 Opportunia® · Bauru, SP</div><div>Todos os direitos reservados.</div></div>
+</footer>
+</body>
+</html>

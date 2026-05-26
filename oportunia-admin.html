@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — Opportunia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f1117;--ink-2:#3a3d4a;--ink-3:#7a7f94;
+  --surface:#f5f4f0;--white:#fff;
+  --accent:#e8440a;--accent-light:#fff0eb;
+  --blue:#1a3c6e;--blue-light:#e8eef8;
+  --green:#0f6b3a;--green-light:#e6f4ed;
+  --gold:#c9920a;--gold-light:#fdf3dc;
+  --red:#b91c1c;--red-light:#fde8e8;
+  --border:rgba(15,17,23,.1);--border-strong:rgba(15,17,23,.18);
+  --radius:12px;--radius-sm:8px;--radius-pill:100px;
+  --sw:240px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);background:var(--ink);min-height:100vh;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;padding:1.5rem 1rem;z-index:50}
+.s-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:var(--white);text-decoration:none;letter-spacing:-.02em;padding:0 .5rem;display:block;margin-bottom:.25rem;white-space:nowrap}
+.s-logo span{color:var(--accent)}
+.s-badge{font-size:.65rem;background:var(--accent);color:var(--white);padding:.2rem .6rem;border-radius:var(--radius-pill);margin-left:.4rem;font-weight:600;display:inline-block;vertical-align:middle;line-height:1.4}
+.s-user{font-size:.75rem;color:rgba(255,255,255,.3);padding:0 .5rem;margin-bottom:2rem}
+.s-sec{font-size:.65rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);padding:0 .5rem;margin-bottom:.5rem;margin-top:1rem}
+.s-nav{list-style:none;display:flex;flex-direction:column;gap:2px}
+.s-nav li a{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border-radius:var(--radius-sm);text-decoration:none;font-size:.85rem;color:rgba(255,255,255,.5);transition:all .15s;cursor:pointer}
+.s-nav li a:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.s-nav li a.active{background:rgba(255,255,255,.1);color:var(--white)}
+.s-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.s-count{margin-left:auto;background:var(--accent);color:var(--white);font-size:.65rem;font-weight:700;padding:.15rem .5rem;border-radius:var(--radius-pill)}
+.s-bot{margin-top:auto;display:flex;flex-direction:column;gap:.5rem}
+.s-home{display:block;text-align:center;padding:.5rem;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);border-radius:var(--radius-pill);font-size:.78rem;text-decoration:none}
+.s-home:hover{background:rgba(255,255,255,.12);color:var(--white)}
+.s-logout{display:block;text-align:center;padding:.4rem;background:transparent;color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-pill);font-size:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif}
+.s-logout:hover{color:var(--white);border-color:rgba(255,255,255,.3)}
+
+/* MAIN */
+.main{margin-left:var(--sw);flex:1;padding:2rem 2.5rem}
+.page{display:none}
+.page.active{display:block}
+
+/* TOP BAR */
+.top-bar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+.top-bar h1{font-family:'Syne',sans-serif;font-weight:700;font-size:1.5rem;letter-spacing:-.02em}
+.top-bar p{font-size:.85rem;color:var(--ink-3);margin-top:2px}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.metric{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+.metric-lbl{font-size:.75rem;color:var(--ink-3);margin-bottom:.5rem}
+.metric-val{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700;color:var(--ink);line-height:1;margin-bottom:.3rem}
+.metric-sub{font-size:.75rem;color:var(--ink-3)}
+.metric.alert .metric-val{color:var(--accent)}
+
+/* TABLES */
+.table-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.5rem}
+.table-head-bar{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border)}
+.table-head-bar h2{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--ink)}
+.search-input{padding:.5rem 1rem;border:1px solid var(--border-strong);border-radius:var(--radius-pill);font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--ink);outline:none;width:220px}
+.search-input:focus{border-color:var(--accent)}
+
+/* TABS */
+.tab-bar{display:flex;border-bottom:1px solid var(--border);padding:0 1.5rem}
+.tab{padding:.6rem 1rem;font-size:.85rem;color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+
+/* ROWS */
+.data-row{display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;border-bottom:1px solid var(--border);transition:background .15s}
+.data-row:last-child{border-bottom:none}
+.data-row:hover{background:#fafaf8}
+.row-avatar{width:40px;height:40px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:var(--blue);flex-shrink:0}
+.row-info{flex:1;min-width:0}
+.row-nome{font-size:.9rem;font-weight:500;color:var(--ink)}
+.row-sub{font-size:.78rem;color:var(--ink-3);margin-top:2px}
+.row-actions{display:flex;gap:.5rem;flex-shrink:0;flex-wrap:wrap}
+
+/* STATUS PILLS */
+.pill{font-size:.72rem;font-weight:500;padding:.25rem .7rem;border-radius:var(--radius-pill);white-space:nowrap}
+.pill-pend{background:var(--gold-light);color:var(--gold)}
+.pill-aprov{background:var(--green-light);color:var(--green)}
+.pill-bloq{background:var(--red-light);color:var(--red)}
+.pill-grat{background:var(--surface);color:var(--ink-3);border:1px solid var(--border)}
+.pill-pro{background:var(--blue-light);color:var(--blue)}
+.pill-emp{background:var(--accent-light);color:var(--accent)}
+.pill-venc-ok{background:#dcfce7;color:#15803d}
+.pill-venc-warn{background:#fef9c3;color:#854d0e}
+.pill-venc-exp{background:#fee2e2;color:#b91c1c}
+.pill-venc-free{background:#f3f4f6;color:#6b7280}
+
+/* BUTTONS */
+.btn-sm{padding:.3rem .8rem;border-radius:var(--radius-pill);font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .15s;border:1px solid}
+.btn-green{background:var(--green-light);color:var(--green);border-color:rgba(15,107,58,.2)}
+.btn-green:hover{background:var(--green);color:var(--white)}
+.btn-red{background:var(--red-light);color:var(--red);border-color:rgba(185,28,28,.2)}
+.btn-red:hover{background:var(--red);color:var(--white)}
+.btn-blue{background:var(--blue-light);color:var(--blue);border-color:rgba(26,60,110,.2)}
+.btn-blue:hover{background:var(--blue);color:var(--white)}
+.btn-gray{background:var(--surface);color:var(--ink-2);border-color:var(--border-strong)}
+.btn-gray:hover{border-color:var(--ink);color:var(--ink)}
+
+/* PLANO SELECT */
+.plano-select{padding:.3rem .75rem;border:1px solid var(--border-strong);border-radius:var(--radius-pill);font-family:'DM Sans',sans-serif;font-size:.75rem;color:var(--ink);background:var(--white);cursor:pointer;outline:none}
+.plano-select:focus{border-color:var(--accent)}
+
+/* MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(15,17,23,.6);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-ov.open{display:flex}
+.modal{background:var(--white);border-radius:16px;padding:2rem;max-width:460px;width:90%;animation:fup .2s ease;position:relative}
+.modal h3{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:1rem}
+.modal p{font-size:.9rem;color:var(--ink-2);margin-bottom:1.5rem;line-height:1.6}
+.modal-btns{display:flex;gap:.75rem}
+.modal-cancel{flex:1;padding:.75rem;border:1px solid var(--border-strong);border-radius:var(--radius-pill);background:transparent;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--ink-2);cursor:pointer}
+.modal-confirm{flex:2;padding:.75rem;background:var(--accent);color:var(--white);border:none;border-radius:var(--radius-pill);font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer}
+.modal-confirm:hover{background:#c93a08}
+.modal-close{position:absolute;top:1rem;right:1rem;background:var(--surface);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.9rem;color:var(--ink-3)}
+
+/* EMPTY */
+.empty{text-align:center;padding:3rem;color:var(--ink-3);font-size:.9rem}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--green);color:var(--white);padding:.75rem 1.5rem;border-radius:var(--radius-pill);font-size:.88rem;font-weight:500;box-shadow:0 4px 16px rgba(15,107,58,.3);display:none;z-index:999;animation:fup .25s ease}
+.toast.show{display:block}
+.toast.error{background:var(--red)}
+
+/* LOGIN */
+.login-gate{display:none;align-items:center;justify-content:center;min-height:100vh;width:100%}
+.login-gate.show{display:flex}
+.login-box{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:2.5rem;max-width:380px;width:90%;text-align:center}
+.login-box h2{font-family:'Syne',sans-serif;font-weight:700;font-size:1.4rem;margin-bottom:.5rem}
+.login-box p{font-size:.88rem;color:var(--ink-3);margin-bottom:2rem}
+.lf-group{margin-bottom:1rem;text-align:left}
+.lf-group label{display:block;font-size:.82rem;font-weight:500;color:var(--ink-2);margin-bottom:.35rem}
+.lf-group input{width:100%;padding:.75rem 1rem;border:1px solid var(--border-strong);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--ink);background:var(--surface);outline:none}
+.lf-group input:focus{border-color:var(--accent);background:var(--white)}
+.btn-login{width:100%;padding:.85rem;background:var(--ink);color:var(--white);border:none;border-radius:var(--radius-pill);font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:500;cursor:pointer;margin-top:.5rem}
+.btn-login:hover{background:var(--accent)}
+.login-err{color:var(--red);font-size:.82rem;background:var(--red-light);padding:.6rem .75rem;border-radius:var(--radius-sm);display:none;margin-top:.5rem;text-align:left}
+.login-err.show{display:block}
+
+@keyframes fup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1024px){.metrics{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0;padding:1.25rem}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div class="login-gate" id="lgate">
+  <div class="login-box">
+    <div style="font-size:2rem;margin-bottom:1rem">🔐</div>
+    <h2>Painel Admin</h2>
+    <p>Acesso restrito ao administrador da Opportunia</p>
+    <div class="lf-group"><label>E-mail</label><input type="email" id="le" placeholder="contato.opportunia@gmail.com" /></div>
+    <div class="lf-group"><label>Senha</label><input type="password" id="ls" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginAdmin()" /></div>
+    <div class="login-err" id="lerr"></div>
+    <button class="btn-login" onclick="loginAdmin()">Entrar no painel →</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sb" style="display:none">
+  <a href="oportunia-integrado.html" class="s-logo">Opportu<span>nia</span><sup style="font-size:1rem;font-weight:500;vertical-align:super;letter-spacing:0;color:var(--ink-3);margin-left:1px">®</sup></a>
+  <div style="font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);padding:0 .5rem;margin-top:-.1rem;margin-bottom:.5rem">Admin</div>
+  <div class="s-user" id="su">caueokiyama.adm@gmail.com</div>
+
+  <div class="s-sec">Visão geral</div>
+  <ul class="s-nav">
+    <li><a class="active" onclick="showPage('dashboard')"><span class="s-icon">📊</span> Dashboard</a></li>
+  </ul>
+
+  <div class="s-sec">Gestão</div>
+  <ul class="s-nav">
+    <li><a onclick="showPage('empresas')"><span class="s-icon">🏢</span> Empresas <span class="s-count" id="cnt-pend">0</span></a></li>
+    <li><a onclick="showPage('candidatos')"><span class="s-icon">👥</span> Candidatos</a></li>
+    <li><a onclick="showPage('vagas')"><span class="s-icon">📋</span> Vagas</a></li>
+    <li><a onclick="showPage('candidaturas')"><span class="s-icon">📬</span> Candidaturas</a></li>
+  </ul>
+
+  <div class="s-bot">
+    <a href="oportunia-integrado.html" class="s-home">← Voltar ao site</a>
+    <button class="s-logout" onclick="logout()">Sair</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main" id="ma" style="display:none">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="top-bar">
+      <div>
+        <h1>Dashboard 👋</h1>
+        <p>Visão geral da plataforma Opportunia · <span id="dash-updated" style="color:var(--ink-3);font-size:.82rem"></span></p>
+      </div>
+      <button onclick="carregarTudo()" style="padding:.5rem 1.25rem;border:1px solid var(--border-strong);border-radius:var(--radius-pill);background:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--ink-2);cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--ink)'" onmouseout="this.style.borderColor='var(--border-strong)'">↺ Atualizar</button>
+    </div>
+
+    <!-- MÉTRICAS PRINCIPAIS -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem">
+      <div class="metric alert">
+        <div class="metric-lbl">Empresas pendentes</div>
+        <div class="metric-val" id="m-pend">—</div>
+        <div class="metric-sub">aguardando aprovação</div>
+      </div>
+      <div class="metric">
+        <div class="metric-lbl">Empresas aprovadas</div>
+        <div class="metric-val" id="m-emp">—</div>
+        <div class="metric-sub">ativas na plataforma</div>
+      </div>
+      <div class="metric">
+        <div class="metric-lbl">Candidatos</div>
+        <div class="metric-val" id="m-cand">—</div>
+        <div class="metric-sub">cadastrados</div>
+      </div>
+      <div class="metric">
+        <div class="metric-lbl">Vagas ativas</div>
+        <div class="metric-val" id="m-vagas">—</div>
+        <div class="metric-sub">publicadas</div>
+      </div>
+    </div>
+
+    <!-- MÉTRICAS SECUNDÁRIAS -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem">
+      <div class="metric">
+        <div class="metric-lbl">Candidaturas</div>
+        <div class="metric-val" id="m-cands">—</div>
+        <div class="metric-sub">total realizadas</div>
+      </div>
+      <div class="metric">
+        <div class="metric-lbl">Planos pagos</div>
+        <div class="metric-val" id="m-pagos">—</div>
+        <div class="metric-sub">Pro + Empresa</div>
+      </div>
+      <div class="metric">
+        <div class="metric-lbl">Vencendo em 7 dias</div>
+        <div class="metric-val" id="m-vencendo" style="color:var(--red)">—</div>
+        <div class="metric-sub">requer atenção</div>
+      </div>
+      <div class="metric">
+        <div class="metric-lbl">Taxa de conversão</div>
+        <div class="metric-val" id="m-taxa">—</div>
+        <div class="metric-sub">candidaturas / vaga ativa</div>
+      </div>
+    </div>
+
+    <!-- LINHA: Novos esta semana + Planos -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+
+      <!-- Novos esta semana -->
+      <div class="table-card" style="margin-bottom:0">
+        <div class="table-head-bar"><h2>📅 Novos esta semana</h2></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">
+          <div style="padding:1.25rem;text-align:center;border-right:1px solid var(--border)">
+            <div style="font-size:.72rem;color:var(--ink-3);margin-bottom:.4rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em">Candidatos</div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700;color:var(--ink)" id="w-cand">—</div>
+            <div style="font-size:.72rem;color:var(--ink-3);margin-top:.2rem" id="w-cand-sub"></div>
+          </div>
+          <div style="padding:1.25rem;text-align:center;border-right:1px solid var(--border)">
+            <div style="font-size:.72rem;color:var(--ink-3);margin-bottom:.4rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em">Vagas</div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700;color:var(--ink)" id="w-vagas">—</div>
+            <div style="font-size:.72rem;color:var(--ink-3);margin-top:.2rem" id="w-vagas-sub"></div>
+          </div>
+          <div style="padding:1.25rem;text-align:center">
+            <div style="font-size:.72rem;color:var(--ink-3);margin-bottom:.4rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em">Candidaturas</div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700;color:var(--ink)" id="w-cands">—</div>
+            <div style="font-size:.72rem;color:var(--ink-3);margin-top:.2rem" id="w-cands-sub"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Distribuição de planos -->
+      <div class="table-card" style="margin-bottom:0">
+        <div class="table-head-bar"><h2>💳 Distribuição de planos</h2></div>
+        <div style="padding:1rem 1.5rem" id="dash-planos"></div>
+      </div>
+    </div>
+
+    <!-- LINHA: Top vagas + Áreas em destaque -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+
+      <!-- Top vagas com mais candidaturas -->
+      <div class="table-card" style="margin-bottom:0">
+        <div class="table-head-bar"><h2>🏆 Vagas com mais candidaturas</h2></div>
+        <div id="dash-top-vagas"></div>
+      </div>
+
+      <!-- Áreas mais publicadas -->
+      <div class="table-card" style="margin-bottom:0">
+        <div class="table-head-bar"><h2>📊 Áreas mais publicadas</h2></div>
+        <div style="padding:1rem 1.5rem" id="dash-areas"></div>
+      </div>
+    </div>
+
+    <!-- Empresas vencendo -->
+    <div class="table-card" id="dash-vencendo" style="margin-bottom:1rem;display:none"></div>
+
+    <!-- Empresas pendentes no dashboard -->
+    <div class="table-card" id="dash-pendentes"></div>
+  </div>
+
+  <!-- EMPRESAS -->
+  <div class="page" id="page-empresas">
+    <div class="top-bar">
+      <div><h1>Empresas</h1><p>Gerencie o cadastro e planos das empresas</p></div>
+    </div>
+    <div class="table-card">
+      <div class="tab-bar" id="emp-tabs">
+        <div class="tab active" onclick="filtrarEmpresas('pendente',this)">Pendentes</div>
+        <div class="tab" onclick="filtrarEmpresas('aprovada',this)">Aprovadas</div>
+        <div class="tab" onclick="filtrarEmpresas('bloqueada',this)">Bloqueadas</div>
+        <div class="tab" onclick="filtrarEmpresas('todas',this)">Todas</div>
+      </div>
+      <div id="emp-list"></div>
+    </div>
+  </div>
+
+  <!-- CANDIDATOS -->
+  <div class="page" id="page-candidatos">
+    <div class="top-bar">
+      <div><h1>Candidatos</h1><p>Gerencie os perfis de candidatos</p></div>
+    </div>
+    <div class="table-card">
+      <div class="table-head-bar">
+        <h2>Todos os candidatos</h2>
+        <input class="search-input" type="text" placeholder="Buscar por nome ou e-mail…" oninput="buscarCandidatos(this.value)" />
+      </div>
+      <div id="cand-list"></div>
+    </div>
+  </div>
+
+  <!-- VAGAS -->
+  <div class="page" id="page-vagas">
+    <div class="top-bar">
+      <div><h1>Vagas</h1><p>Modere as vagas publicadas na plataforma</p></div>
+    </div>
+    <div class="table-card">
+      <div class="tab-bar">
+        <div class="tab active" onclick="filtrarVagas('ativa',this)">Ativas</div>
+        <div class="tab" onclick="filtrarVagas('pausada',this)">Pausadas</div>
+        <div class="tab" onclick="filtrarVagas('encerrada',this)">Encerradas</div>
+        <div class="tab" onclick="filtrarVagas('todas',this)">Todas</div>
+      </div>
+      <div class="table-head-bar">
+        <h2>Vagas publicadas</h2>
+        <input class="search-input" type="text" id="vaga-search" placeholder="Buscar por vaga ou empresa…" oninput="renderVagas()" />
+      </div>
+      <div id="vagas-list"></div>
+    </div>
+  </div>
+
+  <!-- CANDIDATURAS -->
+  <div class="page" id="page-candidaturas">
+    <div class="top-bar">
+      <div><h1>Candidaturas</h1><p>Visão geral de todas as candidaturas</p></div>
+    </div>
+    <div class="table-card">
+      <div class="table-head-bar">
+        <h2>Todas as candidaturas</h2>
+        <input class="search-input" type="text" id="cands-search" placeholder="Buscar por nome, vaga ou empresa…" oninput="renderCandidaturas()" />
+      </div>
+      <div id="cands-list"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL CONFIRMAÇÃO -->
+<div class="modal-ov" id="modal-ov" onclick="if(event.target===this)fecharModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="fecharModal()">✕</button>
+    <h3 id="modal-titulo">Confirmar ação</h3>
+    <p id="modal-msg">Tem certeza?</p>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="modal-confirm" id="modal-btn" onclick="">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL = 'https://lvexahtskdhgujwrlkex.supabase.co';
+const SB_KEY = 'sb_publishable_AvhhaT_r4vsz3iuiZpZ3AA_zW7rxPo4';
+const ADMIN_EMAIL = 'caueokiyama.adm@gmail.com';
+const { createClient } = supabase;
+const sb = createClient(SB_URL, SB_KEY);
+
+let empresas = [], candidatos = [], vagas = [], candidaturas = [];
+let empFiltro = 'pendente', vagaFiltro = 'ativa';
+
+// =============================================
+// INIT
+// =============================================
+document.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session || session.user.email !== ADMIN_EMAIL) {
+    document.getElementById('lgate').classList.add('show');
+    return;
+  }
+  await iniciarAdmin(session.user);
+});
+
+async function loginAdmin() {
+  const email = document.getElementById('le').value.trim();
+  const senha = document.getElementById('ls').value;
+  const err = document.getElementById('lerr');
+
+  if (email !== ADMIN_EMAIL) {
+    err.textContent = 'Acesso negado. Este painel é restrito ao administrador.';
+    err.classList.add('show');
+    return;
+  }
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+  if (error || data.user.email !== ADMIN_EMAIL) {
+    err.textContent = 'E-mail ou senha incorretos.';
+    err.classList.add('show');
+    return;
+  }
+  await iniciarAdmin(data.user);
+}
+
+async function iniciarAdmin(user) {
+  document.getElementById('lgate').classList.remove('show');
+  document.getElementById('sb').style.display = 'flex';
+  document.getElementById('ma').style.display = 'block';
+  document.getElementById('su').textContent = user.email;
+  await carregarTudo();
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  window.location.href = 'oportunia-integrado.html';
+}
+
+// =============================================
+// CARREGAR DADOS
+// =============================================
+async function carregarTudo() {
+  const [e, c, v, ca] = await Promise.all([
+    sb.from('empresas').select('*').eq('tipo', 'empresa').order('created_at', { ascending: false }),
+    sb.from('candidatos').select('*').order('created_at', { ascending: false }),
+    sb.from('vagas').select('*, empresas(nome, logo)').order('created_at', { ascending: false }),
+    sb.from('candidaturas').select('*, vagas(titulo, empresa_id, empresas(nome, logo))').order('created_at', { ascending: false }),
+  ]);
+
+  empresas = e.data || [];
+  candidatos = c.data || [];
+  vagas = v.data || [];
+  candidaturas = ca.data || [];
+
+  atualizarMetrics();
+  renderDashPendentes();
+  renderEmpresas();
+  renderCandidatos();
+  renderVagas();
+  verificarVencimentos();
+  renderCandidaturas();
+
+  // Contador pendentes na sidebar
+  const pend = empresas.filter(x => x.status === 'pendente' || !x.status).length;
+  document.getElementById('cnt-pend').textContent = pend;
+  document.getElementById('cnt-pend').style.display = pend > 0 ? 'inline' : 'none';
+}
+
+// =============================================
+// METRICS
+// =============================================
+function atualizarMetrics() {
+  const pend = empresas.filter(x => !x.status || x.status === 'pendente').length;
+  const aprov = empresas.filter(x => x.status === 'aprovada').length;
+  const pagos = empresas.filter(x => x.plano === 'pro' || x.plano === 'empresa').length;
+  const vagasAtivas = vagas.filter(v => v.status === 'ativa').length;
+
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const em7dias = new Date(hoje); em7dias.setDate(em7dias.getDate() + 7);
+  const inicioSemana = new Date(hoje); inicioSemana.setDate(inicioSemana.getDate() - 7);
+  const inicioSemanaAnt = new Date(inicioSemana); inicioSemanaAnt.setDate(inicioSemanaAnt.getDate() - 7);
+
+  const vencendo = empresas.filter(e => {
+    if (!e.plano_vencimento || e.plano === 'gratuito') return false;
+    const venc = new Date(e.plano_vencimento + 'T00:00:00');
+    return venc >= hoje && venc <= em7dias;
+  });
+
+  // Taxa de conversão
+  const taxa = vagasAtivas > 0 ? (candidaturas.length / vagasAtivas).toFixed(1) : '0';
+
+  // Novos esta semana vs semana anterior
+  const candSemana = candidatos.filter(c => new Date(c.created_at) >= inicioSemana).length;
+  const vagasSemana = vagas.filter(v => new Date(v.created_at) >= inicioSemana).length;
+  const candsSemana = candidaturas.filter(c => new Date(c.created_at) >= inicioSemana).length;
+  const candSemanaAnt = candidatos.filter(c => { const d=new Date(c.created_at); return d>=inicioSemanaAnt&&d<inicioSemana; }).length;
+  const vagasSemanaAnt = vagas.filter(v => { const d=new Date(v.created_at); return d>=inicioSemanaAnt&&d<inicioSemana; }).length;
+  const candsSemanaAnt = candidaturas.filter(c => { const d=new Date(c.created_at); return d>=inicioSemanaAnt&&d<inicioSemana; }).length;
+
+  const delta = (atual, ant) => {
+    const diff = atual - ant;
+    if (ant === 0 && atual === 0) return '<span style="color:var(--ink-3)">sem movimento</span>';
+    if (ant === 0) return '<span style="color:var(--green)">↑ novo</span>';
+    if (diff === 0) return '<span style="color:var(--ink-3)">= semana ant.</span>';
+    return diff > 0
+      ? '<span style="color:var(--green)">↑ +'+diff+' vs sem. ant.</span>'
+      : '<span style="color:var(--red)">↓ '+diff+' vs sem. ant.</span>';
+  };
+
+  // Métricas principais
+  document.getElementById('m-pend').textContent = pend;
+  document.getElementById('m-emp').textContent = aprov;
+  document.getElementById('m-cand').textContent = candidatos.length;
+  document.getElementById('m-vagas').textContent = vagasAtivas;
+  document.getElementById('m-cands').textContent = candidaturas.length;
+  document.getElementById('m-pagos').textContent = pagos;
+  document.getElementById('m-vencendo').textContent = vencendo.length;
+  document.getElementById('m-taxa').textContent = taxa + 'x';
+
+  // Timestamp
+  const agora = new Date();
+  document.getElementById('dash-updated').textContent = 'Atualizado às ' + agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+  // Novos esta semana
+  document.getElementById('w-cand').textContent = candSemana;
+  document.getElementById('w-cand-sub').innerHTML = delta(candSemana, candSemanaAnt);
+  document.getElementById('w-vagas').textContent = vagasSemana;
+  document.getElementById('w-vagas-sub').innerHTML = delta(vagasSemana, vagasSemanaAnt);
+  document.getElementById('w-cands').textContent = candsSemana;
+  document.getElementById('w-cands-sub').innerHTML = delta(candsSemana, candsSemanaAnt);
+
+  // Distribuição de planos
+  const planos = { gratuito:0, pro:0, empresa:0 };
+  empresas.filter(e => e.status === 'aprovada').forEach(e => { planos[e.plano||'gratuito']++; });
+  const totalEmp = planos.gratuito + planos.pro + planos.empresa || 1;
+  const barPlano = (label, val, total, cor) => {
+    const pct = Math.round((val/total)*100);
+    return `<div style="margin-bottom:.75rem">
+      <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.3rem">
+        <span style="color:var(--ink-2);font-weight:500">${label}</span>
+        <span style="color:var(--ink-3)">${val} empresa${val!==1?'s':''} · ${pct}%</span>
+      </div>
+      <div style="background:var(--surface);border-radius:100px;height:8px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${cor};border-radius:100px;transition:width .6s ease"></div>
+      </div>
+    </div>`;
+  };
+  document.getElementById('dash-planos').innerHTML =
+    barPlano('Gratuito', planos.gratuito, totalEmp, 'var(--ink-3)') +
+    barPlano('Pro', planos.pro, totalEmp, 'var(--blue)') +
+    barPlano('Empresa', planos.empresa, totalEmp, 'var(--accent)');
+
+  // Top vagas com mais candidaturas
+  const vagasCands = vagas.filter(v => v.status === 'ativa').map(v => ({
+    ...v, total: candidaturas.filter(c => c.vaga_id === v.id).length
+  })).sort((a,b) => b.total - a.total).slice(0, 5);
+  const elTopVagas = document.getElementById('dash-top-vagas');
+  if (!vagasCands.length) {
+    elTopVagas.innerHTML = '<div class="empty">Nenhuma vaga ativa.</div>';
+  } else {
+    const maxC = vagasCands[0].total || 1;
+    elTopVagas.innerHTML = vagasCands.map((v, i) => {
+      const pct = Math.round((v.total/maxC)*100);
+      const medalha = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'º';
+      return `<div style="padding:.85rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem">
+        <span style="font-size:.9rem;min-width:24px;text-align:center">${medalha}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.85rem;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.titulo}</div>
+          <div style="display:flex;align-items:center;gap:.5rem;margin-top:.3rem">
+            <div style="flex:1;background:var(--surface);border-radius:100px;height:6px">
+              <div style="height:100%;width:${pct}%;background:var(--accent);border-radius:100px"></div>
+            </div>
+            <span style="font-size:.75rem;color:var(--ink-3);white-space:nowrap">${v.total} candidatura${v.total!==1?'s':''}</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Áreas mais publicadas
+  const areaCount = {};
+  vagas.filter(v => v.status==='ativa' && v.area).forEach(v => { areaCount[v.area]=(areaCount[v.area]||0)+1; });
+  const areasOrd = Object.entries(areaCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxArea = areasOrd[0]?.[1]||1;
+  const elAreas = document.getElementById('dash-areas');
+  if (!areasOrd.length) {
+    elAreas.innerHTML = '<div style="padding:1rem;text-align:center;color:var(--ink-3);font-size:.88rem">Nenhuma vaga ativa.</div>';
+  } else {
+    elAreas.innerHTML = areasOrd.map(([area, qtd]) => {
+      const pct = Math.round((qtd/maxArea)*100);
+      return `<div style="margin-bottom:.65rem">
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.25rem">
+          <span style="color:var(--ink-2);font-weight:500">${area}</span>
+          <span style="color:var(--ink-3)">${qtd} vaga${qtd!==1?'s':''}</span>
+        </div>
+        <div style="background:var(--surface);border-radius:100px;height:7px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:var(--blue);border-radius:100px;transition:width .6s ease"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Card de vencendo em breve
+  const elVenc = document.getElementById('dash-vencendo');
+  if (vencendo.length > 0) {
+    elVenc.style.display = '';
+    elVenc.innerHTML = `
+      <div class="table-head-bar"><h2>⏰ Planos vencendo em 7 dias (${vencendo.length})</h2></div>
+      ${vencendo.map(e => {
+        const venc = new Date(e.plano_vencimento + 'T00:00:00');
+        const dias = Math.round((venc - hoje) / 86400000);
+        return '<div class="data-row">'
+          + '<div class="row-avatar">' + (e.nome||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase() + '</div>'
+          + '<div class="row-info"><div class="row-nome">' + (e.nome||'—') + '</div>'
+          + '<div class="row-sub">' + e.email + ' · Plano ' + e.plano + ' · vence em ' + dias + ' dia' + (dias!==1?'s':'') + '</div></div>'
+          + '<button class="btn-sm btn-blue" onclick="abrirModalRenovar(\'' + e.id + '\',\'' + (e.nome||'').replace(/\'/g,"\\'") + '\',\'' + e.plano + '\')">💳 Renovar</button>'
+          + '</div>';
+      }).join('')}`;
+  } else {
+    elVenc.style.display = 'none';
+  }
+}
+
+// =============================================
+// EMPRESAS
+// =============================================
+function renderDashPendentes() {
+  const pend = empresas.filter(x => !x.status || x.status === 'pendente');
+  const el = document.getElementById('dash-pendentes');
+
+  if (!pend.length) {
+    el.innerHTML = '<div class="empty">✓ Nenhuma empresa aguardando aprovação</div>';
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="table-head-bar">
+      <h2>⚠️ Empresas aguardando aprovação (${pend.length})</h2>
+    </div>
+    ${pend.map(e => renderEmpRow(e)).join('')}
+  `;
+}
+
+function renderEmpresas() {
+  const filtradas = empFiltro === 'todas'
+    ? empresas
+    : empFiltro === 'pendente'
+      ? empresas.filter(e => !e.status || e.status === 'pendente')
+      : empresas.filter(e => e.status === empFiltro);
+  
+  // Se não tem nenhuma na aba atual, mostra todas aprovadas por padrão
+
+
+  const el = document.getElementById('emp-list');
+  if (!filtradas.length) { el.innerHTML = '<div class="empty">Nenhuma empresa nesta categoria.</div>'; return; }
+  el.innerHTML = filtradas.map(e => renderEmpRow(e)).join('');
+}
+
+function renderEmpRow(e) {
+  const ini = (e.nome || '?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  const status = e.status || 'pendente';
+  const statusCls = { pendente:'pill-pend', aprovada:'pill-aprov', bloqueada:'pill-bloq' }[status] || 'pill-pend';
+  const planoCls = { gratuito:'pill-grat', pro:'pill-pro', empresa:'pill-emp' }[e.plano||'gratuito'] || 'pill-grat';
+  const vagsEmp = vagas.filter(v => v.empresa_id === e.id).length;
+  const tempo = tr(e.created_at);
+
+  // Badge de vencimento
+  let vencBadge = '';
+  const plano = e.plano || 'gratuito';
+  if (plano === 'gratuito') {
+    vencBadge = '<span class="pill pill-venc-free">Gratuito</span>';
+  } else if (e.plano_vencimento) {
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const venc = new Date(e.plano_vencimento + 'T00:00:00');
+    const dias = Math.round((venc - hoje) / 86400000);
+    if (dias < 0) vencBadge = '<span class="pill pill-venc-exp">⚠ Vencido</span>';
+    else if (dias <= 7) vencBadge = '<span class="pill pill-venc-warn">⏰ Vence em ' + dias + 'd</span>';
+    else vencBadge = '<span class="pill pill-venc-ok">✓ Ativo até ' + venc.toLocaleDateString('pt-BR') + '</span>';
+  } else {
+    vencBadge = '<span class="pill pill-venc-exp">⚠ Sem vencimento</span>';
+  }
+
+  return `
+    <div class="data-row">
+      <div class="row-avatar">${ini}</div>
+      <div class="row-info">
+        <div class="row-nome">${e.nome || '—'}</div>
+        <div class="row-sub">${e.email} · ${vagsEmp} vaga${vagsEmp!==1?'s':''} · cadastrou ${tempo}${e.plano_pago_em ? ' · pago em ' + new Date(e.plano_pago_em + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</div>
+      </div>
+      <span class="pill ${statusCls}">${status}</span>
+      <span class="pill ${planoCls}">${plano}</span>
+      ${vencBadge}
+      <div class="row-actions">
+        <button class="btn-sm btn-gray" onclick="verDadosCadastrais('${e.id}')">📄 Ver dados</button>
+        ${plano !== 'gratuito' ? `<button class="btn-sm btn-blue" onclick="abrirModalRenovar('${e.id}','${e.nome}','${plano}')">💳 Renovar</button>` : ''}
+        ${status === 'pendente' ? `<button class="btn-sm btn-green" onclick="acao('empresa','${e.id}','aprovada')">✓ Aprovar</button>` : ''}
+        ${status === 'aprovada' ? `<button class="btn-sm btn-gray" onclick="acao('empresa','${e.id}','pendente')">Pendente</button>` : ''}
+        ${status !== 'bloqueada' ? `<button class="btn-sm btn-red" onclick="confirmar('Bloquear empresa','Deseja bloquear ${e.nome}? Ela não poderá publicar vagas.','empresa','${e.id}','bloqueada')">Bloquear</button>` : `<button class="btn-sm btn-green" onclick="acao('empresa','${e.id}','aprovada')">Desbloquear</button>`}
+        <button class="btn-sm btn-red" onclick="confirmar('Excluir empresa','Tem certeza? Esta ação removerá permanentemente ${e.nome} e todas as suas vagas.','excluir_empresa','${e.id}','')">🗑 Excluir</button>
+        <select class="plano-select" onchange="alterarPlano('${e.id}',this.value)">
+          <option value="gratuito" ${plano==='gratuito'?'selected':''}>Gratuito</option>
+          <option value="pro" ${plano==='pro'?'selected':''}>Pro</option>
+          <option value="empresa" ${plano==='empresa'?'selected':''}>Empresa</option>
+        </select>
+      </div>
+    </div>
+  `;
+}
+
+function filtrarEmpresas(filtro, el) {
+  empFiltro = filtro;
+  document.querySelectorAll('#emp-tabs .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderEmpresas();
+}
+
+// =============================================
+// CONTROLE DE PAGAMENTOS
+// =============================================
+function abrirModalRenovar(empId, empNome, plano) {
+  const modal = document.createElement('div');
+  modal.id = 'modal-renovar';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,17,23,.6);z-index:400;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+  const hoje = new Date().toISOString().split('T')[0];
+  const proxMes = new Date();
+  proxMes.setMonth(proxMes.getMonth() + 1);
+  const proxMesStr = proxMes.toISOString().split('T')[0];
+  const valor = plano === 'pro' ? '79' : '179';
+
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:20px;padding:2rem;max-width:420px;width:90%;position:relative">
+      <button onclick="document.getElementById('modal-renovar').remove()" style="position:absolute;top:1rem;right:1rem;background:var(--surface);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;color:var(--ink-3)">✕</button>
+      <h2 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:.25rem">💳 Registrar pagamento</h2>
+      <p style="font-size:.85rem;color:var(--ink-3);margin-bottom:1.5rem">${empNome} · Plano ${plano.charAt(0).toUpperCase()+plano.slice(1)}</p>
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div>
+          <label style="font-size:.8rem;font-weight:600;color:var(--ink-2);display:block;margin-bottom:.35rem">Data do pagamento</label>
+          <input type="date" id="ren-pago-em" value="${hoje}" style="width:100%;padding:.6rem .75rem;border:1px solid var(--border-strong);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem" />
+        </div>
+        <div>
+          <label style="font-size:.8rem;font-weight:600;color:var(--ink-2);display:block;margin-bottom:.35rem">Vencimento do plano</label>
+          <input type="date" id="ren-vencimento" value="${proxMesStr}" style="width:100%;padding:.6rem .75rem;border:1px solid var(--border-strong);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem" />
+        </div>
+        <div>
+          <label style="font-size:.8rem;font-weight:600;color:var(--ink-2);display:block;margin-bottom:.35rem">Valor recebido (R$)</label>
+          <input type="number" id="ren-valor" value="${valor}" style="width:100%;padding:.6rem .75rem;border:1px solid var(--border-strong);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem" />
+        </div>
+      </div>
+      <div id="ren-fb" style="margin-top:.75rem;font-size:.82rem"></div>
+      <div style="display:flex;gap:.75rem;margin-top:1.5rem">
+        <button onclick="document.getElementById('modal-renovar').remove()" style="flex:1;padding:.7rem;border-radius:100px;border:1px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer">Cancelar</button>
+        <button onclick="salvarRenovacao('${empId}')" style="flex:1;padding:.7rem;border-radius:100px;border:none;background:var(--accent);color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer">✓ Confirmar pagamento</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function salvarRenovacao(empId) {
+  const pagoDem = document.getElementById('ren-pago-em').value;
+  const vencimento = document.getElementById('ren-vencimento').value;
+  const valor = parseFloat(document.getElementById('ren-valor').value);
+  const fb = document.getElementById('ren-fb');
+
+  if (!pagoDem || !vencimento || !valor) {
+    fb.innerHTML = '<span style="color:var(--red)">Preencha todos os campos.</span>'; return;
+  }
+
+  const { error } = await sb.from('empresas').update({
+    plano_pago_em: pagoDem,
+    plano_vencimento: vencimento,
+    plano_valor: valor
+  }).eq('id', empId);
+
+  if (error) { fb.innerHTML = '<span style="color:var(--red)">Erro ao salvar.</span>'; return; }
+
+  empresas = empresas.map(e => e.id === empId ? { ...e, plano_pago_em: pagoDem, plano_vencimento: vencimento, plano_valor: valor } : e);
+  document.getElementById('modal-renovar').remove();
+  renderEmpresas();
+  showToast('✓ Pagamento registrado com sucesso!');
+}
+
+async function verificarVencimentos() {
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const vencidas = empresas.filter(e => {
+    if (!e.plano_vencimento || e.plano === 'gratuito') return false;
+    const venc = new Date(e.plano_vencimento + 'T00:00:00');
+    return venc < hoje;
+  });
+  for (const e of vencidas) {
+    await sb.from('empresas').update({ plano: 'gratuito' }).eq('id', e.id);
+    empresas = empresas.map(x => x.id === e.id ? { ...x, plano: 'gratuito' } : x);
+  }
+  if (vencidas.length > 0) {
+    renderEmpresas();
+    showToast('⚠ ' + vencidas.length + ' empresa(s) com plano vencido voltaram para o Gratuito.');
+  }
+}
+function renderCandidatos(busca = '') {
+  const filtrados = busca
+    ? candidatos.filter(c => (c.nome||'').toLowerCase().includes(busca.toLowerCase()) || (c.email||'').toLowerCase().includes(busca.toLowerCase()))
+    : candidatos;
+
+  const el = document.getElementById('cand-list');
+  if (!filtrados.length) { el.innerHTML = '<div class="empty">Nenhum candidato encontrado.</div>'; return; }
+
+  el.innerHTML = filtrados.map(c => {
+    const ini = (c.nome||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    const status = c.status || 'ativo';
+    const cands = candidaturas.filter(ca => ca.candidato_id === c.id).length;
+    return `
+      <div class="data-row">
+        <div class="row-avatar" style="background:var(--green-light);color:var(--green)">${ini}</div>
+        <div class="row-info">
+          <div class="row-nome">${c.nome || '—'}</div>
+          <div class="row-sub">${c.email} · ${c.cargo_desejado||'sem cargo'} · ${cands} candidatura${cands!==1?'s':''} · cadastrou ${tr(c.created_at)}</div>
+        </div>
+        <span class="pill ${status==='ativo'?'pill-aprov':'pill-bloq'}">${status}</span>
+        <div class="row-actions">
+          ${status === 'ativo'
+            ? `<button class="btn-sm btn-red" onclick="confirmar('Bloquear candidato','Deseja bloquear ${c.nome}?','candidato','${c.id}','bloqueado')">Bloquear</button>`
+            : `<button class="btn-sm btn-green" onclick="acao('candidato','${c.id}','ativo')">Desbloquear</button>`}
+          <button class="btn-sm btn-red" onclick="confirmar('Excluir candidato','Tem certeza? Esta ação removerá permanentemente o perfil de ${c.nome}.','excluir_candidato','${c.id}','')">🗑 Excluir</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function buscarCandidatos(val) { renderCandidatos(val); }
+
+// =============================================
+// VAGAS
+// =============================================
+function renderVagas() {
+  const busca = (document.getElementById('vaga-search')?.value || '').toLowerCase();
+  let filtradas = vagaFiltro === 'todas' ? vagas : vagas.filter(v => v.status === vagaFiltro);
+  if (busca) filtradas = filtradas.filter(v =>
+    (v.titulo||'').toLowerCase().includes(busca) ||
+    (v.empresas?.nome||'').toLowerCase().includes(busca)
+  );
+  const el = document.getElementById('vagas-list');
+  if (!filtradas.length) { el.innerHTML = '<div class="empty">Nenhuma vaga encontrada.</div>'; return; }
+
+  const porEmpresa = {};
+  filtradas.forEach(function(v) {
+    const empNome = v.empresas?.nome || 'Empresa';
+    const empLogo = v.empresas?.logo || null;
+    const empId = v.empresa_id || empNome;
+    if (!porEmpresa[empId]) porEmpresa[empId] = { nome: empNome, logo: empLogo, vagas: [] };
+    porEmpresa[empId].vagas.push(v);
+  });
+
+  let html = '';
+  Object.entries(porEmpresa).forEach(function([empId, grupo]) {
+    const avatar = grupo.logo
+      ? '<img src="' + grupo.logo + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">'
+      : '<div style="width:32px;height:32px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem">' + grupo.nome.substring(0,2).toUpperCase() + '</div>';
+
+    let vagasHtml = '';
+    grupo.vagas.forEach(function(v) {
+      const salario = v.salario_min ? 'R$ ' + Number(v.salario_min).toLocaleString('pt-BR') : 'A combinar';
+      const statusCls = { ativa:'pill-aprov', pausada:'pill-pend', encerrada:'pill-bloq' }[v.status] || 'pill-pend';
+      const btnDestaque = !v.destaque
+        ? '<button class="btn-sm btn-blue" onclick="toggleDestaque(\'' + v.id + '\',true)">⭐ Destacar</button>'
+        : '<button class="btn-sm btn-gray" onclick="toggleDestaque(\'' + v.id + '\',false)">Remover destaque</button>';
+      const btnStatus = v.status === 'ativa'
+        ? '<button class="btn-sm btn-red" onclick="confirmar(\'Remover vaga\',\'Deseja remover esta vaga?\',\'vaga\',\'' + v.id + '\',\'encerrada\')">Remover</button>'
+        : '<button class="btn-sm btn-green" onclick="acao(\'vaga\',\'' + v.id + '\',\'ativa\')">Reativar</button>';
+      vagasHtml += '<div class="data-row" style="padding-left:2rem">'
+        + '<div class="row-info">'
+        + '<div class="row-nome">' + v.titulo + (v.destaque ? ' ⭐' : '') + '</div>'
+        + '<div class="row-sub">' + (v.area||'—') + ' · ' + salario + ' · ' + tr(v.created_at) + '</div>'
+        + '</div>'
+        + '<span class="pill ' + statusCls + '">' + v.status + '</span>'
+        + '<div class="row-actions">' + btnDestaque + btnStatus + '</div>'
+        + '</div>';
+    });
+
+    html += '<div style="border-bottom:1px solid var(--border)">'
+      + '<div onclick="toggleEmpresaVagas(\'' + empId + '\')" style="display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem;cursor:pointer;background:var(--surface);user-select:none" onmouseover="this.style.background=\'#f0ede8\'" onmouseout="this.style.background=\'var(--surface)\'">'
+      + '<div style="display:flex;align-items:center;gap:.75rem">'
+      + avatar
+      + '<div><span style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)">Empresa:</span>'
+      + '<span style="font-family:\'Syne\',sans-serif;font-weight:700;font-size:.95rem;color:var(--ink);margin-left:.4rem">' + grupo.nome + '</span>'
+      + '<span style="font-size:.8rem;color:var(--ink-3);margin-left:.5rem">' + grupo.vagas.length + ' vaga' + (grupo.vagas.length!==1?'s':'') + '</span></div>'
+      + '</div>'
+      + '<span id="vaga-toggle-' + empId + '" style="font-size:1.1rem;color:var(--ink-3)">−</span>'
+      + '</div>'
+      + '<div id="vaga-body-' + empId + '">' + vagasHtml + '</div>'
+      + '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function toggleEmpresaVagas(empId) {
+  const body = document.getElementById('vaga-body-' + empId);
+  const icon = document.getElementById('vaga-toggle-' + empId);
+  if (!body) return;
+  const aberto = body.style.display !== 'none';
+  body.style.display = aberto ? 'none' : '';
+  icon.textContent = aberto ? '+' : '−';
+}
+
+function filtrarVagas(filtro, el) {
+  vagaFiltro = filtro;
+  document.querySelectorAll('#page-vagas .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderVagas();
+}
+
+// =============================================
+// CANDIDATURAS
+// =============================================
+function renderCandidaturas() {
+  const el = document.getElementById('cands-list');
+  const busca = (document.getElementById('cands-search')?.value || '').toLowerCase();
+  let lista = candidaturas;
+  if (busca) lista = lista.filter(c =>
+    (c.nome||'').toLowerCase().includes(busca) ||
+    (c.vagas?.titulo||'').toLowerCase().includes(busca) ||
+    (c.vagas?.empresas?.nome||'').toLowerCase().includes(busca) ||
+    (c.email||'').toLowerCase().includes(busca)
+  );
+  if (!lista.length) { el.innerHTML = '<div class="empty">Nenhuma candidatura encontrada.</div>'; return; }
+
+  const porEmpresa = {};
+  lista.forEach(function(c) {
+    const empNome = c.vagas?.empresas?.nome || 'Empresa';
+    const empLogo = c.vagas?.empresas?.logo || null;
+    const empId = c.vagas?.empresa_id || empNome;
+    const vagaTitulo = c.vagas?.titulo || 'Vaga';
+    const vagaId = c.vaga_id || vagaTitulo;
+    if (!porEmpresa[empId]) porEmpresa[empId] = { nome: empNome, logo: empLogo, vagas: {} };
+    if (!porEmpresa[empId].vagas[vagaId]) porEmpresa[empId].vagas[vagaId] = { titulo: vagaTitulo, cands: [] };
+    porEmpresa[empId].vagas[vagaId].cands.push(c);
+  });
+
+  const cls = { pendente:'pill-pend', visualizada:'pill-pro', aprovada:'pill-aprov', reprovada:'pill-bloq', talvez:'pill-pro' };
+  const statusLabel = { pendente:'⏳ pendente', visualizada:'👁 visualizada', aprovada:'✓ aprovada', reprovada:'✕ reprovada', talvez:'? talvez' };
+
+  let html = '';
+  Object.entries(porEmpresa).forEach(function([empId, emp]) {
+    const totalEmp = Object.values(emp.vagas).reduce(function(a, v) { return a + v.cands.length; }, 0);
+    const avatar = emp.logo
+      ? '<img src="' + emp.logo + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">'
+      : '<div style="width:32px;height:32px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem">' + emp.nome.substring(0,2).toUpperCase() + '</div>';
+
+    let vagasHtml = '';
+    Object.entries(emp.vagas).forEach(function([vagaId, vaga]) {
+      let candsHtml = '';
+      vaga.cands.forEach(function(c) {
+        const ini = (c.nome||'?').split(' ').slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+        candsHtml += '<div class="data-row" style="padding-left:3.5rem">'
+          + '<div class="row-avatar" style="background:var(--blue-light);color:var(--blue);width:32px;height:32px;font-size:.75rem">' + ini + '</div>'
+          + '<div class="row-info">'
+          + '<div class="row-nome">' + (c.nome||'—') + '</div>'
+          + '<div class="row-sub">' + (c.email||'') + ' · ' + (c.telefone||'sem telefone') + ' · ' + tr(c.created_at) + (c.mensagem?' · "'+c.mensagem.substring(0,40)+'"':'') + '</div>'
+          + '</div>'
+          + '<span class="pill ' + (cls[c.status]||'pill-pend') + '">' + (statusLabel[c.status]||c.status) + '</span>'
+          + '</div>';
+      });
+
+      vagasHtml += '<div onclick="toggleCandsVaga(\'' + vagaId + '\')" style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 1.5rem .65rem 3rem;cursor:pointer;background:#fafaf8;border-top:1px solid var(--border)" onmouseover="this.style.background=\'#f5f2ed\'" onmouseout="this.style.background=\'#fafaf8\'">'
+        + '<div style="display:flex;align-items:center;gap:.5rem">'
+        + '<span style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)">Vaga:</span>'
+        + '<span style="font-weight:600;font-size:.88rem;color:var(--ink)">' + vaga.titulo + '</span>'
+        + '<span style="font-size:.78rem;color:var(--ink-3)">' + vaga.cands.length + ' candidatura' + (vaga.cands.length!==1?'s':'') + '</span>'
+        + '</div>'
+        + '<span id="toggle-cv-' + vagaId + '" style="font-size:1rem;color:var(--ink-3)">−</span>'
+        + '</div>'
+        + '<div id="cands-cv-' + vagaId + '">' + candsHtml + '</div>';
+    });
+
+    html += '<div style="border-bottom:2px solid var(--border)">'
+      + '<div onclick="toggleCandsEmp(\'' + empId + '\')" style="display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem;cursor:pointer;background:var(--surface);user-select:none" onmouseover="this.style.background=\'#f0ede8\'" onmouseout="this.style.background=\'var(--surface)\'">'
+      + '<div style="display:flex;align-items:center;gap:.75rem">'
+      + avatar
+      + '<div><span style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)">Empresa:</span>'
+      + '<span style="font-family:\'Syne\',sans-serif;font-weight:700;font-size:.95rem;color:var(--ink);margin-left:.4rem">' + emp.nome + '</span>'
+      + '<span style="font-size:.8rem;color:var(--ink-3);margin-left:.5rem">' + totalEmp + ' candidatura' + (totalEmp!==1?'s':'') + '</span></div>'
+      + '</div>'
+      + '<span id="toggle-ce-' + empId + '" style="font-size:1.1rem;color:var(--ink-3)">−</span>'
+      + '</div>'
+      + '<div id="cands-emp-' + empId + '">' + vagasHtml + '</div>'
+      + '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function toggleCandsEmp(empId) {
+  const body = document.getElementById('cands-emp-' + empId);
+  const icon = document.getElementById('toggle-ce-' + empId);
+  if (!body) return;
+  const aberto = body.style.display !== 'none';
+  body.style.display = aberto ? 'none' : '';
+  icon.textContent = aberto ? '+' : '−';
+}
+
+function toggleCandsVaga(vagaId) {
+  const body = document.getElementById('cands-cv-' + vagaId);
+  const icon = document.getElementById('toggle-cv-' + vagaId);
+  if (!body) return;
+  const aberto = body.style.display !== 'none';
+  body.style.display = aberto ? 'none' : '';
+  icon.textContent = aberto ? '+' : '−';
+}
+
+// =============================================
+// AÇÕES
+// =============================================
+async function acao(tipo, id, valor) {
+  if (tipo === 'empresa') {
+    await sb.from('empresas').update({ status: valor }).eq('id', id);
+    empresas = empresas.map(e => e.id === id ? { ...e, status: valor } : e);
+    const pend = empresas.filter(x => !x.status || x.status === 'pendente').length;
+    document.getElementById('cnt-pend').textContent = pend;
+    document.getElementById('cnt-pend').style.display = pend > 0 ? 'inline' : 'none';
+    renderEmpresas(); renderDashPendentes(); atualizarMetrics();
+    showToast(valor === 'aprovada' ? '✓ Empresa aprovada!' : valor === 'bloqueada' ? 'Empresa bloqueada.' : 'Status atualizado.');
+  } else if (tipo === 'candidato') {
+    await sb.from('candidatos').update({ status: valor }).eq('id', id);
+    candidatos = candidatos.map(c => c.id === id ? { ...c, status: valor } : c);
+    renderCandidatos();
+    showToast(valor === 'ativo' ? '✓ Candidato desbloqueado.' : 'Candidato bloqueado.');
+  } else if (tipo === 'excluir_empresa') {
+    await sb.from('vagas').delete().eq('empresa_id', id);
+    await sb.from('empresas').delete().eq('id', id);
+    empresas = empresas.filter(e => e.id !== id);
+    renderEmpresas(); renderDashPendentes(); atualizarMetrics();
+    showToast('Empresa excluída permanentemente.');
+    fecharModal();
+    return;
+  } else if (tipo === 'excluir_candidato') {
+    await sb.from('candidaturas').delete().eq('candidato_id', id);
+    await sb.from('experiencias').delete().eq('candidato_id', id);
+    await sb.from('formacoes').delete().eq('candidato_id', id);
+    await sb.from('certificados').delete().eq('candidato_id', id);
+    await sb.from('idiomas').delete().eq('candidato_id', id);
+    await sb.from('premios').delete().eq('candidato_id', id);
+    await sb.from('candidatos').delete().eq('id', id);
+    candidatos = candidatos.filter(c => c.id !== id);
+    renderCandidatos();
+    atualizarMetrics();
+    showToast('Candidato excluído permanentemente.');
+    fecharModal();
+    return;
+  } else if (tipo === 'vaga') {
+    await sb.from('vagas').update({ status: valor }).eq('id', id);
+    vagas = vagas.map(v => v.id === id ? { ...v, status: valor } : v);
+    renderVagas(); atualizarMetrics();
+    showToast(valor === 'encerrada' ? 'Vaga removida.' : '✓ Vaga reativada.');
+  }
+  fecharModal();
+}
+
+async function alterarPlano(empresaId, novoPlano) {
+  await sb.from('empresas').update({ plano: novoPlano }).eq('id', empresaId);
+  empresas = empresas.map(e => e.id === empresaId ? { ...e, plano: novoPlano } : e);
+  atualizarMetrics();
+  showToast(`✓ Plano alterado para ${novoPlano}!`);
+}
+
+async function toggleDestaque(vagaId, destaque) {
+  const { error } = await sb.from('vagas').update({ destaque }).eq('id', vagaId);
+  if (error) { showToast('❌ Erro ao salvar. Verifique as permissões.'); return; }
+  vagas = vagas.map(v => v.id === vagaId ? { ...v, destaque } : v);
+  renderVagas();
+  showToast(destaque ? '⭐ Vaga em destaque!' : 'Destaque removido.');
+}
+
+// =============================================
+// MODAL CONFIRMAÇÃO
+// =============================================
+function confirmar(titulo, msg, tipo, id, valor) {
+  document.getElementById('modal-titulo').textContent = titulo;
+  document.getElementById('modal-msg').textContent = msg;
+  document.getElementById('modal-btn').onclick = () => acao(tipo, id, valor);
+  document.getElementById('modal-ov').classList.add('open');
+}
+
+function fecharModal() {
+  document.getElementById('modal-ov').classList.remove('open');
+}
+
+// =============================================
+// NAVEGAÇÃO
+// =============================================
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  document.querySelectorAll('.s-nav li a').forEach(a => a.classList.remove('active'));
+  if (event?.currentTarget) event.currentTarget.classList.add('active');
+}
+
+// =============================================
+// HELPERS
+// =============================================
+function showToast(msg, tipo = 'ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${tipo === 'error' ? 'error' : ''} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function tr(d) {
+  if (!d) return '—';
+  const h = Math.floor((Date.now() - new Date(d)) / 36e5);
+  if (h < 1) return 'agora';
+  if (h < 24) return `há ${h}h`;
+  const dd = Math.floor(h / 24);
+  return dd === 1 ? 'há 1 dia' : `há ${dd} dias`;
+}
+</script>
+<!-- MODAL DADOS CADASTRAIS -->
+<div id="modal-dados" style="display:none;position:fixed;inset:0;background:rgba(15,17,23,.6);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(4px)" onclick="if(event.target===this)fecharModalDados()">
+  <div style="background:#fff;border-radius:20px;padding:2rem;max-width:640px;width:90%;max-height:85vh;overflow-y:auto;position:relative">
+    <button onclick="fecharModalDados()" style="position:absolute;top:1rem;right:1rem;background:var(--surface);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;color:var(--ink-3)">✕</button>
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:0.25rem" id="modal-dados-nome"></h2>
+    <div style="font-size:.82rem;color:var(--ink-3);margin-bottom:1.5rem" id="modal-dados-email"></div>
+    <div id="modal-dados-body"></div>
+  </div>
+</div>
+
+<script>
+function verDadosCadastrais(id) {
+  const e = empresas.find(x => x.id === id);
+  if (!e) return;
+  document.getElementById('modal-dados-nome').textContent = e.nome || '—';
+  document.getElementById('modal-dados-email').textContent = e.email || '—';
+
+  const campo = (label, val) => val ? `
+    <div style="margin-bottom:.75rem">
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-bottom:.2rem">${label}</div>
+      <div style="font-size:.9rem;color:var(--ink)">${val}</div>
+    </div>` : '';
+
+  const secao = (titulo, html) => `
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);border-bottom:1px solid var(--border);padding-bottom:.4rem;margin-bottom:.75rem">${titulo}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem .75rem">${html}</div>
+    </div>`;
+
+  const enderecoStr = (pre) => {
+    const partes = [
+      e[`endereco_${pre}`] ? `${e[`endereco_${pre}`]}${e[`numero_${pre}`] ? ', '+e[`numero_${pre}`] : ''}` : null,
+      e[`complemento_${pre}`],
+      e[`bairro_${pre}`],
+      e[`cidade_${pre}`] && e[`estado_${pre}`] ? `${e[`cidade_${pre}`]} — ${e[`estado_${pre}`]}` : (e[`cidade_${pre}`] || e[`estado_${pre}`]),
+      e[`cep_${pre}`] ? `CEP: ${e[`cep_${pre}`]}` : null,
+    ].filter(Boolean);
+    return partes.length ? partes.join('<br>') : '—';
+  };
+
+  document.getElementById('modal-dados-body').innerHTML = `
+    ${secao('Identificação', `
+      ${campo('Razão social', e.razao_social)}
+      ${campo('Nome fantasia', e.nome_fantasia)}
+      ${campo('CNPJ', e.cnpj)}
+      ${campo('Inscrição estadual', e.inscricao_estadual)}
+      ${campo('Inscrição municipal', e.inscricao_municipal)}
+    `)}
+    ${secao('Contatos', `
+      ${campo('Telefone', e.telefone)}
+      ${campo('WhatsApp', e.whatsapp)}
+      ${campo('E-mail financeiro', e.email_financeiro)}
+      ${campo('E-mail comercial', e.email_comercial)}
+      ${campo('E-mail RH', e.email_rh)}
+    `)}
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);border-bottom:1px solid var(--border);padding-bottom:.4rem;margin-bottom:.75rem">Endereço da sede</div>
+      <div style="font-size:.9rem;color:var(--ink);line-height:1.7">${enderecoStr('sede')}</div>
+    </div>
+    <div style="margin-bottom:1rem">
+      <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);border-bottom:1px solid var(--border);padding-bottom:.4rem;margin-bottom:.75rem">Endereço de cobrança</div>
+      <div style="font-size:.9rem;color:var(--ink);line-height:1.7">${enderecoStr('cobranca')}</div>
+    </div>
+  `;
+
+  const modal = document.getElementById('modal-dados');
+  modal.style.display = 'flex';
+}
+
+function fecharModalDados() {
+  document.getElementById('modal-dados').style.display = 'none';
+}
+</script>
+
+</body>
+</html>

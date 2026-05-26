@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vaga — Opportunia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #0f1117; --ink-2: #3a3d4a; --ink-3: #7a7f94;
+    --surface: #f5f4f0; --white: #ffffff;
+    --accent: #e8440a; --accent-light: #fff0eb;
+    --blue: #1a3c6e; --blue-light: #e8eef8;
+    --green: #0f6b3a; --green-light: #e6f4ed;
+    --gold: #c9920a; --gold-light: #fdf3dc;
+    --border: rgba(15,17,23,0.1); --border-strong: rgba(15,17,23,0.2);
+    --radius: 12px; --radius-sm: 8px; --radius-lg: 20px; --radius-pill: 100px;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); font-size: 16px; line-height: 1.6; }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1rem 2.5rem; background: rgba(245,244,240,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--ink); text-decoration: none; letter-spacing: -0.02em; }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+  .nav-links a { text-decoration: none; color: var(--ink-2); font-size: 0.9rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-dropdown { position: relative; }
+  .nav-dropdown-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--ink); cursor: pointer; transition: all 0.15s; }
+  .nav-dropdown-btn:hover { border-color: var(--ink); }
+  .nav-dropdown-btn .avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--blue-light); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--blue); }
+  .nav-dropdown-menu { position: absolute; top: calc(100% + 8px); right: 0; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.5rem; min-width: 200px; box-shadow: 0 8px 24px rgba(15,17,23,0.12); display: none; z-index: 200; }
+  .nav-dropdown-menu.open { display: block; }
+  .nav-dropdown-menu a { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); text-decoration: none; font-size: 0.88rem; color: var(--ink-2); transition: all 0.15s; }
+  .nav-dropdown-menu a:hover { background: var(--surface); color: var(--ink); }
+  .nav-dropdown-divider { height: 1px; background: var(--border); margin: 0.4rem 0; }
+  .nav-dropdown-menu .logout { color: #b91c1c; cursor: pointer; background: none; border: none; width: 100%; text-align: left; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); transition: all 0.15s; }
+  .nav-dropdown-menu .logout:hover { background: #fde8e8; }
+  .nav-cta { background: var(--ink); color: var(--white) !important; padding: 0.5rem 1.25rem; border-radius: var(--radius-pill); font-weight: 500 !important; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; }
+  .nav-cta:hover { background: var(--accent) !important; }
+  #nav-user-area { display: flex; align-items: center; gap: 1rem; }
+  .nav-user-name { font-size: 0.88rem; color: var(--ink-2); }
+
+  .page-wrap { max-width: 1100px; margin: 0 auto; padding: 7rem 2.5rem 5rem; display: grid; grid-template-columns: 1fr 340px; gap: 2.5rem; align-items: start; }
+
+  .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--ink-3); margin-bottom: 1.5rem; grid-column: 1 / -1; }
+  .breadcrumb a { color: var(--ink-3); text-decoration: none; transition: color 0.2s; }
+  .breadcrumb a:hover { color: var(--accent); }
+  .breadcrumb span { color: var(--border-strong); }
+
+  .main-content { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .job-header { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; }
+  .job-header-top { display: flex; gap: 1.25rem; align-items: flex-start; margin-bottom: 1.25rem; }
+  .company-logo-lg { width: 64px; height: 64px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--ink-2); flex-shrink: 0; }
+  .job-header-info { flex: 1; }
+  .job-title-lg { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.6rem; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 0.25rem; }
+  .job-company-lg { font-size: 1rem; color: var(--ink-2); margin-bottom: 0.75rem; }
+  .job-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .badge { font-size: 0.72rem; font-weight: 500; padding: 0.25rem 0.7rem; border-radius: var(--radius-pill); }
+  .badge-featured { background: var(--accent-light); color: var(--accent); }
+  .badge-new { background: var(--green-light); color: var(--green); }
+  .badge-verified { background: var(--blue-light); color: var(--blue); }
+
+  .job-meta-row { display: flex; gap: 1.5rem; flex-wrap: wrap; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-size: 0.72rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-value { font-size: 0.9rem; font-weight: 500; color: var(--ink); }
+  .meta-value.salary { color: var(--accent); font-size: 1rem; }
+
+  .content-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; }
+  .content-card h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--ink); margin-bottom: 1rem; }
+  .content-card p { color: var(--ink-2); line-height: 1.8; font-size: 0.95rem; margin-bottom: 0.75rem; }
+  .content-card p:last-child { margin-bottom: 0; }
+
+  .req-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+  .req-list li { display: flex; gap: 0.75rem; align-items: flex-start; font-size: 0.9rem; color: var(--ink-2); }
+  .req-list li::before { content: '→'; color: var(--accent); font-weight: 600; flex-shrink: 0; margin-top: 1px; }
+
+  .benefits-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  .benefit-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--surface); border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--ink-2); }
+
+  /* SIDEBAR */
+  .sidebar { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 6rem; }
+  .apply-card { background: var(--ink); border-radius: var(--radius-lg); padding: 1.75rem; color: var(--white); }
+  .apply-card h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.25rem; }
+  .apply-card p { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 1.25rem; }
+  .apply-salary { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: #ff6b35; margin-bottom: 0.25rem; }
+  .apply-salary-sub { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-bottom: 1.25rem; }
+  .btn-apply { display: block; width: 100%; text-align: center; background: var(--accent); color: var(--white); border: none; padding: 0.85rem; border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.2s; text-decoration: none; margin-bottom: 0.75rem; }
+  .btn-apply:hover { background: #c93a08; transform: scale(1.02); }
+  .btn-save { display: block; width: 100%; text-align: center; background: transparent; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.15); padding: 0.75rem; border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
+  .btn-save:hover { border-color: rgba(255,255,255,0.4); color: var(--white); }
+
+  .similar-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; }
+  .similar-card h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--ink); margin-bottom: 1rem; }
+  .similar-job { display: flex; flex-direction: column; gap: 2px; padding: 0.75rem 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: all 0.15s; text-decoration: none; }
+  .similar-job:last-child { border-bottom: none; padding-bottom: 0; }
+  .similar-job:hover .sj-title { color: var(--accent); }
+  .sj-title { font-size: 0.9rem; font-weight: 500; color: var(--ink); transition: color 0.15s; }
+  .sj-company { font-size: 0.78rem; color: var(--ink-3); }
+  .sj-salary { font-size: 0.82rem; color: var(--accent); font-weight: 500; margin-top: 2px; }
+
+  /* LOADING */
+  .skeleton { background: linear-gradient(90deg, var(--border) 25%, rgba(15,17,23,0.05) 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius-sm); }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .sk-title { height: 32px; width: 70%; margin-bottom: 0.75rem; }
+  .sk-sub { height: 16px; width: 40%; margin-bottom: 0.5rem; }
+  .sk-text { height: 14px; width: 100%; margin-bottom: 0.4rem; }
+  .sk-text.w80 { width: 80%; }
+  .sk-text.w60 { width: 60%; }
+
+  /* MODAL CANDIDATURA */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,17,23,0.6); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: var(--radius-lg); padding: 2.5rem; max-width: 480px; width: 90%; animation: fadeUp 0.25s ease; position: relative; }
+  .modal h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.4rem; margin-bottom: 0.25rem; }
+  .modal-vaga { color: var(--accent); font-weight: 500; margin-bottom: 1.5rem; font-size: 0.95rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 500; color: var(--ink-2); margin-bottom: 0.4rem; }
+  .form-group input, .form-group textarea { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--ink); background: var(--surface); outline: none; transition: border-color 0.2s; }
+  .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); background: var(--white); box-shadow: 0 0 0 3px var(--accent-light); }
+  .form-group textarea { resize: vertical; min-height: 90px; }
+  .modal-close { position: absolute; top: 1.25rem; right: 1.25rem; background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem; color: var(--ink-3); display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { background: var(--border); color: var(--ink); }
+  .btn-submit { width: 100%; padding: 0.85rem; background: var(--accent); color: var(--white); border: none; border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
+  .btn-submit:hover { background: #c93a08; }
+  .btn-submit:disabled { background: var(--ink-3); cursor: not-allowed; }
+  .modal-error { color: #b91c1c; font-size: 0.82rem; margin-top: 0.5rem; background: #fde8e8; padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); display: none; }
+  .modal-error.show { display: block; }
+  .modal-success { color: var(--green); font-size: 0.82rem; margin-top: 0.5rem; background: var(--green-light); padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); display: none; }
+  .modal-success.show { display: block; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.25rem; }
+    .nav-links { display: none; }
+    .page-wrap { grid-template-columns: 1fr; padding: 6rem 1.25rem 3rem; }
+    .sidebar { position: static; }
+    .benefits-grid { grid-template-columns: 1fr; }
+  }
+.empresa-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
+.empresa-card-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.empresa-card-logo{width:48px;height:48px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;color:var(--ink-2);overflow:hidden;flex-shrink:0}
+.empresa-card-logo img{width:100%;height:100%;object-fit:cover;border-radius:9px}
+.empresa-card-nome{font-weight:700;font-size:.95rem;color:var(--ink-1)}
+.empresa-card-setor{font-size:.78rem;color:var(--ink-3)}
+.empresa-card-desc{font-size:.85rem;color:var(--ink-2);line-height:1.6;margin-bottom:.75rem}
+.empresa-card-badges{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem}
+.empresa-card-badge{font-size:.75rem;color:var(--ink-2);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-pill);padding:.25rem .65rem}
+.empresa-card-links{display:flex;gap:.75rem;flex-wrap:wrap}
+.empresa-card-links a{font-size:.8rem;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:.3rem}
+.empresa-card-links a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="oportunia-integrado.html" class="nav-logo">Opportu<span>nia</span><sup style="font-size:1rem;font-weight:500;vertical-align:super;letter-spacing:0;color:var(--ink-3);margin-left:1px">®</sup></a>
+  <ul class="nav-links">
+    <li><a href="oportunia-vagas.html">Vagas</a></li>
+    <li><a href="oportunia-integrado.html#como-funciona">Como funciona</a></li>
+    <li><a href="oportunia-integrado.html#planos">Para empresas</a></li>
+  </ul>
+  <div id="nav-user-area">
+    <button class="nav-cta" onclick="window.location.href='oportunia-integrado.html'">Entrar</button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="breadcrumb">
+    <a href="oportunia-integrado.html">Início</a>
+    <span>›</span>
+    <a href="oportunia-vagas.html">Vagas</a>
+    <span>›</span>
+    <span id="breadcrumb-area">—</span>
+    <span>›</span>
+    <span id="breadcrumb-titulo">Carregando…</span>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content" id="main-content">
+    <!-- SKELETON LOADING -->
+    <div class="job-header" id="skeleton-header">
+      <div class="job-header-top">
+        <div class="company-logo-lg skeleton" style="background:var(--border)"></div>
+        <div style="flex:1">
+          <div class="skeleton sk-title"></div>
+          <div class="skeleton sk-sub"></div>
+        </div>
+      </div>
+      <div style="padding-top:1.25rem;border-top:1px solid var(--border);display:flex;gap:2rem">
+        <div><div class="skeleton sk-sub" style="width:60px;margin-bottom:4px"></div><div class="skeleton sk-text" style="width:80px"></div></div>
+        <div><div class="skeleton sk-sub" style="width:60px;margin-bottom:4px"></div><div class="skeleton sk-text" style="width:80px"></div></div>
+        <div><div class="skeleton sk-sub" style="width:60px;margin-bottom:4px"></div><div class="skeleton sk-text" style="width:80px"></div></div>
+      </div>
+    </div>
+    <div class="content-card" id="skeleton-desc">
+      <div class="skeleton sk-title" style="width:40%;margin-bottom:1rem"></div>
+      <div class="skeleton sk-text"></div>
+      <div class="skeleton sk-text w80"></div>
+      <div class="skeleton sk-text w60"></div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="apply-card" id="apply-card">
+      <h3>Candidate-se agora</h3>
+      <p id="apply-status">Carregando…</p>
+      <div class="apply-salary" id="apply-salary">—</div>
+      <div class="apply-salary-sub" id="apply-sub">—</div>
+      <button class="btn-apply" onclick="abrirModal()">Quero me candidatar →</button>
+      <button class="btn-save" id="btn-salvar-vaga" onclick="salvarVaga()">♡ Salvar vaga</button>
+    </div>
+    <div class="empresa-card" id="empresa-info-card" style="display:none">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-bottom:.75rem">Sobre a empresa</div>
+      <div class="empresa-card-header">
+        <div class="empresa-card-logo" id="ec-logo"></div>
+        <div>
+          <div class="empresa-card-nome" id="ec-nome"></div>
+          <div class="empresa-card-setor" id="ec-setor"></div>
+        </div>
+      </div>
+      <div class="empresa-card-desc" id="ec-desc"></div>
+      <div class="empresa-card-badges" id="ec-badges"></div>
+      <div class="empresa-card-links" id="ec-links"></div>
+    </div>
+    <div class="similar-card">
+      <h3>Vagas similares</h3>
+      <div id="similar-list"><div style="font-size:0.85rem;color:var(--ink-3)">Carregando…</div></div>
+    </div>
+  </aside>
+</div>
+
+<!-- MODAL CANDIDATURA -->
+<div class="modal-overlay" id="modal-cand" onclick="if(event.target===this)fecharModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="fecharModal()">✕</button>
+    <h2>Sua candidatura</h2>
+    <div class="modal-vaga" id="modal-titulo"></div>
+    <div class="form-group"><label>Nome completo</label><input type="text" id="cand-nome" placeholder="Seu nome completo" /></div>
+    <div class="form-group"><label>E-mail</label><input type="email" id="cand-email" placeholder="seu@email.com" /></div>
+    <div class="form-group"><label>WhatsApp</label><input type="tel" id="cand-tel" placeholder="(14) 99999-0000" /></div>
+    <div class="form-group">
+      <label>Por que você quer essa vaga? <span style="color:var(--ink-3);font-weight:400">(opcional)</span></label>
+      <textarea id="cand-msg" placeholder="Conte brevemente sua experiência e motivação…"></textarea>
+    </div>
+    <div class="modal-error" id="cand-error"></div>
+    <div class="modal-success" id="cand-success"></div>
+    <button class="btn-submit" id="btn-submit" onclick="enviarCandidatura()">Enviar candidatura →</button>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://lvexahtskdhgujwrlkex.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_AvhhaT_r4vsz3iuiZpZ3AA_zW7rxPo4';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let vagaAtual = null;
+let usuarioLogado = null;
+
+// Pega o ID da vaga pela URL: vaga.html?id=UUID
+function getVagaId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('id');
+}
+
+function renderTopicos(texto) {
+  if (!texto) return '';
+  return texto.split('\n').map(linha => {
+    const l = linha.trim();
+    if (!l) return '';
+    if (l.startsWith('*')) return `<li>${l.substring(1).trim()}</li>`;
+    return `<p style="margin-bottom:0.5rem;color:var(--ink-2);font-size:0.95rem">${l}</p>`;
+  }).join('');
+}
+
+function wrapTopicos(texto) {
+  if (!texto) return '';
+  const linhas = texto.split('\n').map(l => l.trim()).filter(Boolean);
+  const temTopicos = linhas.some(l => l.startsWith('*'));
+  if (temTopicos) {
+    return '<ul class="req-list">' + renderTopicos(texto) + '</ul>';
+  }
+  return texto.split('\n').filter(l => l.trim()).map(l => `<p>${l}</p>`).join('');
+}
+
+function tempoRelativo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const h = Math.floor(diff / 36e5);
+  if (h < 1) return 'agora';
+  if (h < 24) return `há ${h}h`;
+  const d = Math.floor(h / 24);
+  return d === 1 ? 'há 1 dia' : `há ${d} dias`;
+}
+
+function formatSalario(min, max) {
+  if (min && max && min === max) return `R$ ${Number(min).toLocaleString('pt-BR')}`;
+  if (min && max && min !== max) return `R$ ${Number(min).toLocaleString('pt-BR')} – R$ ${Number(max).toLocaleString('pt-BR')}`;
+  if (min) return `A partir de R$ ${Number(min).toLocaleString('pt-BR')}`;
+  return 'A combinar';
+}
+
+function getIniciais(texto) {
+  return (texto || 'VG').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  // Verifica sessão
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    usuarioLogado = session.user;
+    const user = session.user;
+    const nome = user.user_metadata?.nome || user.email.split('@')[0];
+    const iniciais = nome.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+    const tipo = user.user_metadata?.tipo || 'candidato';
+    const links = tipo === 'empresa'
+      ? `<a href="oportunia-painel-empresa.html">📊 Painel da empresa</a>`
+      : `<a href="oportunia-perfil-candidato-v2.html">👤 Meu perfil</a><a href="oportunia-perfil-candidato-v2.html">📋 Minhas candidaturas</a>`;
+    document.getElementById('nav-user-area').innerHTML = `
+      <div class="nav-dropdown" id="nav-dropdown">
+        <button class="nav-dropdown-btn" onclick="document.getElementById('nav-dropdown-menu').classList.toggle('open')">
+          <div class="avatar">${iniciais}</div>
+          ${nome.split(' ')[0]}
+          <span style="font-size:0.7rem;color:var(--ink-3)">▾</span>
+        </button>
+        <div class="nav-dropdown-menu" id="nav-dropdown-menu">
+          <div style="padding:0.5rem 0.75rem 0.4rem;font-size:0.75rem;color:var(--ink-3)">${user.email}</div>
+          <div class="nav-dropdown-divider"></div>
+          ${links}
+          <div class="nav-dropdown-divider"></div>
+          <button class="logout" onclick="sb.auth.signOut().then(()=>window.location.href='oportunia-integrado.html')">🚪 Sair</button>
+        </div>
+      </div>
+    `;
+    document.addEventListener('click', (e) => {
+      const d = document.getElementById('nav-dropdown');
+      if (d && !d.contains(e.target)) document.getElementById('nav-dropdown-menu')?.classList.remove('open');
+    });
+  }
+
+  const id = getVagaId();
+  if (!id) { mostrarErroVaga(); return; }
+
+  await carregarVaga(id);
+});
+
+async function carregarVaga(id) {
+  const { data: vaga, error } = await sb.from('vagas').select('*').eq('id', id).single();
+
+  if (error || !vaga) { mostrarErroVaga(); return; }
+  vagaAtual = vaga;
+  renderizarVaga(vaga);
+  carregarSimilares(vaga.area, id);
+  // Verifica se vaga já está salva
+  sb.auth.getSession().then(({data:{session}})=>{
+    if(!session) return;
+    sb.from('vagas_salvas').select('id').eq('candidato_id',session.user.id).eq('vaga_id',id).single().then(({data})=>{
+      if(data){ const btn=document.getElementById('btn-salvar-vaga');if(btn){btn.textContent='♥ Vaga salva!';btn.style.opacity='.7';} }
+    });
+  });
+  if(vaga.empresa_id){
+    sb.from('empresas').select('nome, logo, descricao, site, instagram, tamanho, fundacao, setor, sede').eq('id', vaga.empresa_id).single().then(({data:emp})=>{
+      renderizarEmpresa(emp);
+    });
+  }
+}
+
+function renderizarVaga(v) {
+  // Atualiza título da página e breadcrumb
+  document.title = `${v.titulo} — Opportunia`;
+  document.getElementById('breadcrumb-area').textContent = v.area || 'Vagas';
+  document.getElementById('breadcrumb-titulo').textContent = v.titulo;
+
+  const iniciais = getIniciais(v.titulo);
+  const salario = formatSalario(v.salario_min, v.salario_max);
+  const tempo = tempoRelativo(v.created_at);
+
+  // Remove skeleton
+  document.getElementById('main-content').innerHTML = `
+    <div class="job-header">
+      <div class="job-header-top">
+        <div class="company-logo-lg" id="job-empresa-logo">${iniciais}</div>
+        <div class="job-header-info">
+          <div class="job-title-lg">${v.titulo}</div>
+          <div class="job-company-lg" style="display:flex;flex-direction:column;gap:.2rem;font-size:.9rem">
+            <span><strong style="color:var(--ink-2);font-weight:600">Empresa:</strong> <span id="job-empresa-nome">—</span></span>
+            <span><strong style="color:var(--ink-2);font-weight:600">Cidade:</strong> Bauru, SP</span>
+            <span style="color:var(--ink-3);font-size:.82rem">Publicada ${tempo}</span>
+          </div>
+          <div class="job-badges">
+            ${v.destaque ? '<span class="badge badge-featured">⭐ Destaque</span>' : '<span class="badge badge-new">Nova</span>'}
+            <span class="badge badge-verified">✓ Vaga verificada</span>
+          </div>
+        </div>
+      </div>
+      <div class="job-meta-row">
+        <div class="meta-item"><div class="meta-label">Salário</div><div class="meta-value salary">${salario}</div></div>
+        ${v.contrato ? `<div class="meta-item"><div class="meta-label">Regime</div><div class="meta-value">${v.contrato}</div></div>` : ''}
+        ${v.modalidade ? `<div class="meta-item"><div class="meta-label">Modalidade</div><div class="meta-value">${v.modalidade}</div></div>` : ''}
+        ${v.nivel ? `<div class="meta-item"><div class="meta-label">Nível</div><div class="meta-value">${v.nivel}</div></div>` : ''}
+        ${v.area ? `<div class="meta-item"><div class="meta-label">Área</div><div class="meta-value">${v.area}</div></div>` : ''}
+      </div>
+    </div>
+
+    ${v.descricao ? `
+    <div class="content-card">
+      <h2>Sobre a vaga</h2>
+      ${v.descricao.split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('')}
+    </div>` : ''}
+
+    ${v.responsabilidades ? `
+    <div class="content-card">
+      <h2>Responsabilidades</h2>
+      <ul class="req-list">${wrapTopicos(v.responsabilidades)}</ul>
+    </div>` : ''}
+
+    ${v.requisitos ? `
+    <div class="content-card">
+      <h2>Requisitos</h2>
+      <ul class="req-list">${wrapTopicos(v.requisitos)}</ul>
+    </div>` : ''}
+
+    ${v.beneficios ? `
+    <div class="content-card">
+      <h2>Benefícios</h2>
+      <ul class="req-list">${wrapTopicos(v.beneficios)}</ul>
+    </div>` : ''}
+
+    ${(v.setor || v.tipo_emprego) ? `
+    <div class="content-card">
+      <h2>Informações adicionais</h2>
+      ${v.setor ? `<div class="job-meta-row" style="padding-top:0;border-top:none"><div class="meta-item"><div class="meta-label">Setor</div><div class="meta-value">${v.setor}</div></div></div>` : ''}
+      ${v.tipo_emprego ? `<div class="job-meta-row" style="padding-top:0.5rem;border-top:none"><div class="meta-item"><div class="meta-label">Tipo de emprego</div><div class="meta-value">${v.tipo_emprego}</div></div></div>` : ''}
+    </div>` : ''}
+
+    ${(v.habilidades_obrigatorias?.length || v.habilidades_desejaveis?.length) ? `
+    <div class="content-card">
+      <h2>Habilidades</h2>
+      ${v.habilidades_obrigatorias?.length ? `
+        <div style="margin-bottom:1rem">
+          <div style="font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-3);margin-bottom:0.6rem">Obrigatórias</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            ${v.habilidades_obrigatorias.map(h => `<span style="background:#FCEBEB;border:1px solid #F09595;color:#A32D2D;padding:3px 12px;border-radius:100px;font-size:0.82rem;font-weight:500">${h}</span>`).join('')}
+          </div>
+        </div>` : ''}
+      ${v.habilidades_desejaveis?.length ? `
+        <div>
+          <div style="font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-3);margin-bottom:0.6rem">Diferenciais</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            ${v.habilidades_desejaveis.map(h => `<span style="background:#EAF3DE;border:1px solid #b7d9a0;color:#3B6D11;padding:3px 12px;border-radius:100px;font-size:0.82rem;font-weight:500">${h}</span>`).join('')}
+          </div>
+        </div>` : ''}
+    </div>` : ''}
+
+    ${(v.experiencia_minima_meses || v.formacao_minima || v.formacoes_exigidas?.length || v.idioma_necessario) ? `
+    <div class="content-card">
+      <h2>Requisitos adicionais</h2>
+      <div style="display:flex;flex-direction:column;gap:0.75rem">
+        ${v.experiencia_minima_meses ? `
+          <div style="display:flex;align-items:center;gap:0.75rem">
+            <span style="font-size:1.1rem">⏱</span>
+            <div>
+              <div style="font-size:0.75rem;color:var(--ink-3);font-weight:500">Experiência mínima</div>
+              <div style="font-size:0.9rem;color:var(--ink);font-weight:500">${v.experiencia_minima_meses >= 12 ? Math.round(v.experiencia_minima_meses/12) + (v.experiencia_minima_meses === 60 ? ' anos ou mais' : v.experiencia_minima_meses === 12 ? ' ano' : ' anos') : v.experiencia_minima_meses + ' meses'}</div>
+            </div>
+          </div>` : ''}
+        ${v.formacao_minima ? `
+          <div style="display:flex;align-items:center;gap:0.75rem">
+            <span style="font-size:1.1rem">🎓</span>
+            <div>
+              <div style="font-size:0.75rem;color:var(--ink-3);font-weight:500">Formação mínima</div>
+              <div style="font-size:0.9rem;color:var(--ink);font-weight:500">${v.formacao_minima}</div>
+            </div>
+          </div>` : ''}
+        ${v.formacoes_exigidas?.length ? `
+          <div style="display:flex;align-items:flex-start;gap:0.75rem">
+            <span style="font-size:1.1rem">📄</span>
+            <div>
+              <div style="font-size:0.75rem;color:var(--ink-3);font-weight:500;margin-bottom:0.4rem">Formações exigidas</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                ${v.formacoes_exigidas.map(f => `<span style="background:#E6F1FB;border:1px solid #a8c8f0;color:#185FA5;padding:3px 12px;border-radius:100px;font-size:0.82rem;font-weight:500">${f}</span>`).join('')}
+              </div>
+            </div>
+          </div>` : ''}
+        ${v.idioma_necessario ? `
+          <div style="display:flex;align-items:center;gap:0.75rem">
+            <span style="font-size:1.1rem">🌐</span>
+            <div>
+              <div style="font-size:0.75rem;color:var(--ink-3);font-weight:500">Idioma necessário</div>
+              <div style="font-size:0.9rem;color:var(--ink);font-weight:500">${v.idioma_necessario}${v.idioma_nivel_minimo ? ' — ' + v.idioma_nivel_minimo : ''}</div>
+            </div>
+          </div>` : ''}
+      </div>
+    </div>` : ''}
+  `;
+
+  // Sidebar apply card
+  document.getElementById('apply-salary').textContent = salario;
+  document.getElementById('apply-sub').textContent = `${v.contrato || ''} · ${v.modalidade || ''}`.trim().replace(/^·|·$/, '');
+  document.getElementById('apply-status').textContent = 'Processo seletivo aberto';
+  document.getElementById('modal-titulo').textContent = v.titulo;
+
+  if (usuarioLogado) {
+    document.getElementById('cand-email').value = usuarioLogado.email || '';
+  }
+}
+
+function renderizarEmpresa(emp){
+  if(!emp) return;
+  // Atualiza nome e logo no header da vaga
+  const nomeEl = document.getElementById('job-empresa-nome');
+  if(nomeEl) nomeEl.textContent = emp.nome || '—';
+  const logoHeader = document.getElementById('job-empresa-logo');
+  if(logoHeader){
+    if(emp.logo) logoHeader.innerHTML=`<img src="${emp.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius)">`;
+    else logoHeader.textContent = emp.nome?emp.nome.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase():'?';
+  }
+  const card = document.getElementById('empresa-info-card');
+  if(!card) return;
+  const temInfo = emp.descricao || emp.tamanho || emp.setor || emp.site || emp.instagram;
+  if(!temInfo){ card.style.display='none'; return; }
+  card.style.display='block';
+  // Logo
+  const logoEl = document.getElementById('ec-logo');
+  if(emp.logo){ logoEl.innerHTML=`<img src="${emp.logo}">`; }
+  else { logoEl.textContent = emp.nome?emp.nome[0].toUpperCase():'🏢'; }
+  // Nome e setor
+  document.getElementById('ec-nome').textContent = emp.nome || '';
+  document.getElementById('ec-setor').textContent = emp.setor || '';
+  // Descrição
+  const descEl = document.getElementById('ec-desc');
+  if(emp.descricao){ descEl.textContent = emp.descricao; descEl.style.display='block'; }
+  else { descEl.style.display='none'; }
+  // Badges
+  const badges = [];
+  if(emp.tamanho) badges.push(`👥 ${emp.tamanho} funcionários`);
+  if(emp.fundacao) badges.push(`📅 Fundada em ${emp.fundacao}`);
+  if(emp.sede) badges.push(`📍 ${emp.sede}`);
+  document.getElementById('ec-badges').innerHTML = badges.map(b=>`<span class="empresa-card-badge">${b}</span>`).join('');
+  // Links
+  const links = [];
+  if(emp.site) links.push(`<a href="${emp.site}" target="_blank">🌐 Site</a>`);
+  if(emp.instagram) links.push(`<a href="https://instagram.com/${emp.instagram.replace('@','')}" target="_blank">📸 Instagram</a>`);
+  document.getElementById('ec-links').innerHTML = links.join('');
+}
+
+async function salvarVaga(){
+  const { data: { session } } = await sb.auth.getSession();
+  if(!session){ alert('Faça login para salvar vagas.'); return; }
+  const vagaId = new URLSearchParams(window.location.search).get('id');
+  if(!vagaId) return;
+  const btn = document.getElementById('btn-salvar-vaga');
+  // Verifica se já está salva
+  const { data: existing } = await sb.from('vagas_salvas').select('id').eq('candidato_id', session.user.id).eq('vaga_id', vagaId).single();
+  if(existing){
+    // Remove
+    await sb.from('vagas_salvas').delete().eq('id', existing.id);
+    btn.textContent = '♡ Salvar vaga';
+    btn.style.opacity = '1';
+  } else {
+    // Salva
+    const { error } = await sb.from('vagas_salvas').insert({ candidato_id: session.user.id, vaga_id: vagaId });
+    if(error){ alert('Erro ao salvar vaga.'); return; }
+    btn.textContent = '♥ Vaga salva!';
+    btn.style.opacity = '.7';
+  }
+}
+
+async function carregarSimilares(area, excludeId) {
+  const { data } = await sb.from('vagas').select('id, titulo, salario_min, salario_max').eq('status', 'ativa').eq('area', area).neq('id', excludeId).limit(3);
+
+  const list = document.getElementById('similar-list');
+  if (!data || data.length === 0) {
+    list.innerHTML = '<div style="font-size:0.85rem;color:var(--ink-3)">Nenhuma vaga similar no momento.</div>';
+    return;
+  }
+  list.innerHTML = data.map(v => `
+    <a class="similar-job" href="oportunia-vaga-integrado.html?id=${v.id}">
+      <div class="sj-title">${v.titulo}</div>
+      <div class="sj-company">Bauru, SP</div>
+      <div class="sj-salary">${formatSalario(v.salario_min, v.salario_max)}</div>
+    </a>
+  `).join('');
+}
+
+function mostrarErroVaga() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="content-card" style="text-align:center;padding:3rem">
+      <p style="font-size:2rem;margin-bottom:1rem">🔍</p>
+      <h2 style="margin-bottom:0.5rem">Vaga não encontrada</h2>
+      <p style="color:var(--ink-3);margin-bottom:1.5rem">Esta vaga pode ter sido encerrada ou não existe.</p>
+      <a href="oportunia-integrado.html#vagas" style="color:var(--accent);text-decoration:none;font-weight:500">← Ver todas as vagas</a>
+    </div>
+  `;
+}
+
+function abrirModal() {
+  if (!usuarioLogado) {
+    // Salva vaga para abrir após login
+    sessionStorage.setItem('vagaPendente', window.location.href);
+    window.location.href = 'oportunia-integrado.html';
+    return;
+  }
+  document.getElementById('modal-cand').classList.add('open');
+  document.getElementById('cand-error').classList.remove('show');
+  document.getElementById('cand-success').classList.remove('show');
+  document.getElementById('btn-submit').disabled = false;
+  document.getElementById('btn-submit').textContent = 'Enviar candidatura →';
+  document.getElementById('cand-email').value = usuarioLogado?.email || '';
+}
+
+function fecharModal() {
+  document.getElementById('modal-cand').classList.remove('open');
+}
+
+async function enviarCandidatura() {
+  const nome = document.getElementById('cand-nome').value.trim();
+  const email = document.getElementById('cand-email').value.trim();
+  const tel = document.getElementById('cand-tel').value.trim();
+  const msg = document.getElementById('cand-msg').value.trim();
+  const btn = document.getElementById('btn-submit');
+  const err = document.getElementById('cand-error');
+  const suc = document.getElementById('cand-success');
+
+  // Verifica se está logado antes de qualquer coisa
+  if (!usuarioLogado) {
+    err.textContent = 'Você precisa estar logado para se candidatar.';
+    err.classList.add('show');
+    return;
+  }
+
+  if (!nome || !email) {
+    err.textContent = 'Nome e e-mail são obrigatórios.';
+    err.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+
+  const { data: cand } = await sb.from('candidatos').select('id, nome, telefone').eq('user_id', usuarioLogado.id).single();
+  const { error } = await sb.from('candidaturas').insert({
+    vaga_id: vagaAtual.id,
+    candidato_id: cand?.id || null,
+    nome: cand?.nome || nome,
+    email,
+    telefone: cand?.telefone || tel,
+    mensagem: msg
+  });
+
+  if (error) {
+    if (error.code === '23505') {
+      err.textContent = 'Você já se candidatou a esta vaga!';
+    } else {
+      err.textContent = 'Erro ao enviar. Tente novamente.';
+    }
+    err.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'Enviar candidatura →';
+    return;
+  }
+
+  err.classList.remove('show');
+  suc.textContent = '✓ Candidatura enviada! Boa sorte!';
+  suc.classList.add('show');
+  btn.textContent = 'Enviado! ✓';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2763 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Painel da Empresa — Opportunia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #0f1117; --ink-2: #3a3d4a; --ink-3: #7a7f94;
+    --surface: #f5f4f0; --white: #ffffff;
+    --accent: #e8440a; --accent-light: #fff0eb;
+    --blue: #1a3c6e; --blue-light: #e8eef8;
+    --green: #0f6b3a; --green-light: #e6f4ed;
+    --gold: #c9920a; --gold-light: #fdf3dc;
+    --red: #b91c1c; --red-light: #fde8e8;
+    --border: rgba(15,17,23,0.1); --border-strong: rgba(15,17,23,0.18);
+    --radius: 12px; --radius-sm: 8px; --radius-lg: 20px; --radius-pill: 100px;
+    --sidebar-w: 240px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar { width: var(--sidebar-w); background: var(--ink); min-height: 100vh; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; padding: 1.5rem 1rem; z-index: 50; }
+  .s-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; color: var(--white); text-decoration: none; letter-spacing: -0.02em; margin-bottom: 0.5rem; padding: 0 0.5rem; display: block; }
+  .s-logo span { color: var(--accent); }
+  .s-empresa-nome { font-size: 0.78rem; color: rgba(255,255,255,0.3); padding: 0 0.5rem; margin-bottom: 2rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.s-logo-empresa-wrap{padding:0 .5rem;margin-bottom:.75rem;display:flex;align-items:center;gap:.75rem}
+.s-logo-empresa{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:1.2rem;cursor:pointer;overflow:hidden;flex-shrink:0;position:relative;border:1.5px solid rgba(255,255,255,.1);transition:border-color .2s}
+.s-logo-empresa:hover{border-color:var(--accent)}
+.s-logo-empresa img{width:100%;height:100%;object-fit:cover;border-radius:9px}
+.s-logo-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;font-size:.6rem;color:#fff;text-align:center;line-height:1.3}
+.s-logo-empresa:hover .s-logo-overlay{opacity:1}
+#logo-input{display:none}
+
+  .s-section { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0 0.5rem; margin-bottom: 0.5rem; margin-top: 1rem; }
+  .s-nav { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+  .s-nav li a { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); text-decoration: none; font-size: 0.88rem; color: rgba(255,255,255,0.5); transition: all 0.15s; cursor: pointer; }
+  .s-nav li a:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.85); }
+  .s-nav li a.active { background: rgba(255,255,255,0.1); color: var(--white); }
+  .s-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+  .s-plan { margin-top: auto; padding: 1rem; background: rgba(255,255,255,0.06); border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.08); }
+  .s-plan-name { font-size: 0.72rem; color: rgba(255,255,255,0.35); margin-bottom: 0.25rem; }
+  .s-plan-tier { font-size: 0.9rem; font-weight: 500; color: var(--white); margin-bottom: 0.5rem; }
+  .s-plan-bar-wrap { height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 0.4rem; overflow: hidden; }
+  .s-plan-bar { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.5s; }
+  .s-plan-text { font-size: 0.72rem; color: rgba(255,255,255,0.3); }
+  .s-logout { display: block; text-align: center; margin-top: 0.75rem; padding: 0.45rem; background: transparent; color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-pill); font-size: 0.78rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .s-logout:hover { color: var(--white); border-color: rgba(255,255,255,0.3); }
+  .cidade-opt { padding: 0.5rem 0.75rem; font-size: 0.88rem; color: var(--ink-2); cursor: pointer; transition: background 0.1s; }
+  .cidade-opt:hover, .cidade-opt.selected { background: var(--surface); color: var(--ink); }
+  .s-plan-venc { font-size: 0.72rem; margin-top: 0.4rem; padding: 0.3rem 0.6rem; border-radius: 6px; font-weight: 500; text-align: center; }
+  .s-plan-venc.ok { background: rgba(15,107,58,0.25); color: #6ee7a0; }
+  .s-plan-venc.warn { background: rgba(201,146,10,0.25); color: #fcd34d; }
+  .s-plan-venc.danger { background: rgba(185,28,28,0.3); color: #fca5a5; }
+  .s-plan-venc.sem-data { display: none; }
+  /* Gráfico horizontal por vaga */
+  .dash-hbar-scroll { max-height: 320px; overflow-y: auto; padding-right: 4px; }
+  .dash-hbar-scroll::-webkit-scrollbar { width: 3px; }
+  .dash-hbar-scroll::-webkit-scrollbar-track { background: transparent; }
+  .dash-hbar-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
+  .dash-hbar-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+  .dash-hbar-row:last-child { border-bottom: none; }
+  .dash-hbar-label { font-size: 0.78rem; color: var(--ink-2); width: 130px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dash-hbar-bars { flex: 1; display: flex; gap: 2px; }
+  .dash-hbar-seg { height: 16px; border-radius: 3px; min-width: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; transition: width 0.4s; }
+  .dash-hbar-total { font-size: 0.75rem; color: var(--ink-3); width: 28px; text-align: right; flex-shrink: 0; }
+
+  /* MAIN */
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 2rem 2.5rem; min-height: 100vh; }
+
+  /* PÁGINAS */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* TOP BAR */
+  .top-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+  .top-bar h1 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.5rem; letter-spacing: -0.02em; }
+  .top-bar p { font-size: 0.85rem; color: var(--ink-3); margin-top: 2px; }
+
+  .btn-new { display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; background: var(--accent); color: var(--white); border: none; border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+  .btn-new:hover { background: #c93a08; }
+
+  /* METRICS */
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+  .metric-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+  .metric-label { font-size: 0.75rem; color: var(--ink-3); margin-bottom: 0.5rem; }
+  .metric-value { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--ink); line-height: 1; margin-bottom: 0.4rem; }
+  .metric-delta { font-size: 0.78rem; color: var(--ink-3); }
+
+  /* DASHBOARD NOVO */
+  .dash-metric-card { background: var(--surface); border-radius: var(--radius); padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 4px; }
+  .dash-metric-label { font-size: 0.72rem; color: var(--ink-3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+  .dash-metric-value { font-family: 'Syne', sans-serif; font-size: 1.9rem; font-weight: 700; color: var(--ink); line-height: 1; }
+  .dash-metric-sub { font-size: 0.75rem; color: var(--ink-3); }
+  .dash-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+  .dash-card-title { font-size: 0.82rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+  .dash-match-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .dash-match-row:last-child { border-bottom: none; }
+  .dash-match-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--blue-light); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--blue); flex-shrink: 0; }
+  .dash-match-info { flex: 1; min-width: 0; }
+  .dash-match-nome { font-size: 0.82rem; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dash-match-vaga { font-size: 0.72rem; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dash-match-pct { font-size: 0.8rem; font-weight: 600; min-width: 36px; text-align: right; flex-shrink: 0; }
+  .dash-match-bar-wrap { width: 48px; height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; flex-shrink: 0; }
+  .dash-match-bar { height: 100%; border-radius: 4px; }
+  .dash-legend-item { display: flex; align-items: center; gap: 4px; font-size: 0.72rem; color: var(--ink-3); }
+  .dash-legend-sq { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+  .dash-donut-row { display: flex; justify-content: space-between; align-items: center; }
+  .dash-novas-badge { display: inline-block; background: var(--gold-light); color: var(--gold); font-size: 0.7rem; font-weight: 600; padding: 2px 7px; border-radius: 100px; }
+
+  /* TABS */
+  .tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+  .tab { padding: 0.6rem 1.25rem; font-size: 0.88rem; color: var(--ink-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+
+  /* VAGAS TABLE */
+  .table-wrap { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; margin-bottom: 2rem; }
+  .table-head { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 200px; padding: 0.75rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .th { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
+  .table-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 200px; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.15s; }
+  .table-row:last-child { border-bottom: none; }
+  .table-row:hover { background: #fafaf8; }
+  .tr-title { font-weight: 500; font-size: 0.9rem; color: var(--ink); }
+  .tr-sub { font-size: 0.78rem; color: var(--ink-3); margin-top: 2px; }
+  .td { font-size: 0.85rem; color: var(--ink-2); }
+
+  .status-pill { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.7rem; border-radius: var(--radius-pill); font-size: 0.72rem; font-weight: 500; }
+  .status-pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .s-ativa { background: var(--green-light); color: var(--green); }
+  .s-pausada { background: var(--gold-light); color: var(--gold); }
+  .s-encerrada { background: var(--red-light); color: var(--red); }
+
+  .row-actions { display: flex; gap: 0.5rem; }
+  .action-btn { padding: 0.28rem 0.6rem; border: 1px solid var(--border-strong); border-radius: var(--radius-pill); background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.72rem; color: var(--ink-2); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .action-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .action-btn.danger:hover { border-color: var(--red); color: var(--red); }
+  .action-btn.success:hover { border-color: var(--green); color: var(--green); }
+
+  /* CANDIDATOS */
+  .cand-section { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .cand-head { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 0.75rem; }
+  .cand-head h2 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; }
+  .cand-head select { width: auto; font-size: 0.82rem; padding: 0.4rem 2rem 0.4rem 0.75rem; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); outline: none; font-family: 'DM Sans', sans-serif; cursor: pointer; background: var(--white); color: var(--ink); appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7f94' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.5rem center; }
+
+  .cand-row { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  .cand-row:last-child { border-bottom: none; }
+  .cand-row:hover { background: #fafaf8; }
+  .cand-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--blue-light); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: var(--blue); flex-shrink: 0; }
+  .cand-info { flex: 1; min-width: 0; }
+  .cand-name { font-size: 0.9rem; font-weight: 500; color: var(--ink); }
+  .cand-role { font-size: 0.78rem; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cand-email { font-size: 0.78rem; color: var(--blue); }
+  .cand-status { font-size: 0.72rem; font-weight: 500; padding: 0.2rem 0.6rem; border-radius: var(--radius-pill); }
+  .cs-pendente { background: var(--gold-light); color: var(--gold); }
+  .cs-visualizada { background: var(--blue-light); color: var(--blue); }
+  .cs-aprovada { background: var(--green-light); color: var(--green); }
+  .cs-talvez { background: var(--gold-light); color: var(--gold); }
+  .cs-reprovada { background: var(--red-light); color: var(--red); }
+  .cand-filtros { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; padding: 1rem 1.5rem 0; }
+  .cand-filtro { padding: 0.3rem 0.9rem; border-radius: 100px; border: 1px solid var(--border); background: var(--white); font-size: 0.8rem; color: var(--ink-2); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .cand-filtro.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+  .cand-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+  .cand-btn { padding: 0.3rem 0.9rem; border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; transition: all 0.15s; border: 1px solid; }
+  .cand-btn-aprovar { background: var(--green-light); color: var(--green); border-color: rgba(15,107,58,0.2); }
+  .cand-btn-aprovar:hover { background: var(--green); color: var(--white); }
+  .cand-btn-talvez { background: var(--gold-light); color: var(--gold); border-color: rgba(201,146,10,0.2); }
+  .cand-btn-talvez:hover { background: var(--gold); color: var(--white); }
+  .cand-btn-reprovar { background: var(--red-light); color: var(--red); border-color: rgba(185,28,28,0.2); }
+  .cand-btn-reprovar:hover { background: var(--red); color: var(--white); }
+  .cand-btn-excluir { background: transparent; color: var(--ink-3); border-color: var(--border); font-size: 0.75rem; }
+  .cand-btn-excluir:hover { background: var(--red-light); color: var(--red); border-color: rgba(185,28,28,0.2); }
+  .cand-empty { text-align: center; padding: 2.5rem; color: var(--ink-3); font-size: 0.9rem; }
+  .match-score { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; flex-shrink: 0; min-width: 64px; text-align: center; }
+  .match-pct { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; line-height: 1; }
+  .match-stars { font-size: 0.7rem; }
+  .ms-high { color: var(--green); }
+  .ms-good { color: #0891b2; }
+  .ms-mid { color: var(--gold); }
+  .ms-low { color: var(--red); }
+  .match-badge { font-size: 0.68rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 100px; white-space: nowrap; }
+  .mb-high { background: var(--green-light); color: var(--green); }
+  .mb-good { background: #e0f2fe; color: #0891b2; }
+  .mb-mid { background: var(--gold-light); color: var(--gold); }
+  .mb-low { background: var(--red-light); color: var(--red); }
+  .match-detail { font-size: 0.75rem; margin-top: 0.35rem; display: flex; flex-direction: column; gap: 0.15rem; }
+  .match-ok { color: var(--green); }
+  .match-no { color: var(--ink-3); }
+  .cand-rank { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.75rem; flex-shrink: 0; }
+  .rank-1 { background: #fef3c7; color: #d97706; }
+  .rank-2 { background: #f1f5f9; color: #64748b; }
+  .rank-3 { background: #fee2e2; color: #ef4444; }
+  .rank-n { background: var(--surface); color: var(--ink-3); font-size: 0.7rem; }
+  .sort-bar { display: flex; gap: 0.5rem; padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); background: var(--surface); align-items: center; flex-wrap: wrap; }
+  .sort-label { font-size: 0.75rem; color: var(--ink-3); }
+  .sort-btn { padding: 0.25rem 0.7rem; border-radius: 100px; border: 1px solid var(--border-strong); background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: var(--ink-2); cursor: pointer; }
+  .sort-btn.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+  /* SIDE PANEL PUBLICAR VAGA */
+  .panel-overlay { display: none; position: fixed; inset: 0; background: rgba(15,17,23,0.5); z-index: 200; backdrop-filter: blur(4px); }
+  .panel-overlay.open { display: block; }
+  .side-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 540px; background: var(--white); z-index: 201; overflow-y: auto; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; }
+  .side-panel.open { transform: translateX(0); }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--white); z-index: 1; }
+  .panel-head h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.2rem; }
+  .close-btn { background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem; color: var(--ink-3); display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .close-btn:hover { background: var(--border); color: var(--ink); }
+
+  .panel-body { padding: 2rem; flex: 1; display: flex; flex-direction: column; gap: 1.25rem; }
+  .panel-footer { padding: 1.25rem 2rem; border-top: 1px solid var(--border); display: flex; gap: 0.75rem; position: sticky; bottom: 0; background: var(--white); }
+
+  .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  label { font-size: 0.82rem; font-weight: 500; color: var(--ink-2); }
+  input, select, textarea { width: 100%; padding: 0.7rem 1rem; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--ink); background: var(--white); outline: none; transition: border-color 0.2s; appearance: none; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+  textarea { resize: vertical; min-height: 100px; }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7f94' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; }
+
+  .toggle-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .toggle-btn { padding: 0.4rem 0.9rem; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: var(--ink-2); cursor: pointer; transition: all 0.15s; }
+  .toggle-btn.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+  .salary-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.75rem; align-items: center; }
+  .salary-sep { font-size: 0.85rem; color: var(--ink-3); text-align: center; padding-top: 1.5rem; }
+
+  .tip-box { background: var(--accent-light); border: 1px solid rgba(232,68,10,0.2); border-radius: var(--radius-sm); padding: 0.9rem 1rem; font-size: 0.82rem; }
+  .tip-box strong { color: var(--accent); display: block; margin-bottom: 0.2rem; }
+  .tip-box p { color: var(--ink-2); }
+
+  .btn-pub { flex: 2; padding: 0.8rem; background: var(--accent); color: var(--white); border: none; border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+  .btn-pub:hover { background: #c93a08; }
+  .btn-pub:disabled { background: var(--ink-3); cursor: not-allowed; }
+  .btn-draft { flex: 1; padding: 0.8rem; background: transparent; color: var(--ink-2); border: 1px solid var(--border-strong); border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
+  .btn-draft:hover { border-color: var(--ink); color: var(--ink); }
+
+  .panel-error { color: var(--red); font-size: 0.82rem; background: var(--red-light); padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); display: none; margin-top: 0.5rem; }
+  .panel-error.show { display: block; }
+  .panel-success { color: var(--green); font-size: 0.82rem; background: var(--green-light); padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); display: none; margin-top: 0.5rem; }
+  .panel-success.show { display: block; }
+
+  /* LOGIN GATE */
+  .login-gate { display: flex; align-items: center; justify-content: center; min-height: 100vh; margin-left: 0; width: 100%; }
+  .login-box { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; max-width: 400px; width: 90%; text-align: center; }
+  .login-box h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.4rem; margin-bottom: 0.5rem; }
+  .login-box p { font-size: 0.9rem; color: var(--ink-3); margin-bottom: 2rem; }
+  .login-form { text-align: left; }
+  .login-form .form-group { margin-bottom: 1rem; }
+  .btn-login { width: 100%; padding: 0.85rem; background: var(--ink); color: var(--white); border: none; border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
+  .btn-login:hover { background: var(--accent); }
+  .login-error { color: var(--red); font-size: 0.82rem; background: var(--red-light); padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); display: none; margin-top: 0.5rem; }
+  .login-error.show { display: block; }
+
+  /* EMPTY STATE */
+  .empty-state { text-align: center; padding: 3rem 1.5rem; color: var(--ink-3); }
+  .empty-state p:first-child { font-size: 2rem; margin-bottom: 0.75rem; }
+  .empty-state h3 { font-family: 'Syne', sans-serif; font-size: 1rem; color: var(--ink-2); margin-bottom: 0.5rem; }
+
+  /* SKELETON */
+  .skeleton { background: linear-gradient(90deg, var(--border) 25%, rgba(15,17,23,0.04) 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius-sm); }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  @media (max-width: 1024px) { .metrics { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 1.25rem; }
+    .side-panel { width: 100%; }
+    .table-head { display: none; }
+    .table-row { grid-template-columns: 1fr auto; }
+    .table-row .td:not(:first-child):not(:last-child) { display: none; }
+  }
+.sobre-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.sobre-field{display:flex;flex-direction:column;gap:.4rem}
+.sobre-field label{font-size:.78rem;font-weight:600;color:var(--ink-2)}
+.sobre-field input,.sobre-field textarea,.sobre-field select{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:.6rem .9rem;font-size:.9rem;font-family:'DM Sans',sans-serif;color:var(--ink-1);background:var(--white);transition:border-color .2s;width:100%;box-sizing:border-box}
+.sobre-field input:focus,.sobre-field textarea:focus,.sobre-field select:focus{outline:none;border-color:var(--accent)}
+.sobre-field textarea{resize:vertical;min-height:120px}
+.sobre-preview{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-top:1.5rem}
+.sobre-preview-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-bottom:1rem}
+.sobre-badges{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}
+.sobre-badge{display:flex;align-items:center;gap:.35rem;font-size:.78rem;color:var(--ink-2);background:var(--white);border:1px solid var(--border);border-radius:var(--radius-pill);padding:.3rem .75rem}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar" style="display:none">
+  <a href="oportunia-integrado.html" class="s-logo">Opportu<span>nia</span><sup style="font-size:1rem;font-weight:500;vertical-align:super;letter-spacing:0;color:var(--ink-3);margin-left:1px">®</sup></a>
+  <div class="s-logo-empresa-wrap">
+    <div class="s-logo-empresa" id="s-logo-empresa" onclick="document.getElementById('logo-input').click()" title="Clique para adicionar logo">
+      <span id="s-logo-initials">🏢</span>
+      <div class="s-logo-overlay">📷<br>Logo</div>
+    </div>
+    <div>
+      <div class="s-empresa-nome" id="s-empresa-nome" style="margin-bottom:.15rem;padding:0">Carregando…</div>
+      <div style="font-size:.62rem;color:rgba(255,255,255,.25);cursor:pointer" onclick="document.getElementById('logo-input').click()">📷 Clique para adicionar logo</div>
+      <div style="font-size:.58rem;color:rgba(255,255,255,.15);margin-top:.2rem;line-height:1.6">
+        JPG, PNG ou WEBP · Até 200x200px · Máx. 500KB
+      </div>
+    </div>
+  </div>
+  <input type="file" id="logo-input" accept="image/jpeg,image/png,image/webp" onchange="uploadLogo(this)">
+
+  <div class="s-section">Principal</div>
+  <ul class="s-nav">
+    <li><a class="active" onclick="showPage('dashboard')"><span class="s-icon">📊</span> Dashboard</a></li>
+    <li><a onclick="showPage('vagas')"><span class="s-icon">📋</span> Minhas vagas</a></li>
+    <li><a onclick="showPage('candidatos')"><span class="s-icon">👥</span> Candidatos</a></li>
+  </ul>
+
+  <div class="s-section">Conta</div>
+  <ul class="s-nav">
+    <li><a onclick="showPage('cadastrais')"><span class="s-icon">📄</span> Dados cadastrais</a></li>
+    <li><a onclick="showPage('sobre')"><span class="s-icon">🏢</span> Sobre a empresa</a></li>
+    <li><a onclick="showPage('planos')" style="cursor:pointer"><span class="s-icon">💳</span> Planos</a></li>
+  </ul>
+
+  <div class="s-plan">
+    <div class="s-plan-name">Plano atual</div>
+    <div class="s-plan-tier" id="plan-tier">Gratuito</div>
+    <div class="s-plan-bar-wrap"><div class="s-plan-bar" id="plan-bar" style="width:10%"></div></div>
+    <div class="s-plan-text" id="plan-text">0 de 2 vagas usadas</div>
+    <div class="s-plan-venc sem-data" id="plan-venc"></div>
+    <button class="s-logout" onclick="fazerLogout()">Sair da conta</button>
+  </div>
+</aside>
+
+<!-- LOGIN GATE -->
+<div class="login-gate" id="login-gate">
+  <div class="login-box">
+    <div style="font-size:2rem;margin-bottom:1rem">🏢</div>
+    <h2>Painel da Empresa</h2>
+    <p>Entre com sua conta de empresa para gerenciar vagas e candidaturas.</p>
+    <div class="login-form">
+      <div class="form-group"><label>E-mail</label><input type="email" id="login-email" placeholder="empresa@email.com" /></div>
+      <div class="form-group"><label>Senha</label><input type="password" id="login-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()" /></div>
+      <div class="login-error" id="login-error"></div>
+      <button class="btn-login" onclick="fazerLogin()">Entrar →</button>
+    </div>
+    <p style="margin-top:1.5rem;font-size:0.82rem">Não tem conta? <a href="oportunia-integrado.html" style="color:var(--accent);text-decoration:none;font-weight:500">Cadastre-se grátis</a></p>
+    <p style="margin-top:0.5rem;font-size:0.82rem">É candidato? <a href="oportunia-perfil-candidato.html" style="color:var(--blue);text-decoration:none;font-weight:500">Acessar perfil →</a></p>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main" id="main-area" style="display:none">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="top-bar">
+      <div>
+        <h1 id="dash-saudacao">Bom dia 👋</h1>
+        <p>Aqui está o resumo das suas vagas e candidaturas</p>
+      </div>
+      <button class="btn-new" onclick="openPanel()">+ Publicar nova vaga</button>
+    </div>
+
+    <!-- MÉTRICAS TOPO -->
+    <div class="dash-metrics-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem">
+      <div class="dash-metric-card">
+        <div class="dash-metric-label">Vagas ativas</div>
+        <div class="dash-metric-value" id="m-vagas">—</div>
+        <div class="dash-metric-sub" id="m-vagas-sub">de — disponíveis no plano</div>
+      </div>
+      <div class="dash-metric-card">
+        <div class="dash-metric-label">Candidaturas</div>
+        <div class="dash-metric-value" id="m-cands">—</div>
+        <div class="dash-metric-sub" id="m-novas-badge"></div>
+      </div>
+      <div class="dash-metric-card">
+        <div class="dash-metric-label">Taxa de aprovação</div>
+        <div class="dash-metric-value" id="m-taxa">—</div>
+        <div class="dash-metric-sub" id="m-taxa-sub">aprovados do total</div>
+      </div>
+      <div class="dash-metric-card">
+        <div class="dash-metric-label">Aderência média</div>
+        <div class="dash-metric-value" id="m-match">—</div>
+        <div class="dash-metric-sub">match engine das vagas</div>
+      </div>
+    </div>
+
+    <!-- LINHA DE GRÁFICOS -->
+    <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+
+      <!-- Candidatos por vaga -->
+      <div class="dash-card">
+        <div class="dash-card-title" style="display:flex;justify-content:space-between;align-items:center">
+          <span>Candidatos por vaga</span>
+          <div style="display:flex;gap:10px" id="dash-legend-vagas"></div>
+        </div>
+        <div class="dash-hbar-scroll" id="dash-hbar-list">
+          <div style="font-size:0.82rem;color:var(--ink-3);padding:1rem 0;text-align:center">Carregando…</div>
+        </div>
+      </div>
+
+      <!-- Funil -->
+      <div class="dash-card">
+        <div class="dash-card-title">Funil de candidaturas</div>
+        <div style="position:relative;width:100%;height:160px">
+          <canvas id="dash-donut-chart" role="img" aria-label="Distribuição de status das candidaturas">Carregando...</canvas>
+        </div>
+        <div id="dash-donut-legend" style="margin-top:10px;display:flex;flex-direction:column;gap:5px"></div>
+      </div>
+
+      <!-- Mais aderentes -->
+      <div class="dash-card">
+        <div class="dash-card-title" style="display:flex;justify-content:space-between;align-items:center">
+          <span>Mais aderentes</span>
+          <span style="font-size:0.72rem;color:var(--ink-3);font-weight:400">match engine</span>
+        </div>
+        <div id="dash-match-list" style="display:flex;flex-direction:column;gap:0"></div>
+      </div>
+    </div>
+
+    <!-- Candidatos recentes -->
+    <div id="dash-cands-section"></div>
+  </div>
+
+  <!-- VAGAS -->
+  <div class="page" id="page-vagas">
+    <div class="top-bar">
+      <div><h1>Minhas vagas</h1><p>Gerencie as vagas publicadas</p></div>
+      <button class="btn-new" onclick="openPanel()">+ Publicar nova vaga</button>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab active" onclick="filtrarVagas('ativa', this)">Ativas</div>
+      <div class="tab" onclick="filtrarVagas('pausada', this)">Pausadas</div>
+      <div class="tab" onclick="filtrarVagas('encerrada', this)">Encerradas</div>
+    </div>
+
+    <div id="vagas-table-wrap"></div>
+  </div>
+
+  <!-- CANDIDATOS -->
+  <div class="page" id="page-candidatos">
+    <div class="top-bar">
+      <div><h1>Candidatos</h1><p>Gerencie as candidaturas recebidas</p></div>
+    </div>
+    <div id="candidatos-wrap"></div>
+  </div>
+
+  <div class="page" id="page-sobre">
+    <div class="page-header">
+      <h1 class="page-title">🏢 Sobre a empresa</h1>
+      <p class="page-sub">Essas informações aparecem na página das suas vagas e ajudam candidatos a conhecer melhor sua empresa.</p>
+    </div>
+    <div class="card" style="margin-bottom:1.5rem">
+      <div class="sobre-grid" style="margin-bottom:1.25rem">
+        <div class="sobre-field" style="grid-column:1/-1">
+          <label>Descrição da empresa</label>
+          <textarea id="sb-descricao" placeholder="Conte sobre a empresa, cultura, missão e o que a torna especial para quem trabalha lá..."></textarea>
+        </div>
+        <div class="sobre-field">
+          <label>Site</label>
+          <input type="url" id="sb-site" placeholder="https://www.suaempresa.com.br" />
+        </div>
+        <div class="sobre-field">
+          <label>Instagram</label>
+          <input type="text" id="sb-instagram" placeholder="@suaempresa" />
+        </div>
+        <div class="sobre-field">
+          <label>Tamanho da empresa</label>
+          <select id="sb-tamanho">
+            <option value="">Selecione</option>
+            <option value="1-10">1 a 10 funcionários</option>
+            <option value="11-50">11 a 50 funcionários</option>
+            <option value="51-200">51 a 200 funcionários</option>
+            <option value="201-500">201 a 500 funcionários</option>
+            <option value="500+">Mais de 500 funcionários</option>
+          </select>
+        </div>
+        <div class="sobre-field">
+          <label>Setor de atuação</label>
+          <select id="sb-setor">
+            <option value="">Selecione</option>
+            <option>Indústria e Manufatura</option>
+            <option>Tecnologia</option>
+            <option>Saúde</option>
+            <option>Educação</option>
+            <option>Comércio e Varejo</option>
+            <option>Serviços</option>
+            <option>Logística e Transporte</option>
+            <option>Construção Civil</option>
+            <option>Agronegócio</option>
+            <option>Financeiro</option>
+            <option>Marketing e Comunicação</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="sobre-field">
+          <label>Ano de fundação</label>
+          <input type="number" id="sb-fundacao" placeholder="Ex: 1998" min="1900" max="2025" />
+        </div>
+        <div class="sobre-field">
+          <label>Sede</label>
+          <input type="text" id="sb-sede" placeholder="Ex: Bauru, SP" />
+        </div>
+      </div>
+      <div id="fb-sobre" style="margin-bottom:.5rem"></div>
+      <button onclick="salvarSobre()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius-pill);padding:.75rem 2rem;font-size:.95rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Salvar informações →</button>
+    </div>
+
+    <div class="sobre-preview" id="sobre-preview-wrap" style="display:none">
+      <div class="sobre-preview-title">👁 Prévia — como aparece na vaga</div>
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem">
+        <div id="prev-logo" style="width:48px;height:48px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;color:var(--ink-2);overflow:hidden;flex-shrink:0"></div>
+        <div>
+          <div id="prev-nome" style="font-weight:700;font-size:1rem"></div>
+          <div id="prev-setor" style="font-size:.82rem;color:var(--ink-3)"></div>
+        </div>
+      </div>
+      <div id="prev-desc" style="font-size:.88rem;color:var(--ink-2);line-height:1.6;margin-bottom:.75rem"></div>
+      <div class="sobre-badges" id="prev-badges"></div>
+      <div id="prev-links" style="display:flex;gap:1rem;margin-top:.75rem;flex-wrap:wrap"></div>
+    </div>
+  </div>
+
+  <!-- DADOS CADASTRAIS -->
+  <div class="page" id="page-cadastrais">
+    <div class="page-header">
+      <h1 class="page-title">📄 Dados cadastrais</h1>
+      <p class="page-sub">Informações internas da empresa. Não aparecem publicamente — usadas apenas para contato e faturamento.</p>
+    </div>
+
+    <!-- IDENTIFICAÇÃO -->
+    <div class="card" style="margin-bottom:1.5rem">
+      <div style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:1.25rem">Identificação</div>
+      <div class="sobre-grid">
+        <div class="sobre-field" style="grid-column:1/-1">
+          <label>Razão social</label>
+          <input type="text" id="cd-razao" placeholder="Ex: Empresa Exemplo Ltda" />
+        </div>
+        <div class="sobre-field" style="grid-column:1/-1">
+          <label>Nome fantasia</label>
+          <input type="text" id="cd-fantasia" placeholder="Ex: Empresa Exemplo" />
+        </div>
+        <div class="sobre-field">
+          <label>CNPJ</label>
+          <input type="text" id="cd-cnpj" placeholder="00.000.000/0000-00" maxlength="18" oninput="mascaraCNPJ(this)" />
+        </div>
+        <div class="sobre-field">
+          <label>Inscrição estadual <span style="color:var(--ink-3);font-weight:400">(opcional)</span></label>
+          <input type="text" id="cd-ie" placeholder="Ex: 123.456.789.000" />
+        </div>
+        <div class="sobre-field">
+          <label>Inscrição municipal <span style="color:var(--ink-3);font-weight:400">(opcional)</span></label>
+          <input type="text" id="cd-im" placeholder="Ex: 12345678" />
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTATOS -->
+    <div class="card" style="margin-bottom:1.5rem">
+      <div style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:1.25rem">Contatos</div>
+      <div class="sobre-grid">
+        <div class="sobre-field">
+          <label>Telefone</label>
+          <input type="text" id="cd-telefone" placeholder="(14) 3000-0000" maxlength="15" oninput="mascaraTelefone(this)" />
+        </div>
+        <div class="sobre-field">
+          <label>WhatsApp</label>
+          <input type="text" id="cd-whatsapp" placeholder="(14) 99999-0000" maxlength="15" oninput="mascaraTelefone(this)" />
+        </div>
+        <div class="sobre-field">
+          <label>E-mail financeiro</label>
+          <input type="email" id="cd-email-fin" placeholder="financeiro@empresa.com.br" />
+        </div>
+        <div class="sobre-field">
+          <label>E-mail comercial</label>
+          <input type="email" id="cd-email-com" placeholder="comercial@empresa.com.br" />
+        </div>
+        <div class="sobre-field">
+          <label>E-mail RH</label>
+          <input type="email" id="cd-email-rh" placeholder="rh@empresa.com.br" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ENDEREÇO SEDE -->
+    <div class="card" style="margin-bottom:1.5rem">
+      <div style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:1.25rem">Endereço da sede</div>
+      <div class="sobre-grid">
+        <div class="sobre-field">
+          <label>CEP</label>
+          <input type="text" id="cd-cep-sede" placeholder="00000-000" maxlength="9" oninput="mascaraCEP(this, 'sede')" />
+        </div>
+        <div class="sobre-field" style="grid-column:1/-1">
+          <label>Endereço</label>
+          <input type="text" id="cd-end-sede" placeholder="Rua, Avenida..." />
+        </div>
+        <div class="sobre-field">
+          <label>Número</label>
+          <input type="text" id="cd-num-sede" placeholder="Ex: 123" />
+        </div>
+        <div class="sobre-field">
+          <label>Complemento <span style="color:var(--ink-3);font-weight:400">(opcional)</span></label>
+          <input type="text" id="cd-comp-sede" placeholder="Ex: Sala 2, Andar 3" />
+        </div>
+        <div class="sobre-field">
+          <label>Bairro</label>
+          <input type="text" id="cd-bairro-sede" placeholder="Ex: Centro" />
+        </div>
+        <div class="sobre-field">
+          <label>Cidade</label>
+          <input type="text" id="cd-cidade-sede" placeholder="Ex: Bauru" />
+        </div>
+        <div class="sobre-field">
+          <label>Estado</label>
+          <select id="cd-estado-sede">
+            <option value="">Selecione</option>
+            <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+            <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+            <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+            <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+            <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+            <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+            <option selected>SP</option><option>SE</option><option>TO</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENDEREÇO COBRANÇA -->
+    <div class="card" style="margin-bottom:1.5rem">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem">
+        <div style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)">Endereço de cobrança</div>
+        <label onclick="toggleMesmoEndereco(this)" id="label-mesmo-end" style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--ink);cursor:pointer;font-weight:500;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-pill);padding:.35rem .9rem;user-select:none">
+          <span id="check-box-mesmo" style="width:16px;height:16px;border:2px solid var(--border-strong);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;background:white;font-size:11px"></span>
+          Mesmo que a sede
+        </label>
+      </div>
+      <div id="cd-cobr-fields" class="sobre-grid">
+        <div class="sobre-field">
+          <label>CEP</label>
+          <input type="text" id="cd-cep-cobr" placeholder="00000-000" maxlength="9" oninput="mascaraCEP(this, 'cobr')" />
+        </div>
+        <div class="sobre-field" style="grid-column:1/-1">
+          <label>Endereço</label>
+          <input type="text" id="cd-end-cobr" placeholder="Rua, Avenida..." />
+        </div>
+        <div class="sobre-field">
+          <label>Número</label>
+          <input type="text" id="cd-num-cobr" placeholder="Ex: 123" />
+        </div>
+        <div class="sobre-field">
+          <label>Complemento <span style="color:var(--ink-3);font-weight:400">(opcional)</span></label>
+          <input type="text" id="cd-comp-cobr" placeholder="Ex: Sala 2, Andar 3" />
+        </div>
+        <div class="sobre-field">
+          <label>Bairro</label>
+          <input type="text" id="cd-bairro-cobr" placeholder="Ex: Centro" />
+        </div>
+        <div class="sobre-field">
+          <label>Cidade</label>
+          <input type="text" id="cd-cidade-cobr" placeholder="Ex: Bauru" />
+        </div>
+        <div class="sobre-field">
+          <label>Estado</label>
+          <select id="cd-estado-cobr">
+            <option value="">Selecione</option>
+            <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+            <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+            <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+            <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+            <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+            <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+            <option selected>SP</option><option>SE</option><option>TO</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="fb-cadastrais" style="margin-bottom:.5rem"></div>
+    <button onclick="salvarCadastrais()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius-pill);padding:.75rem 2rem;font-size:.95rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Salvar dados cadastrais →</button>
+  </div>
+
+  <!-- PLANOS -->
+  <div class="page" id="page-planos">
+    <div class="top-bar" style="margin-bottom:1.5rem">
+      <div>
+        <h1>Planos</h1>
+        <p>Gerencie sua assinatura e acompanhe seu uso</p>
+      </div>
+    </div>
+
+    <!-- Banner de alerta vencimento -->
+    <div id="planos-banner" style="display:none;margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:var(--radius);align-items:center;gap:1rem;flex-wrap:wrap"></div>
+
+    <!-- Card plano atual -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div class="card" style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem">
+        <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-3);margin-bottom:1rem">Plano atual</div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700;color:var(--ink);line-height:1" id="pp-nome">—</div>
+            <div style="font-size:0.82rem;color:var(--ink-3);margin-top:0.35rem" id="pp-preco">—</div>
+          </div>
+          <div id="pp-status-badge"></div>
+        </div>
+        <div style="margin-top:1.25rem;display:flex;flex-direction:column;gap:0.6rem">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:0.82rem;color:var(--ink-3)">Vagas usadas</span>
+            <span style="font-size:0.82rem;font-weight:500;color:var(--ink)" id="pp-vagas-txt">—</span>
+          </div>
+          <div style="height:6px;background:var(--surface);border-radius:4px;overflow:hidden">
+            <div id="pp-vagas-bar" style="height:100%;background:var(--accent);border-radius:4px;transition:width 0.5s;width:0%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.25rem">
+            <span style="font-size:0.82rem;color:var(--ink-3)">Vencimento</span>
+            <span style="font-size:0.82rem;font-weight:500;color:var(--ink)" id="pp-venc-txt">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:0.82rem;color:var(--ink-3)">Candidatos por vaga</span>
+            <span style="font-size:0.82rem;font-weight:500;color:var(--ink)" id="pp-cands-txt">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:0.82rem;color:var(--ink-3)">Vagas em destaque</span>
+            <span style="font-size:0.82rem;font-weight:500;color:var(--ink)" id="pp-dest-txt">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Histórico de pagamentos -->
+      <div class="card" style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem">
+        <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-3);margin-bottom:1rem">Histórico de pagamentos</div>
+        <div id="pp-historico">
+          <div style="font-size:0.85rem;color:var(--ink-3);text-align:center;padding:2rem 0">Nenhum pagamento registrado</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparativo de planos -->
+    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-3);margin-bottom:1rem">Comparativo de planos</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem" id="pp-planos-grid"></div>
+
+  </div>
+
+
+<!-- MODAL LIMITE DE VAGAS -->
+<div id="limite-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,17,23,0.5);z-index:300;align-items:center;justify-content:center">
+  <div style="background:var(--white);border-radius:var(--radius-lg);padding:2rem;max-width:400px;width:90%;text-align:center;box-shadow:0 24px 64px rgba(15,17,23,0.2)">
+    <div style="font-size:2.5rem;margin-bottom:1rem">🔒</div>
+    <h3 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:0.5rem" id="limite-titulo">Limite atingido</h3>
+    <p style="font-size:0.88rem;color:var(--ink-3);margin-bottom:1.5rem;line-height:1.6" id="limite-texto"></p>
+    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap">
+      <button type="button" onclick="fecharModalLimite()" style="padding:0.6rem 1.25rem;border-radius:var(--radius-pill);border:1px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:0.88rem;cursor:pointer;color:var(--ink-2)">Fechar</button>
+      <button type="button" id="limite-btn-vagas" onclick="fecharModalLimite();showPage('vagas')" style="display:none;padding:0.6rem 1.5rem;border-radius:var(--radius-pill);border:1px solid var(--border-strong);background:transparent;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:500;cursor:pointer">Gerenciar vagas</button>
+      <button type="button" id="limite-btn-upgrade" onclick="fecharModalLimite();showPage('planos')" style="padding:0.6rem 1.5rem;border-radius:var(--radius-pill);border:none;background:var(--accent);color:var(--white);font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:500;cursor:pointer">Ver planos →</button>
+    </div>
+  </div>
+</div>
+
+
+</main>
+
+<!-- PANEL NOVA VAGA -->
+<div class="panel-overlay" id="panel-overlay" onclick="closePanel()"></div>
+<div class="side-panel" id="side-panel">
+  <div class="panel-head">
+    <h2 id="panel-title">Publicar nova vaga</h2>
+    <button type="button" class="close-btn" onclick="closePanel()">✕</button>
+  </div>
+  <div class="panel-body">
+    <input type="hidden" id="editing-vaga-id" value="" />
+
+    <div class="form-group">
+      <label>Título da vaga *</label>
+      <input type="text" id="f-titulo" placeholder="Ex: Analista de Marketing Pleno" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Área *</label>
+        <select id="f-area">
+          <option value="">Selecione</option>
+          <option>Administrativo</option>
+          <option>Agronegócio</option>
+          <option>Alimentação e Gastronomia</option>
+          <option>Arquitetura e Urbanismo</option>
+          <option>Atendimento ao Cliente</option>
+          <option>Comunicação e Publicidade</option>
+          <option>Compras e Suprimentos</option>
+          <option>Construção Civil</option>
+          <option>Contabilidade e Finanças</option>
+          <option>Design</option>
+          <option>Educação</option>
+          <option>Engenharia</option>
+          <option>Estética e Beleza</option>
+          <option>Indústria</option>
+          <option>Jurídico</option>
+          <option>Logística e Transporte</option>
+          <option>Marketing</option>
+          <option>Operações</option>
+          <option>Produção e Manufatura</option>
+          <option>Qualidade</option>
+          <option>RH e Pessoas</option>
+          <option>Saúde</option>
+          <option>Segurança do Trabalho</option>
+          <option>TI e Tecnologia</option>
+          <option>Vendas</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nível</label>
+        <select id="f-nivel">
+          <option value="">Selecione</option>
+          <option>Estágio</option>
+          <option>Júnior</option>
+          <option>Pleno</option>
+          <option>Sênior</option>
+          <option>Gestor</option>
+        </select>
+      </div>
+      <div class="form-group" style="position:relative">
+        <label>Cidade</label>
+        <input type="text" id="f-cidade-vaga" placeholder="Digite a cidade..." autocomplete="off"
+          oninput="filtrarCidades(this.value)"
+          onkeydown="navCidades(event)"
+          onfocus="filtrarCidades(this.value)"
+          onblur="setTimeout(()=>fecharCidades(),200)"
+          style="width:100%" />
+        <div id="cidade-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--white);border:1px solid var(--border-strong);border-radius:var(--radius-sm);box-shadow:0 8px 24px rgba(15,17,23,0.1);z-index:200;max-height:200px;overflow-y:auto;margin-top:2px"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Modalidade</label>
+      <div class="toggle-group" id="f-modalidade">
+        <button type="button" class="toggle-btn active" onclick="toggleBtn(this,'f-modalidade')">Presencial</button>
+        <button type="button" class="toggle-btn" onclick="toggleBtn(this,'f-modalidade')">Híbrido</button>
+        <button type="button" class="toggle-btn" onclick="toggleBtn(this,'f-modalidade')">Remoto</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Tipo de contrato</label>
+      <div class="toggle-group" id="f-contrato">
+        <button type="button" class="toggle-btn active" onclick="toggleBtn(this,'f-contrato')">CLT</button>
+        <button type="button" class="toggle-btn" onclick="toggleBtn(this,'f-contrato')">PJ</button>
+        <button type="button" class="toggle-btn" onclick="toggleBtn(this,'f-contrato')">Estágio</button>
+        <button type="button" class="toggle-btn" onclick="toggleBtn(this,'f-contrato')">Temporário</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Salário</label>
+      <div class="toggle-group" id="f-sal-tipo" style="margin-bottom:0.75rem">
+        <button type="button" class="toggle-btn active" onclick="toggleSalTipo('fixo', this)">Valor fixo</button>
+        <button type="button" class="toggle-btn" onclick="toggleSalTipo('combinado', this)">A combinar</button>
+      </div>
+      <div id="f-sal-wrap">
+        <div style="position:relative">
+          <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--ink-3);font-size:0.9rem;pointer-events:none">R$</span>
+          <input type="number" id="f-sal-min" placeholder="Ex: 2500" style="padding-left:2.5rem" />
+        </div>
+        <div style="font-size:0.78rem;color:var(--ink-3);margin-top:0.4rem">Valor exato que aparecerá para o candidato na vaga.</div>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <strong>💡 Mostre o salário</strong>
+      <p>Vagas com salário visível recebem em média 3× mais candidaturas de qualidade.</p>
+    </div>
+
+    <div class="form-group">
+      <label>Sobre a vaga <span style="color:var(--accent)">*</span></label>
+      <textarea id="f-descricao" placeholder="Descreva o contexto da vaga, o time e o dia a dia…" style="min-height:90px"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Responsabilidades <span style="color:var(--accent)">*</span></label>
+      <div style="font-size:0.75rem;color:var(--ink-3);margin-bottom:0.4rem">Use * no início da linha para criar tópicos. Ex: * Controlar estoque</div>
+      <textarea id="f-responsabilidades" placeholder="* Realizar controle de estoque&#10;* Conferir materiais entregues&#10;* Organizar produtos no armazém" style="min-height:120px"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Requisitos <span style="color:var(--accent)">*</span></label>
+      <div style="font-size:0.75rem;color:var(--ink-3);margin-bottom:0.4rem">Use * no início da linha para criar tópicos. Ex: * Ensino médio completo</div>
+      <textarea id="f-requisitos" placeholder="* Ensino Médio completo&#10;* Experiência com estoque&#10;* Conhecimento em informática" style="min-height:100px"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Benefícios</label>
+      <div style="font-size:0.75rem;color:var(--ink-3);margin-bottom:0.4rem">Use * no início da linha. Inclua valores quando possível.</div>
+      <textarea id="f-beneficios" placeholder="* Vale Refeição R$ 35/dia&#10;* Vale Transporte&#10;* Plano de Saúde Unimed&#10;* Plano Odontológico&#10;* TotalPass" style="min-height:110px"></textarea>
+    </div>
+
+    <!-- SEÇÃO DE MATCH -->
+    <div style="border-top:1px solid var(--border);padding-top:1.25rem">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;color:var(--ink);margin-bottom:0.25rem">🎯 Requisitos para match</div>
+      <div style="font-size:0.78rem;color:var(--ink-3);margin-bottom:1.25rem">Quanto mais detalhado, melhor o sistema filtra os candidatos para você.</div>
+
+      <div class="form-group" style="margin-bottom:1rem">
+        <label>Habilidades obrigatórias</label>
+        <div style="font-size:0.75rem;color:var(--ink-3);margin-bottom:0.4rem">Digite e pressione Enter para adicionar</div>
+        <div class="skills-wrap" id="hab-obrig-wrap" onclick="document.getElementById('hab-obrig-input').focus()" style="display:flex;flex-wrap:wrap;gap:0.5rem;padding:0.75rem;border:1px solid var(--border-strong);border-radius:8px;min-height:52px;cursor:text">
+          <input id="hab-obrig-input" style="border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:0.88rem;min-width:140px;background:transparent;padding:0.2rem 0" placeholder="Ex: Excel, SAP, AutoCAD…" onkeydown="addSkillVaga(event,'obrig')" oninput="checkPendingSkill('obrig')" />
+        </div>
+        <div id="obrig-pending-warn" style="display:none;font-size:0.75rem;color:var(--accent);margin-top:0.35rem;background:var(--accent-light);padding:0.35rem 0.75rem;border-radius:6px">⚠️ Pressione <strong>Enter</strong> para confirmar "<span id="obrig-pending-text"></span>"</div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:1rem">
+        <label>Habilidades desejáveis <span style="font-weight:400;color:var(--ink-3)">(diferencial)</span></label>
+        <div class="skills-wrap" id="hab-desej-wrap" onclick="document.getElementById('hab-desej-input').focus()" style="display:flex;flex-wrap:wrap;gap:0.5rem;padding:0.75rem;border:1px solid var(--border-strong);border-radius:8px;min-height:52px;cursor:text">
+          <input id="hab-desej-input" style="border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:0.88rem;min-width:140px;background:transparent;padding:0.2rem 0" placeholder="Ex: Power BI, Inglês, Photoshop…" onkeydown="addSkillVaga(event,'desej')" oninput="checkPendingSkill('desej')" />
+        </div>
+        <div id="desej-pending-warn" style="display:none;font-size:0.75rem;color:var(--accent);margin-top:0.35rem;background:var(--accent-light);padding:0.35rem 0.75rem;border-radius:6px">⚠️ Pressione <strong>Enter</strong> para confirmar "<span id="desej-pending-text"></span>"</div>
+      </div>
+
+      <div class="form-row" style="margin-bottom:1rem">
+        <div class="form-group">
+          <label>Experiência mínima</label>
+          <select id="f-exp-min">
+            <option value="0">Sem exigência</option>
+            <option value="6">6 meses</option>
+            <option value="12">1 ano</option>
+            <option value="24">2 anos</option>
+            <option value="36">3 anos</option>
+            <option value="48">4 anos</option>
+            <option value="60">5 anos ou mais</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Formação mínima</label>
+          <select id="f-form-min">
+            <option value="">Sem exigência</option>
+            <option>Ensino Médio</option>
+            <option>Ensino Médio Técnico</option>
+            <option>Curso Técnico</option>
+            <option>Graduação (cursando)</option>
+            <option>Graduação</option>
+            <option>Pós-graduação</option>
+            <option>MBA</option>
+            <option>Mestrado</option>
+            <option>Doutorado</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Formações exigidas com nível + curso -->
+      <div class="form-group" style="margin-bottom:1rem">
+        <label>Formações exigidas <span style="font-weight:400;color:var(--ink-3)">(opcional — especifique se necessário)</span></label>
+        <div id="form-tags-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="form-tag-nivel" style="flex:0 0 auto;width:160px">
+            <option value="">Nível</option>
+            <option>Ensino Médio</option>
+            <option>Curso Técnico</option>
+            <option>Graduação (cursando)</option>
+            <option>Graduação</option>
+            <option>Pós-graduação</option>
+            <option>MBA</option>
+            <option>Mestrado</option>
+            <option>Doutorado</option>
+          </select>
+          <input id="form-tag-curso" type="text" placeholder="Curso (ex: Administração de Empresas)" onkeydown="if(event.key==='Enter'){event.preventDefault();event.stopPropagation();addFormTag()}" style="flex:1" />
+          <button type="button" onclick="addFormTag()" style="flex-shrink:0;padding:0 1rem;height:38px;border-radius:var(--radius);border:1px solid var(--border-strong);background:var(--surface);font-size:0.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink-2)">+ Adicionar</button>
+        </div>
+        <div id="form-tag-error" style="display:none;font-size:0.75rem;color:var(--red);margin-top:0.35rem"></div>
+        <div style="font-size:0.75rem;color:var(--ink-3);margin-top:0.35rem">Você pode exigir mais de uma formação. Ex: "Graduação em Administração" + "MBA em Finanças".</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Idioma necessário</label>
+          <select id="f-idioma">
+            <option value="">Não exigido</option>
+            <option>Inglês</option>
+            <option>Espanhol</option>
+            <option>Francês</option>
+            <option>Alemão</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nível mínimo do idioma</label>
+          <select id="f-idioma-nivel">
+            <option value="">Selecione</option>
+            <option>Básico</option>
+            <option>Intermediário</option>
+            <option>Avançado</option>
+            <option>Fluente</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-error" id="panel-error"></div>
+    <div class="panel-success" id="panel-success"></div>
+  </div>
+
+  <div class="panel-footer">
+    <button type="button" class="btn-draft" onclick="closePanel()">Cancelar</button>
+    <button type="button" class="btn-pub" id="btn-pub" onclick="publicarVaga()">Publicar vaga →</button>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://lvexahtskdhgujwrlkex.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_AvhhaT_r4vsz3iuiZpZ3AA_zW7rxPo4';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let empresaData = null;
+let vagasData = [];
+let candsData = [];
+let filtroStatus = 'ativa';
+
+// =============================================
+// INIT
+// =============================================
+document.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await sb.auth.getSession();
+
+  if (!session) {
+    mostrarLoginGate();
+    return;
+  }
+
+  try {
+    await iniciarPainel(session.user);
+  } catch(e) {
+    console.error('Erro ao iniciar painel:', e);
+    mostrarLoginGate();
+  }
+});
+
+async function iniciarPainel(user) {
+  // Busca dados da empresa
+  let { data: empresa, error: empErr } = await sb.from('empresas').select('*').eq('user_id', user.id).single();
+
+  // Se não tem empresa cadastrada, cria automaticamente
+  if (!empresa) {
+    const nome = user.user_metadata?.nome || user.email.split('@')[0];
+    const { data: nova } = await sb.from('empresas').insert({ user_id: user.id, nome, email: user.email, tipo: 'empresa' }).select().single();
+    empresa = nova;
+  }
+
+  // Segurança: se ainda for null, mostra erro
+  if (!empresa) {
+    const err = document.getElementById('login-error');
+    if (err) { err.textContent = 'Erro ao carregar dados da empresa. Tente novamente.'; err.classList.add('show'); }
+    return;
+  }
+
+  empresaData = empresa;
+
+  // Atualiza sidebar
+  document.getElementById('s-empresa-nome').textContent = empresa.nome || '';
+  // Preenche campos de sobre
+  if(empresa.descricao) document.getElementById('sb-descricao').value = empresa.descricao;
+  if(empresa.site) document.getElementById('sb-site').value = empresa.site;
+  if(empresa.instagram) document.getElementById('sb-instagram').value = empresa.instagram;
+  if(empresa.tamanho) document.getElementById('sb-tamanho').value = empresa.tamanho;
+  if(empresa.setor) document.getElementById('sb-setor').value = empresa.setor;
+  if(empresa.fundacao) document.getElementById('sb-fundacao').value = empresa.fundacao;
+  if(empresa.sede) document.getElementById('sb-sede').value = empresa.sede || 'Bauru, SP';
+  atualizarPreviewSobre();
+  carregarCadastrais();
+  const logoEl=document.getElementById('s-logo-empresa');
+  const logoIn=document.getElementById('s-logo-initials');
+  if(empresa.logo){
+    if(logoIn)logoIn.style.display='none';
+    if(!logoEl.querySelector('img')){const img=document.createElement('img');img.src=empresa.logo;logoEl.insertBefore(img,logoEl.firstChild);}
+    else{logoEl.querySelector('img').src=empresa.logo;}
+  } else {
+    if(logoIn){logoIn.style.display='';logoIn.textContent=empresa.nome?empresa.nome[0].toUpperCase():'🏢';}
+  }
+  const hora = new Date().getHours();
+  const saud = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
+  document.getElementById('dash-saudacao').textContent = `${saud}, ${empresa.nome.split(' ')[0]} 👋`;
+
+  // Mostra painel
+  mostrarPainel();
+
+  // Carrega dados
+  try {
+    await Promise.all([carregarVagas(), carregarCandidaturas()]);
+    atualizarMetrics();
+    renderDashCandidatos();
+    renderVagasTable();
+    renderCandidatosPage();
+  } catch(e) {
+    console.error('Erro ao carregar dados:', e);
+  }
+}
+
+function mostrarLoginGate() {
+  document.getElementById('login-gate').style.display = 'flex';
+  document.getElementById('sidebar').style.display = 'none';
+  document.getElementById('main-area').style.display = 'none';
+}
+
+function mostrarPainel() {
+  document.getElementById('login-gate').style.display = 'none';
+  document.getElementById('sidebar').style.display = 'flex';
+  document.getElementById('main-area').style.display = 'block';
+
+  // Redireciona para página correta se vier da home com ?page=
+  const params = new URLSearchParams(window.location.search);
+  const page = params.get('page');
+  if (page && ['vagas','candidatos','cadastrais','sobre','planos','dashboard'].includes(page)) {
+    setTimeout(() => showPage(page), 100);
+  }
+}
+
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const err = document.getElementById('login-error');
+  const btn = document.querySelector('.btn-login');
+
+  err.classList.remove('show');
+  if (!email || !senha) { err.textContent = 'Preencha e-mail e senha.'; err.classList.add('show'); return; }
+
+  btn.textContent = 'Entrando…';
+  btn.disabled = true;
+
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+
+    if (error) {
+      err.textContent = 'E-mail ou senha incorretos.';
+      err.classList.add('show');
+      btn.textContent = 'Entrar →';
+      btn.disabled = false;
+      return;
+    }
+
+    await iniciarPainel(data.user);
+  } catch(e) {
+    err.textContent = 'Erro de conexão. Verifique sua internet.';
+    err.classList.add('show');
+    btn.textContent = 'Entrar →';
+    btn.disabled = false;
+  }
+}
+
+function comprimirImagem(file, maxKB, maxSize, cb){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      let w=img.width,h=img.height;
+      if(w>maxSize||h>maxSize){const r=Math.min(maxSize/w,maxSize/h);w=Math.round(w*r);h=Math.round(h*r);}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      let q=0.8;
+      const tryCompress=()=>{
+        const b64=canvas.toDataURL('image/jpeg',q);
+        const kb=(b64.length*3/4)/1024;
+        if(kb<=maxKB||q<=0.3){cb(b64,kb);}
+        else{q-=0.1;tryCompress();}
+      };
+      tryCompress();
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadLogo(input){
+  const file=input.files[0];
+  if(!file)return;
+  // Valida formato
+  const formatsOk=['image/jpeg','image/jpg','image/png','image/webp'];
+  if(!formatsOk.includes(file.type)){
+    alert('Formato não suportado.\nUse apenas JPG ou PNG.');
+    input.value='';return;
+  }
+  // Valida tamanho bruto
+  if(file.size>5*1024*1024){
+    alert('Arquivo muito grande ('+Math.round(file.size/1024/1024*10)/10+'MB).\nEscolha uma imagem menor que 5MB.');
+    input.value='';return;
+  }
+  comprimirImagem(file,500,200,(b64,kb)=>{
+    // Valida resultado final
+    if(kb>500){
+      alert('Não foi possível comprimir o logo para menos de 500KB.\nTente uma imagem diferente.');
+      input.value='';return;
+    }
+    const logoEl=document.getElementById('s-logo-empresa');
+    const logoIn=document.getElementById('s-logo-initials');
+    if(logoIn)logoIn.style.display='none';
+    let img=logoEl.querySelector('img');
+    if(!img){img=document.createElement('img');logoEl.insertBefore(img,logoEl.firstChild);}
+    img.src=b64;
+    sb.from('empresas').update({logo:b64}).eq('user_id',empresaData.user_id).then(({error})=>{
+      if(error){alert('Erro ao salvar logo.');console.error(error);}
+      else{empresaData.logo=b64;alert('✓ Logo salvo! ('+Math.round(kb)+'KB)');}
+    });
+  });
+}
+
+async function salvarSobre(){
+  const btn = event?.target;
+  if(btn){btn.disabled=true;btn.textContent='Salvando...';}
+  const v = (id) => document.getElementById(id)?.value.trim() || null;
+  const dados = {
+    descricao: v('sb-descricao'),
+    site: v('sb-site'),
+    instagram: v('sb-instagram'),
+    tamanho: document.getElementById('sb-tamanho').value || null,
+    setor: document.getElementById('sb-setor').value || null,
+    fundacao: v('sb-fundacao'),
+    sede: v('sb-sede'),
+  };
+  const {error} = await sb.from('empresas').update(dados).eq('user_id', empresaData.user_id);
+  if(btn){btn.disabled=false;btn.textContent='Salvar informações →';}
+  if(error){
+    document.getElementById('fb-sobre').innerHTML='<div style="color:var(--red);font-size:.85rem;margin-top:.5rem">❌ Erro ao salvar. Tente novamente.</div>';
+  } else {
+    Object.assign(empresaData, dados);
+    // Limpa campos que viraram null no empresaData
+    Object.keys(dados).forEach(k=>{ if(!dados[k]) empresaData[k]=null; });
+    atualizarPreviewSobre();
+    document.getElementById('fb-sobre').innerHTML='<div style="color:var(--green);font-size:.85rem;margin-top:.5rem">✓ Informações salvas com sucesso!</div>';
+    setTimeout(()=>document.getElementById('fb-sobre').innerHTML='', 3000);
+  }
+}
+
+function atualizarPreviewSobre(){
+  const wrap = document.getElementById('sobre-preview-wrap');
+  if(!wrap || !empresaData) return;
+  const desc = document.getElementById('sb-descricao')?.value || empresaData.descricao || '';
+  const setor = document.getElementById('sb-setor')?.value || empresaData.setor || '';
+  const tamanho = document.getElementById('sb-tamanho')?.value || empresaData.tamanho || '';
+  const fundacao = document.getElementById('sb-fundacao')?.value || empresaData.fundacao || '';
+  const sede = document.getElementById('sb-sede')?.value.trim() || null;
+  const site = document.getElementById('sb-site')?.value || empresaData.site || '';
+  const instagram = document.getElementById('sb-instagram')?.value || empresaData.instagram || '';
+  if(!desc && !setor && !tamanho){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  const logoEl = document.getElementById('prev-logo');
+  if(empresaData.logo){ logoEl.innerHTML=`<img src="${empresaData.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:9px">`; }
+  else { logoEl.textContent = empresaData.nome?empresaData.nome[0].toUpperCase():'🏢'; }
+  document.getElementById('prev-nome').textContent = empresaData.nome || '';
+  document.getElementById('prev-setor').textContent = setor;
+  document.getElementById('prev-desc').textContent = desc;
+  const badges = [];
+  if(tamanho) badges.push(`👥 ${tamanho} funcionários`);
+  if(fundacao) badges.push(`📅 Fundada em ${fundacao}`);
+  if(sede && sede.trim()) badges.push(`📍 ${sede}`);
+  document.getElementById('prev-badges').innerHTML = badges.map(b=>`<span class="sobre-badge">${b}</span>`).join('');
+  const links = [];
+  if(site) links.push(`<a href="${site}" target="_blank" style="font-size:.82rem;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:.3rem">🌐 Site</a>`);
+  if(instagram) links.push(`<a href="https://instagram.com/${instagram.replace('@','')}" target="_blank" style="font-size:.82rem;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:.3rem">📸 Instagram</a>`);
+  document.getElementById('prev-links').innerHTML = links.join('');
+}
+
+// =============================================
+// DADOS CADASTRAIS
+// =============================================
+function carregarCadastrais() {
+  if (!empresaData) return;
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  set('cd-razao', empresaData.razao_social);
+  set('cd-fantasia', empresaData.nome_fantasia);
+  set('cd-cnpj', empresaData.cnpj);
+  set('cd-ie', empresaData.inscricao_estadual);
+  set('cd-im', empresaData.inscricao_municipal);
+  set('cd-telefone', empresaData.telefone);
+  set('cd-whatsapp', empresaData.whatsapp);
+  set('cd-email-fin', empresaData.email_financeiro);
+  set('cd-email-com', empresaData.email_comercial);
+  set('cd-email-rh', empresaData.email_rh);
+  set('cd-cep-sede', empresaData.cep_sede);
+  set('cd-end-sede', empresaData.endereco_sede);
+  set('cd-num-sede', empresaData.numero_sede);
+  set('cd-comp-sede', empresaData.complemento_sede);
+  set('cd-bairro-sede', empresaData.bairro_sede);
+  set('cd-cidade-sede', empresaData.cidade_sede);
+  if (empresaData.estado_sede) document.getElementById('cd-estado-sede').value = empresaData.estado_sede;
+  set('cd-cep-cobr', empresaData.cep_cobranca);
+  set('cd-end-cobr', empresaData.endereco_cobranca);
+  set('cd-num-cobr', empresaData.numero_cobranca);
+  set('cd-comp-cobr', empresaData.complemento_cobranca);
+  set('cd-bairro-cobr', empresaData.bairro_cobranca);
+  set('cd-cidade-cobr', empresaData.cidade_cobranca);
+  if (empresaData.estado_cobranca) document.getElementById('cd-estado-cobr').value = empresaData.estado_cobranca;
+}
+
+async function salvarCadastrais() {
+  const btn = event?.target;
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  const v = (id) => document.getElementById(id)?.value.trim() || null;
+  const dados = {
+    razao_social: v('cd-razao'),
+    nome_fantasia: v('cd-fantasia'),
+    cnpj: v('cd-cnpj'),
+    inscricao_estadual: v('cd-ie'),
+    inscricao_municipal: v('cd-im'),
+    telefone: v('cd-telefone'),
+    whatsapp: v('cd-whatsapp'),
+    email_financeiro: v('cd-email-fin'),
+    email_comercial: v('cd-email-com'),
+    email_rh: v('cd-email-rh'),
+    cep_sede: v('cd-cep-sede'),
+    endereco_sede: v('cd-end-sede'),
+    numero_sede: v('cd-num-sede'),
+    complemento_sede: v('cd-comp-sede'),
+    bairro_sede: v('cd-bairro-sede'),
+    cidade_sede: v('cd-cidade-sede'),
+    estado_sede: document.getElementById('cd-estado-sede')?.value || null,
+    cep_cobranca: v('cd-cep-cobr'),
+    endereco_cobranca: v('cd-end-cobr'),
+    numero_cobranca: v('cd-num-cobr'),
+    complemento_cobranca: v('cd-comp-cobr'),
+    bairro_cobranca: v('cd-bairro-cobr'),
+    cidade_cobranca: v('cd-cidade-cobr'),
+    estado_cobranca: document.getElementById('cd-estado-cobr')?.value || null,
+  };
+  const { error } = await sb.from('empresas').update(dados).eq('user_id', empresaData.user_id);
+  if (btn) { btn.disabled = false; btn.textContent = 'Salvar dados cadastrais →'; }
+  const fb = document.getElementById('fb-cadastrais');
+  if (error) {
+    fb.innerHTML = '<div style="color:var(--red);font-size:.85rem;margin-top:.5rem">❌ Erro ao salvar. Tente novamente.</div>';
+  } else {
+    Object.assign(empresaData, dados);
+    fb.innerHTML = '<div style="color:var(--green);font-size:.85rem;margin-top:.5rem">✓ Dados cadastrais salvos com sucesso!</div>';
+    setTimeout(() => fb.innerHTML = '', 3000);
+  }
+}
+
+function toggleMesmoEndereco(el) {
+  const box = document.getElementById('check-box-mesmo');
+  const fields = document.getElementById('cd-cobr-fields');
+  const marcado = box.textContent !== '✓';
+  if (marcado) {
+    box.textContent = '✓';
+    box.style.background = 'var(--accent)';
+    box.style.borderColor = 'var(--accent)';
+    box.style.color = 'white';
+    document.getElementById('cd-cep-cobr').value = document.getElementById('cd-cep-sede').value;
+    document.getElementById('cd-end-cobr').value = document.getElementById('cd-end-sede').value;
+    document.getElementById('cd-num-cobr').value = document.getElementById('cd-num-sede').value;
+    document.getElementById('cd-comp-cobr').value = document.getElementById('cd-comp-sede').value;
+    document.getElementById('cd-bairro-cobr').value = document.getElementById('cd-bairro-sede').value;
+    document.getElementById('cd-cidade-cobr').value = document.getElementById('cd-cidade-sede').value;
+    document.getElementById('cd-estado-cobr').value = document.getElementById('cd-estado-sede').value;
+    fields.style.opacity = '.5'; fields.style.pointerEvents = 'none';
+  } else {
+    box.textContent = '';
+    box.style.background = 'white';
+    box.style.borderColor = 'var(--border-strong)';
+    fields.style.opacity = '1'; fields.style.pointerEvents = '';
+  }
+}
+
+function mascaraCNPJ(el) {
+  let v = el.value.replace(/\D/g, '').substring(0, 14);
+  v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+  v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+  v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+  v = v.replace(/(\d{4})(\d)/, '$1-$2');
+  el.value = v;
+}
+
+function mascaraTelefone(el) {
+  let v = el.value.replace(/\D/g, '').substring(0, 11);
+  if (v.length <= 10) v = v.replace(/^(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+  else v = v.replace(/^(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+  el.value = v;
+}
+
+function mascaraCEP(el) {
+  let v = el.value.replace(/\D/g, '').substring(0, 8);
+  v = v.replace(/^(\d{5})(\d)/, '$1-$2');
+  el.value = v;
+}
+
+async function fazerLogout() {
+  await sb.auth.signOut();
+  window.location.href = 'oportunia-integrado.html';
+}
+
+// =============================================
+// VAGAS
+// =============================================
+async function carregarVagas() {
+  if (!empresaData) return;
+  const { data } = await sb.from('vagas').select('*').eq('empresa_id', empresaData.id).order('created_at', { ascending: false });
+  vagasData = data || [];
+
+  // Atualiza barra do plano
+  const ativas = vagasData.filter(v => v.status === 'ativa' && v.empresa_id === empresaData?.id).length;
+  const plano = empresaData?.plano || 'gratuito';
+  const limiteVagas = plano === 'pro' ? 5 : plano === 'empresa' ? 15 : 1;
+  const nomePlano = plano === 'pro' ? 'Pro' : plano === 'empresa' ? 'Empresa' : 'Gratuito';
+  const pct = Math.min((ativas / limiteVagas) * 100, 100);
+  document.getElementById('plan-tier').textContent = nomePlano;
+  document.getElementById('plan-bar').style.width = pct + '%';
+  document.getElementById('plan-text').textContent = `${ativas} de ${limiteVagas} vagas usadas`;
+
+  // Vencimento do plano
+  const vencEl = document.getElementById('plan-venc');
+  const venc = empresaData?.plano_vencimento;
+  if (vencEl && venc && plano !== 'gratuito') {
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const vencDate = new Date(venc); vencDate.setHours(0,0,0,0);
+    const dias = Math.round((vencDate - hoje) / (1000 * 60 * 60 * 24));
+    vencEl.classList.remove('sem-data', 'ok', 'warn', 'danger');
+    if (dias < 0) {
+      vencEl.classList.add('danger');
+      vencEl.textContent = '⚠ Plano vencido';
+    } else if (dias <= 7) {
+      vencEl.classList.add('warn');
+      vencEl.textContent = `⚠ Vence em ${dias} dia${dias !== 1 ? 's' : ''}`;
+    } else {
+      vencEl.classList.add('ok');
+      vencEl.textContent = `✓ Vence em ${dias} dias`;
+    }
+  } else if (vencEl) {
+    vencEl.classList.add('sem-data');
+  }
+}
+
+function renderVagasTable() {
+  const filtradas = vagasData.filter(v => v.status === filtroStatus);
+  const wrap = document.getElementById('vagas-table-wrap');
+
+  if (filtradas.length === 0) {
+    wrap.innerHTML = `<div class="empty-state"><p>📋</p><h3>Nenhuma vaga ${filtroStatus === 'ativa' ? 'ativa' : filtroStatus === 'pausada' ? 'pausada' : 'encerrada'}</h3><p style="font-size:0.85rem;margin-top:0.25rem">Publique sua primeira vaga para começar a receber candidatos.</p></div>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+    <div class="table-wrap">
+      <div class="table-head">
+        <div class="th">Vaga</div>
+        <div class="th">Status</div>
+        <div class="th">Candidatos</div>
+        <div class="th">Publicada</div>
+        <div class="th">Ações</div>
+      </div>
+      ${filtradas.map(v => {
+        const numCands = candsData.filter(c => c.vaga_id === v.id).length;
+        const tempo = tempoRelativo(v.created_at);
+        return `
+          <div class="table-row">
+            <div>
+              <div class="tr-title">${v.titulo}</div>
+              <div class="tr-sub">${v.area || ''} · ${v.contrato || ''} · ${formatSalario(v.salario_min, v.salario_max)}</div>
+            </div>
+            <div class="td"><span class="status-pill s-${v.status}">${v.status}</span></div>
+            <div class="td">${numCands} candidato${numCands !== 1 ? 's' : ''}</div>
+            <div class="td">${tempo}</div>
+            <div class="row-actions">
+              <button class="action-btn" onclick="editarVaga('${v.id}')">Editar</button>
+              ${v.status === 'ativa'
+                ? `<button class="action-btn danger" onclick="mudarStatus('${v.id}','pausada')">Pausar</button>`
+                : `<button class="action-btn success" onclick="mudarStatus('${v.id}','ativa')">Ativar</button>`}
+              <button class="action-btn danger" onclick="mudarStatus('${v.id}','encerrada')">Encerrar</button>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+async function filtrarVagas(status, el) {
+  filtroStatus = status;
+  document.querySelectorAll('.tab-bar .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderVagasTable();
+}
+
+async function mudarStatus(vagaId, novoStatus) {
+  await sb.from('vagas').update({ status: novoStatus }).eq('id', vagaId);
+  await carregarVagas();
+  renderVagasTable();
+  atualizarMetrics();
+}
+
+function editarVaga(vagaId) {
+  const v = vagasData.find(x => x.id === vagaId);
+  if (!v) return;
+
+  // Abre painel primeiro para o DOM estar disponível
+  openPanel(true); // true = edição, não verifica limite
+
+  // Pequeno delay para garantir que o painel está aberto
+  setTimeout(() => {
+    document.getElementById('panel-title').textContent = 'Editar vaga';
+    document.getElementById('editing-vaga-id').value = vagaId;
+    document.getElementById('f-titulo').value = v.titulo || '';
+    document.getElementById('f-area').value = v.area || '';
+    document.getElementById('f-nivel').value = v.nivel || '';
+    document.getElementById('f-sal-min').value = v.salario_min || '';
+    document.getElementById('f-descricao').value = v.descricao || '';
+    document.getElementById('f-requisitos').value = v.requisitos || '';
+    document.getElementById('f-responsabilidades').value = v.responsabilidades || '';
+    document.getElementById('f-beneficios').value = v.beneficios || '';
+
+    // Seleciona modalidade e contrato
+    setToggle('f-modalidade', v.modalidade);
+    setToggle('f-contrato', v.contrato);
+
+    // Salário
+    if (v.salario_min) {
+      setToggle('f-sal-tipo', 'Valor fixo');
+      document.getElementById('f-sal-wrap').style.display = 'block';
+    }
+
+    // Campos de match
+    habObrig = v.habilidades_obrigatorias || [];
+    habDesej = v.habilidades_desejaveis || [];
+    formTags = v.formacoes_exigidas || [];
+    renderSkillsVaga('obrig');
+    renderSkillsVaga('desej');
+    renderFormTags();
+
+    const cidadeEl = document.getElementById('f-cidade-vaga');
+    if (cidadeEl) cidadeEl.value = v.cidade || 'Bauru';
+    cidadeDropdownIdx = -1;
+    const expEl = document.getElementById('f-exp-min');
+    if (expEl) expEl.value = v.experiencia_minima_meses || 0;
+
+    const formEl = document.getElementById('f-form-min');
+    if (formEl) formEl.value = v.formacao_minima || '';
+
+    const idiomaEl = document.getElementById('f-idioma');
+    if (idiomaEl) idiomaEl.value = v.idioma_necessario || '';
+
+    const idiomaNivEl = document.getElementById('f-idioma-nivel');
+    if (idiomaNivEl) idiomaNivEl.value = v.idioma_nivel_minimo || '';
+
+    document.getElementById('btn-pub').textContent = 'Salvar alterações →';
+  }, 100);
+}
+
+function setToggle(groupId, value) {
+  document.querySelectorAll(`#${groupId} .toggle-btn`).forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim() === value);
+  });
+}
+
+async function publicarVaga() {
+  const titulo = document.getElementById('f-titulo').value.trim();
+  const area = document.getElementById('f-area').value;
+  const nivel = document.getElementById('f-nivel').value;
+  const modalidade = document.querySelector('#f-modalidade .toggle-btn.active')?.textContent.trim();
+  const contrato = document.querySelector('#f-contrato .toggle-btn.active')?.textContent.trim();
+  const salMin = document.getElementById('f-sal-min').value;
+  const salMax = salMin;
+  const descricao = document.getElementById('f-descricao').value.trim();
+  const requisitos = document.getElementById('f-requisitos').value.trim();
+  const responsabilidades = document.getElementById('f-responsabilidades').value.trim();
+  const beneficios = document.getElementById('f-beneficios').value.trim();
+  const setor = '';
+  const tipoEmprego = '';
+  const editingId = document.getElementById('editing-vaga-id').value;
+
+  const btn = document.getElementById('btn-pub');
+  const err = document.getElementById('panel-error');
+  const suc = document.getElementById('panel-success');
+
+  if (!titulo) {
+    err.textContent = 'O título da vaga é obrigatório.';
+    err.classList.add('show');
+    document.getElementById('f-titulo').focus();
+    return;
+  }
+  if (!area) {
+    err.textContent = 'Selecione a área da vaga.';
+    err.classList.add('show');
+    document.getElementById('f-area').focus();
+    return;
+  }
+  if (!descricao) {
+    err.textContent = 'O campo "Sobre a vaga" é obrigatório.';
+    err.classList.add('show');
+    document.getElementById('f-descricao').focus();
+    return;
+  }
+  if (!responsabilidades) {
+    err.textContent = 'Informe as responsabilidades da vaga.';
+    err.classList.add('show');
+    document.getElementById('f-responsabilidades').focus();
+    return;
+  }
+  if (!requisitos) {
+    err.textContent = 'Informe os requisitos da vaga.';
+    err.classList.add('show');
+    document.getElementById('f-requisitos').focus();
+    return;
+  }
+
+  // Verifica limite do plano gratuito
+  // Verifica habilidades não confirmadas
+  const obrigPending = document.getElementById('hab-obrig-input')?.value.trim();
+  const desejPending = document.getElementById('hab-desej-input')?.value.trim();
+  if (obrigPending) {
+    err.textContent = `⚠️ Confirme "${obrigPending}" pressionando Enter antes de salvar.`;
+    err.classList.add('show');
+    btn.disabled=false; btn.textContent=editingId?'Salvar alterações →':'Publicar vaga →';
+    return;
+  }
+  if (desejPending) {
+    err.textContent = `⚠️ Confirme "${desejPending}" em Habilidades desejáveis pressionando Enter.`;
+    err.classList.add('show');
+    btn.disabled=false; btn.textContent=editingId?'Salvar alterações →':'Publicar vaga →';
+    return;
+  }
+
+  const ativasAtual = vagasData.filter(v => v.status === 'ativa').length;
+  const isEdicao = !!editingId;
+  const planoAtual = empresaData?.plano || 'gratuito';
+  const limiteAtual = planoAtual === 'pro' ? 5 : planoAtual === 'empresa' ? 15 : 1;
+  if (!isEdicao && ativasAtual >= limiteAtual) {
+    err.textContent = `Limite de ${limiteAtual} vagas ativas no plano ${planoAtual}. Faça upgrade para publicar mais vagas.`;
+    err.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'Publicar vaga →';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = editingId ? 'Salvando…' : 'Publicando…';
+  err.classList.remove('show');
+
+  const expMin = parseInt(document.getElementById('f-exp-min')?.value) || 0;
+  const formMin = document.getElementById('f-form-min')?.value || '';
+  const idioma = document.getElementById('f-idioma')?.value || '';
+  const idiomaNivel = document.getElementById('f-idioma-nivel')?.value || '';
+
+  const payload = { 
+    empresa_id: empresaData.id, titulo, area, nivel, modalidade, contrato,
+    cidade: (document.getElementById('f-cidade-vaga')?.value || 'Bauru').trim(), 
+    salario_min: salMin || null, salario_max: null, 
+    descricao, requisitos, responsabilidades, beneficios, setor, tipo_emprego: tipoEmprego,
+    habilidades_obrigatorias: habObrig,
+    habilidades_desejaveis: habDesej,
+    experiencia_minima_meses: expMin,
+    formacao_minima: formMin,
+    formacoes_exigidas: formTags.length > 0 ? formTags : null,
+    idioma_necessario: idioma,
+    idioma_nivel_minimo: idiomaNivel,
+    status: 'ativa' 
+  };
+
+  let error;
+  if (editingId) {
+    ({ error } = await sb.from('vagas').update(payload).eq('id', editingId));
+  } else {
+    ({ error } = await sb.from('vagas').insert(payload));
+  }
+
+  if (error) {
+    err.textContent = 'Erro ao salvar. Tente novamente.';
+    err.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = editingId ? 'Salvar alterações →' : 'Publicar vaga →';
+    return;
+  }
+
+  suc.textContent = editingId ? '✓ Vaga atualizada!' : '✓ Vaga publicada! Candidatos já podem se candidatar.';
+  suc.classList.add('show');
+  btn.textContent = '✓ Salvo!';
+
+  await carregarVagas();
+  atualizarMetrics();
+  renderVagasTable();
+
+  setTimeout(() => closePanel(), 1500);
+}
+
+// =============================================
+// CANDIDATURAS
+// =============================================
+async function carregarCandidaturas() {
+  if (!empresaData) { candsData = []; return; }
+  
+  // Busca todas as vagas da empresa primeiro
+  const { data: vagas } = await sb.from('vagas').select('id').eq('empresa_id', empresaData.id);
+  
+  if (!vagas || vagas.length === 0) { candsData = []; return; }
+  
+  const vagaIds = vagas.map(v => v.id);
+  const { data } = await sb.from('candidaturas').select('*').in('vaga_id', vagaIds).order('created_at', { ascending: false });
+  candsData = data || [];
+}
+
+function renderDashCandidatos() {
+  const recentes = candsData.slice(0, 5);
+  const section = document.getElementById('dash-cands-section');
+
+  if (recentes.length === 0) {
+    section.innerHTML = `<div class="cand-section"><div class="cand-head"><h2>Últimas candidaturas</h2></div><div class="cand-empty">Nenhuma candidatura ainda. Publique uma vaga para começar!</div></div>`;
+    return;
+  }
+
+  section.innerHTML = `
+    <div class="cand-section">
+      <div class="cand-head">
+        <h2>Últimas candidaturas</h2>
+        <a onclick="showPage('candidatos')" style="font-size:0.8rem;color:var(--accent);cursor:pointer;text-decoration:none">Ver todas →</a>
+      </div>
+      ${recentes.map(c => renderCandRow(c)).join('')}
+    </div>
+  `;
+}
+
+// =============================================
+// OPPORTUNIA MATCH ENGINE
+// =============================================
+async function calcularMatch(candidatura, vaga) {
+  if (!candidatura.candidato_id) return { score: 0, stars: 1, reasons: [], missing: [], label: 'Sem perfil' };
+
+  // Busca dados completos do candidato
+  const [pRes, expRes, formRes, certRes, idioRes] = await Promise.all([
+    sb.from('candidatos').select('*').eq('id', candidatura.candidato_id).single(),
+    sb.from('experiencias').select('*').eq('candidato_id', candidatura.candidato_id),
+    sb.from('formacoes').select('*').eq('candidato_id', candidatura.candidato_id),
+    sb.from('certificados').select('*').eq('candidato_id', candidatura.candidato_id),
+    sb.from('idiomas').select('*').eq('candidato_id', candidatura.candidato_id),
+  ]);
+
+  const p = pRes.data;
+  const exps = expRes.data || [];
+  const forms = formRes.data || [];
+  const certs = certRes.data || [];
+  const idiomas = idioRes.data || [];
+
+  if (!p) return { score: 0, stars: 1, reasons: [], missing: ['Perfil não encontrado'], label: 'Sem dados' };
+
+  let score = 0;
+  const reasons = [];
+  const missing = [];
+
+  // 1. COMPATIBILIDADE COM VAGA (25 pts)
+  let vagaScore = 0;
+
+  // Área
+  if (vaga && p.area && vaga.area) {
+    if (p.area === vaga.area) { vagaScore += 10; reasons.push('Área compatível com a vaga'); }
+    else { missing.push('Área diferente da vaga'); }
+  }
+
+  // Nível
+  if (vaga && p.nivel && vaga.nivel) {
+    const niveis = ['Estágio','Júnior','Pleno','Sênior','Gestor / Líder'];
+    const idxC = niveis.indexOf(p.nivel);
+    const idxV = niveis.indexOf(vaga.nivel);
+    if (idxC === idxV) { vagaScore += 8; reasons.push('Nível exatamente compatível'); }
+    else if (Math.abs(idxC - idxV) === 1) { vagaScore += 4; reasons.push('Nível próximo ao exigido'); }
+    else { missing.push('Nível diferente do exigido'); }
+  }
+
+  // Habilidades obrigatórias (novo!)
+  const habObrigVaga = vaga?.habilidades_obrigatorias || [];
+  const habCandidato = (p.habilidades || []).map(h => h.toLowerCase());
+  if (habObrigVaga.length > 0) {
+    const matches = habObrigVaga.filter(h => habCandidato.some(hc => hc.includes(h.toLowerCase()) || h.toLowerCase().includes(hc)));
+    const pctMatch = matches.length / habObrigVaga.length;
+    if (pctMatch >= 0.8) { vagaScore += 7; reasons.push(`${matches.length}/${habObrigVaga.length} habilidades exigidas`); }
+    else if (pctMatch >= 0.5) { vagaScore += 4; reasons.push(`${matches.length}/${habObrigVaga.length} habilidades exigidas`); }
+    else { missing.push(`Faltam habilidades: ${habObrigVaga.filter(h => !matches.includes(h)).slice(0,2).join(', ')}`); }
+  }
+
+  score += vagaScore;
+
+  // 2. EXPERIÊNCIA (30 pts)
+  if (exps.length === 0) {
+    missing.push('Nenhuma experiência cadastrada');
+  } else {
+    const mesesTotal = exps.reduce((acc, e) => {
+      const ini = e.data_inicio ? new Date(e.data_inicio) : null;
+      const fim = e.emprego_atual ? new Date() : (e.data_fim ? new Date(e.data_fim) : null);
+      if (ini && fim) return acc + Math.max(0, (fim - ini) / (1000 * 60 * 60 * 24 * 30));
+      return acc;
+    }, 0);
+    const anos = mesesTotal / 12;
+    const expMinVaga = vaga?.experiencia_minima_meses || 0;
+
+    if (expMinVaga > 0) {
+      // Score baseado em atingir o mínimo exigido
+      if (mesesTotal >= expMinVaga * 1.5) { score += 30; reasons.push(`${Math.round(anos)} anos de experiência (acima do exigido)`); }
+      else if (mesesTotal >= expMinVaga) { score += 22; reasons.push(`${Math.round(anos)} ano(s) — atende ao mínimo exigido`); }
+      else if (mesesTotal >= expMinVaga * 0.5) { score += 10; reasons.push(`Experiência parcial (${Math.round(mesesTotal)} meses)`); missing.push(`Mínimo exigido: ${expMinVaga >= 12 ? Math.round(expMinVaga/12)+' ano(s)' : expMinVaga+' meses'}`); }
+      else { score += 5; missing.push(`Pouca experiência (mínimo: ${expMinVaga >= 12 ? Math.round(expMinVaga/12)+' ano(s)' : expMinVaga+' meses'})`); }
+    } else {
+      // Sem mínimo exigido, pontuação por anos
+      if (anos >= 5) { score += 30; reasons.push(`${Math.round(anos)} anos de experiência`); }
+      else if (anos >= 3) { score += 22; reasons.push(`${Math.round(anos)} anos de experiência`); }
+      else if (anos >= 1) { score += 15; reasons.push(`${Math.round(anos)} ano(s) de experiência`); }
+      else if (exps.length > 0) { score += 8; reasons.push('Possui experiência profissional'); }
+    }
+
+    // Verifica se tem experiência na área da vaga
+    if (vaga && vaga.area) {
+      const areaMatch = exps.some(e => (e.descricao || '').toLowerCase().includes(vaga.area.toLowerCase().split(' ')[0]));
+      if (areaMatch) { score += 0; reasons.push('Experiência na área da vaga'); }
+    }
+  }
+
+  // 3. FORMAÇÃO (15 pts)
+  if (forms.length === 0) {
+    missing.push('Formação acadêmica não informada');
+  } else {
+    const graus = ['Ensino Médio','Técnico','Graduação','Pós-graduação','MBA','Mestrado','Doutorado'];
+    const melhorForm = forms.reduce((best, f) => {
+      const idx = graus.indexOf(f.grau);
+      return idx > graus.indexOf(best?.grau || '') ? f : best;
+    }, null);
+    if (melhorForm) {
+      const idxC = graus.indexOf(melhorForm.grau);
+      const formMinVaga = vaga?.formacao_minima || '';
+      const idxV = graus.indexOf(formMinVaga);
+
+      if (formMinVaga && idxV >= 0) {
+        if (idxC >= idxV) { score += 15; reasons.push(`${melhorForm.grau} em ${melhorForm.curso} ✓`); }
+        else { score += 4; missing.push(`Formação mínima exigida: ${formMinVaga}`); }
+      } else {
+        if (idxC >= 5) { score += 15; reasons.push(`${melhorForm.grau} em ${melhorForm.curso}`); }
+        else if (idxC >= 3) { score += 12; reasons.push(`${melhorForm.grau} em ${melhorForm.curso}`); }
+        else if (idxC >= 2) { score += 8; reasons.push(`Graduação em ${melhorForm.curso}`); }
+        else { score += 4; reasons.push('Ensino médio completo'); }
+      }
+    }
+  }
+
+  // 4. PERFIL COMPLETO (10 pts)
+  let perfilScore = 0;
+  if (p.telefone) perfilScore += 2;
+  if (p.bairro) perfilScore += 1;
+  if (p.cargo_desejado) perfilScore += 2;
+  if (p.resumo) perfilScore += 2;
+  if (p.linkedin || p.portfolio) perfilScore += 1;
+  if ((p.habilidades || []).length > 0) { perfilScore += 2; reasons.push(`${p.habilidades.length} habilidades cadastradas`); }
+  if (perfilScore < 5) missing.push('Perfil incompleto');
+  score += Math.min(perfilScore, 10);
+
+  // 5. CERTIFICADOS E CURSOS (10 pts)
+  if (certs.length === 0) {
+    missing.push('Sem certificados cadastrados');
+  } else {
+    const certScore = Math.min(certs.length * 3, 10);
+    score += certScore;
+    reasons.push(`${certs.length} certificado(s)`);
+  }
+
+  // 6. IDIOMAS (5 pts)
+  const idiomaVaga = vaga?.idioma_necessario || '';
+  const nivelVaga = vaga?.idioma_nivel_minimo || '';
+  const nivMap = { 'Básico':1,'Intermediário':2,'Avançado':3,'Fluente':4,'Nativo':5 };
+
+  if (idiomaVaga && idiomaVaga !== 'Não exigido') {
+    if (idiomas.length === 0) {
+      score += 0;
+      missing.push(`${idiomaVaga} ${nivelVaga} exigido — não cadastrado`);
+    } else {
+      const idiomaMatch = idiomas.find(i => i.idioma === idiomaVaga);
+      if (idiomaMatch) {
+        const nivC = nivMap[idiomaMatch.nivel] || 0;
+        const nivV = nivMap[nivelVaga] || 1;
+        if (nivC >= nivV) { score += 5; reasons.push(`${idiomaMatch.idioma} ${idiomaMatch.nivel} ✓`); }
+        else { score += 2; missing.push(`${idiomaVaga} exige nível ${nivelVaga} (tem ${idiomaMatch.nivel})`); }
+      } else {
+        missing.push(`${idiomaVaga} exigido não encontrado no perfil`);
+      }
+    }
+  } else if (idiomas.length > 0) {
+    const melhorIdioma = idiomas.reduce((best, i) => (nivMap[i.nivel]||0) > (nivMap[best?.nivel]||0) ? i : best, null);
+    if (melhorIdioma && (nivMap[melhorIdioma.nivel]||0) >= 3) {
+      score += 3; reasons.push(`${melhorIdioma.idioma} — ${melhorIdioma.nivel}`);
+    } else {
+      score += 1;
+    }
+  } else {
+    missing.push('Sem idiomas cadastrados');
+  }
+
+  // 7. SALÁRIO (12 pts)
+  const salVaga = vaga?.salario_min || 0;
+  const salCandMin = p.salario_min || 0;
+  const salCandMax = p.salario_max || 0;
+  if (salVaga > 0 && (salCandMin > 0 || salCandMax > 0)) {
+    const dentro = salVaga >= salCandMin && (salCandMax === 0 || salVaga <= salCandMax * 1.2);
+    const perto = salVaga >= salCandMin * 0.8 && salVaga <= salCandMax * 1.4;
+    if (dentro) { score += 12; reasons.push('Salário dentro da pretensão'); }
+    else if (perto) { score += 6; reasons.push('Salário próximo da pretensão'); }
+    else if (salVaga < salCandMin * 0.8) { missing.push(`Salário abaixo da pretensão (R$ ${salVaga.toLocaleString('pt-BR')} vs R$ ${salCandMin.toLocaleString('pt-BR')}+)`); }
+    else { score += 3; reasons.push('Salário acima da pretensão'); }
+  }
+
+  // 8. MODALIDADE (5 pts)
+  const modalVaga = vaga?.modalidade || '';
+  const modalCand = p.modalidade || '';
+  if (modalVaga && modalCand) {
+    if (modalVaga === modalCand) { score += 5; reasons.push(`Modalidade compatível (${modalVaga})`); }
+    else if (modalVaga === 'Híbrido' || modalCand === 'Híbrido') { score += 3; reasons.push('Modalidade parcialmente compatível'); }
+    else { missing.push(`Modalidade: vaga é ${modalVaga}, candidato prefere ${modalCand}`); }
+  } else if (modalVaga && !modalCand) {
+    missing.push('Modalidade preferida não informada no perfil');
+  }
+
+  // 9. TIPO DE CONTRATO (5 pts)
+  const contratoVaga = vaga?.contrato || '';
+  const contratoCand = p.contrato || '';
+  if (contratoVaga && contratoCand && contratoCand !== 'Indiferente') {
+    if (contratoVaga === contratoCand) { score += 5; reasons.push(`Contrato compatível (${contratoVaga})`); }
+    else { missing.push(`Contrato: vaga é ${contratoVaga}, candidato prefere ${contratoCand}`); }
+  } else if (contratoCand === 'Indiferente' || !contratoCand) {
+    score += 3; // Indiferente ou não informado = parcial
+  }
+
+  // 10. FORMAÇÕES EXIGIDAS (8 pts) — compara formacoes_exigidas da vaga com formações do candidato
+  const formsExig = vaga?.formacoes_exigidas || [];
+  if (formsExig.length > 0 && forms.length > 0) {
+    const graus = ['Ensino Médio','Técnico','Graduação (cursando)','Graduação','Pós-graduação','MBA','Mestrado','Doutorado'];
+    const formsTexto = forms.map(f => `${f.grau} ${f.curso || ''}`.toLowerCase());
+    let matchCount = 0;
+    for (const exig of formsExig) {
+      const exigLow = exig.toLowerCase();
+      const matched = formsTexto.some(ft => {
+        // Verifica se o nível e/ou curso batem
+        const nivelMatch = graus.some(g => exigLow.includes(g.toLowerCase()) && ft.includes(g.toLowerCase()));
+        const cursoMatch = exigLow.split(' em ').slice(1).join('').length > 2 &&
+          ft.includes(exigLow.split(' em ').slice(1).join('').substring(0, 5).toLowerCase());
+        return nivelMatch || cursoMatch;
+      });
+      if (matched) matchCount++;
+    }
+    const pct = matchCount / formsExig.length;
+    if (pct >= 1) { score += 8; reasons.push(`Formações exigidas atendidas (${matchCount}/${formsExig.length})`); }
+    else if (pct >= 0.5) { score += 4; reasons.push(`Parte das formações atendidas (${matchCount}/${formsExig.length})`); missing.push('Algumas formações exigidas não encontradas'); }
+    else { missing.push(`Formações exigidas não encontradas no perfil`); }
+  }
+
+  // 11. HABILIDADES DESEJÁVEIS — bônus até 5 pts
+  const habDesejVaga = vaga?.habilidades_desejaveis || [];
+  if (habDesejVaga.length > 0) {
+    const matchesDesej = habDesejVaga.filter(h => habCandidato.some(hc => hc.includes(h.toLowerCase()) || h.toLowerCase().includes(hc)));
+    if (matchesDesej.length > 0) {
+      const bonus = Math.min(matchesDesej.length * 2, 5);
+      score += bonus;
+      reasons.push(`${matchesDesej.length} habilidade(s) desejável(is) como diferencial`);
+    }
+  }
+
+  // 12. HISTÓRICO (3 pts) — candidato ativo na plataforma
+  const { count } = await sb.from('candidaturas').select('*', { count: 'exact', head: true }).eq('candidato_id', candidatura.candidato_id);
+  if (count >= 3) { score += 3; }
+  else if (count >= 1) { score += 1; }
+
+  // CALCULA STARS
+  score = Math.min(100, Math.max(0, score));
+  let stars, label, cls;
+  if (score >= 81) { stars = 5; label = 'Alta aderência'; cls = 'ms-high'; }
+  else if (score >= 61) { stars = 4; label = 'Boa aderência'; cls = 'ms-good'; }
+  else if (score >= 41) { stars = 3; label = 'Aderência média'; cls = 'ms-mid'; }
+  else if (score >= 21) { stars = 2; label = 'Baixa aderência'; cls = 'ms-low'; }
+  else { stars = 1; label = 'Muito baixa'; cls = 'ms-low'; }
+
+  const starsStr = '⭐'.repeat(stars) + '☆'.repeat(5 - stars);
+
+  // Salva no banco
+  await sb.from('candidaturas').update({
+    match_score: score,
+    match_stars: stars,
+    match_reasons: reasons.slice(0, 5),
+    match_missing: missing.slice(0, 3),
+    match_calculated_at: new Date().toISOString()
+  }).eq('id', candidatura.id);
+
+  return { score, stars, starsStr, label, cls, reasons: reasons.slice(0, 5), missing: missing.slice(0, 3) };
+}
+
+async function calcularMatchTodos(candidaturas, vaga) {
+  const resultados = [];
+  for (const c of candidaturas) {
+    // Usa score salvo se calculado há menos de 1h
+    if (c.match_score > 0 && c.match_calculated_at) {
+      const diff = (Date.now() - new Date(c.match_calculated_at)) / 60000;
+      if (diff < 60) {
+        const score = c.match_score;
+        let stars, label, cls;
+        if (score >= 81) { stars = 5; label = 'Alta aderência'; cls = 'ms-high'; }
+        else if (score >= 61) { stars = 4; label = 'Boa aderência'; cls = 'ms-good'; }
+        else if (score >= 41) { stars = 3; label = 'Aderência média'; cls = 'ms-mid'; }
+        else if (score >= 21) { stars = 2; label = 'Baixa aderência'; cls = 'ms-low'; }
+        else { stars = 1; label = 'Muito baixa'; cls = 'ms-low'; }
+        resultados.push({ ...c, match: { score, stars, starsStr: '⭐'.repeat(stars) + '☆'.repeat(5-stars), label, cls, reasons: c.match_reasons||[], missing: c.match_missing||[] } });
+        continue;
+      }
+    }
+    const match = await calcularMatch(c, vaga);
+    resultados.push({ ...c, match });
+  }
+  return resultados.sort((a, b) => (b.match?.score || 0) - (a.match?.score || 0));
+}
+
+function renderMatchScore(match, rank) {
+  if (!match) return '';
+  const rankCls = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-n';
+  const mbCls = match.cls === 'ms-high' ? 'mb-high' : match.cls === 'ms-good' ? 'mb-good' : match.cls === 'ms-mid' ? 'mb-mid' : 'mb-low';
+  return `
+    <div style="display:flex;align-items:center;gap:0.75rem;flex-shrink:0">
+      <div class="cand-rank ${rankCls}">${rank <= 9 ? rank : '·'}</div>
+      <div class="match-score">
+        <div class="match-pct ${match.cls}">${match.score != null ? match.score + '%' : '—'}</div>
+        <div class="match-stars">${match.starsStr || '☆☆☆☆☆'}</div>
+        <span class="match-badge ${mbCls}">${match.label}</span>
+      </div>
+    </div>`;
+}
+
+function renderMatchDetail(match) {
+  if (!match) return '';
+  const oks = (match.reasons || []).slice(0, 3).map(r => `<div class="match-ok">✓ ${r}</div>`).join('');
+  const nos = (match.missing || []).slice(0, 2).map(r => `<div class="match-no">– ${r}</div>`).join('');
+  return `<div class="match-detail">${oks}${nos}</div>`;
+}
+
+function renderCandidatosPage() {
+  const wrap = document.getElementById('candidatos-wrap');
+
+  const porVaga = {};
+  candsData.forEach(c => {
+    if (!porVaga[c.vaga_id]) porVaga[c.vaga_id] = [];
+    porVaga[c.vaga_id].push(c);
+  });
+
+  if (Object.keys(porVaga).length === 0) {
+    wrap.innerHTML = `<div class="cand-section"><div class="cand-empty"><p style="font-size:1.5rem">👥</p><h3 style="font-family:Syne;font-size:1rem;color:var(--ink-2);margin-bottom:0.25rem">Nenhuma candidatura ainda</h3><p style="font-size:0.85rem">Quando alguém se candidatar às suas vagas, aparecerá aqui.</p></div></div>`;
+    return;
+  }
+
+  // Renderiza com loading primeiro
+  wrap.innerHTML = Object.entries(porVaga).map(([vagaId, cands]) => {
+    const vaga = vagasData.find(v => v.id === vagaId);
+    return `
+      <div class="cand-section" id="cand-section-${vagaId}">
+        <div onclick="toggleVaga('${vagaId}')" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;cursor:pointer;user-select:none;border-bottom:1px solid var(--border);background:var(--white);transition:background .15s" onmouseover="this.style.background='#fafaf8'" onmouseout="this.style.background='var(--white)'">
+          <div style="display:flex;align-items:center;gap:.75rem">
+            <span style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)">Vaga:</span>
+            <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--ink)">${vaga ? vaga.titulo : 'Vaga'}</span>
+            <span style="font-size:.82rem;color:var(--ink-3);font-weight:400">${cands.length} candidato${cands.length!==1?'s':''}</span>
+          </div>
+          <span id="toggle-icon-${vagaId}" style="font-size:1.2rem;color:var(--ink-3);font-weight:300;line-height:1">−</span>
+        </div>
+        <div id="cand-body-${vagaId}">
+          <div class="cand-filtros">
+            <button class="cand-filtro active" onclick="filtrarCands('${vagaId}', 'todos', this)">Todos</button>
+            <button class="cand-filtro" onclick="filtrarCands('${vagaId}', 'aprovada', this)">✓ Aprovados</button>
+            <button class="cand-filtro" onclick="filtrarCands('${vagaId}', 'talvez', this)">? Talvez</button>
+            <button class="cand-filtro" onclick="filtrarCands('${vagaId}', 'reprovada', this)">✕ Reprovados</button>
+            <button class="cand-filtro" onclick="filtrarCands('${vagaId}', 'pendente', this)">⏳ Pendentes</button>
+          </div>
+          <div id="cands-vaga-${vagaId}">
+            <div style="text-align:center;padding:2rem;color:var(--ink-3);font-size:0.85rem">⚙️ Calculando compatibilidade…</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Calcula match para cada vaga de forma assíncrona
+  Object.entries(porVaga).forEach(async ([vagaId, cands]) => {
+    const vaga = vagasData.find(v => v.id === vagaId);
+    const comMatch = await calcularMatchTodos(cands, vaga);
+    candsPorVagaCache[vagaId] = comMatch;
+    const el = document.getElementById(`cands-vaga-${vagaId}`);
+    if (el) el.innerHTML = comMatch.map((c, i) => renderCandRow(c, i + 1)).join('');
+  });
+}
+
+function renderCandRow(c, rank = 0) {
+  const iniciais = (c.nome || 'AN').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+  const statusClass = { pendente: 'cs-pendente', visualizada: 'cs-visualizada', aprovada: 'cs-aprovada', reprovada: 'cs-reprovada' }[c.status] || 'cs-pendente';
+  const tempo = tempoRelativo(c.created_at);
+  const vaga = vagasData.find(v => v.id === c.vaga_id);
+  const match = c.match;
+
+  return `
+    <div class="cand-row" id="cand-row-${c.id}">
+      ${rank > 0 ? renderMatchScore(match, rank) : ''}
+      <div class="cand-avatar">${iniciais}</div>
+      <div class="cand-info">
+        <div class="cand-name">${c.nome}</div>
+        <div class="cand-email">${c.email}${c.telefone ? ' · ' + c.telefone : ''}</div>
+        <div class="cand-role">${vaga ? vaga.titulo : ''} · ${tempo}${c.mensagem ? ' · "' + c.mensagem.substring(0,40) + (c.mensagem.length>40?'…':'') + '"' : ''}</div>
+        ${match ? renderMatchDetail(match) : ''}
+      </div>
+      <div class="cand-actions">
+        <a href="oportunia-perfil-publico.html?candidatura=${c.id}" target="_blank" class="cand-btn" style="background:var(--blue-light);color:var(--blue);border-color:rgba(26,60,110,0.2);text-decoration:none;display:inline-flex;align-items:center">👤 Ver perfil</a>
+        ${c.status !== 'reprovada' ? `<button class="cand-btn cand-btn-reprovar" onclick="atualizarCand('${c.id}','reprovada')" title="Reprovar">✕ Reprovar</button>` : ''}
+        ${c.status !== 'talvez' ? `<button class="cand-btn cand-btn-talvez" onclick="atualizarCand('${c.id}','talvez')" title="Talvez">? Talvez</button>` : ''}
+        ${c.status !== 'aprovada' ? `<button class="cand-btn cand-btn-aprovar" onclick="atualizarCand('${c.id}','aprovada')" title="Aprovar">✓ Aprovar</button>` : ''}
+        <button class="cand-btn cand-btn-excluir" onclick="confirmarExcluirCand('${c.id}', '${(c.nome||'').replace(/'/g,"\\'")}')">🗑</button>
+        <span class="cand-status ${{ pendente: 'cs-pendente', visualizada: 'cs-visualizada', aprovada: 'cs-aprovada', talvez: 'cs-talvez', reprovada: 'cs-reprovada' }[c.status] || 'cs-pendente'}">${{ pendente:'⏳ pendente', visualizada:'👁 visualizada', aprovada:'✓ aprovada', talvez:'? talvez', reprovada:'✕ reprovada' }[c.status] || c.status}</span>
+      </div>
+    </div>
+  `;
+}
+
+async function atualizarCand(candId, novoStatus) {
+  await sb.from('candidaturas').update({ status: novoStatus }).eq('id', candId);
+  await carregarCandidaturas();
+  atualizarMetrics();
+  renderDashCandidatos();
+  renderCandidatosPage();
+}
+
+// Guarda os candidatos calculados por vaga para filtro
+let candsPorVagaCache = {};
+
+function toggleVaga(vagaId) {
+  const body = document.getElementById(`cand-body-${vagaId}`);
+  const icon = document.getElementById(`toggle-icon-${vagaId}`);
+  if (!body) return;
+  const aberto = body.style.display !== 'none';
+  body.style.display = aberto ? 'none' : '';
+  icon.textContent = aberto ? '+' : '−';
+}
+
+function filtrarCands(vagaId, filtro, btn) {
+  // Atualiza botão ativo
+  btn.closest('.cand-section').querySelectorAll('.cand-filtro').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const todos = candsPorVagaCache[vagaId] || [];
+  const filtrados = filtro === 'todos' ? todos : todos.filter(c => c.status === filtro);
+  const el = document.getElementById(`cands-vaga-${vagaId}`);
+  if (!el) return;
+  if (!filtrados.length) {
+    el.innerHTML = `<div class="cand-empty" style="padding:1.5rem;text-align:center;color:var(--ink-3);font-size:.85rem">Nenhum candidato com status "${filtro}".</div>`;
+  } else {
+    el.innerHTML = filtrados.map((c, i) => renderCandRow(c, i + 1)).join('');
+  }
+}
+
+function confirmarExcluirCand(candId, nome) {
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,17,23,.6);z-index:400;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:20px;padding:2rem;max-width:420px;width:90%;text-align:center">
+      <div style="font-size:2rem;margin-bottom:1rem">⚠️</div>
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:.5rem">Excluir candidatura de ${nome}?</h3>
+      <p style="font-size:.88rem;color:var(--ink-2);line-height:1.6;margin-bottom:.5rem">Antes de excluir, <strong>lembre-se de dar um retorno ao candidato!</strong></p>
+      <p style="font-size:.82rem;color:var(--ink-3);margin-bottom:1.5rem">Candidatos que recebem feedback têm uma experiência melhor e isso fortalece a reputação da sua empresa.</p>
+      <div style="display:flex;gap:.75rem;justify-content:center">
+        <button onclick="this.closest('[style*=fixed]').remove()" style="padding:.65rem 1.5rem;border-radius:100px;border:1px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer">Cancelar</button>
+        <button onclick="excluirCand('${candId}');this.closest('[style*=fixed]').remove()" style="padding:.65rem 1.5rem;border-radius:100px;border:none;background:var(--red);color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer">Excluir mesmo assim</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function excluirCand(candId) {
+  await sb.from('candidaturas').delete().eq('id', candId);
+  await carregarCandidaturas();
+  atualizarMetrics();
+  renderDashCandidatos();
+  renderCandidatosPage();
+}
+
+// =============================================
+// METRICS
+// =============================================
+let dashDonutChart = null;
+
+function atualizarMetrics() {
+  const ativas = vagasData.filter(v => v.status === 'ativa' && v.empresa_id === empresaData?.id).length;
+  const total = candsData.length;
+  const aprov = candsData.filter(c => c.status === 'aprovada').length;
+  const plano = empresaData?.plano || 'gratuito';
+  const limite = plano === 'pro' ? 5 : plano === 'empresa' ? 15 : 1;
+  const taxa = total > 0 ? Math.round((aprov / total) * 100) : 0;
+
+  // Cards de topo
+  document.getElementById('m-vagas').textContent = ativas;
+  document.getElementById('m-vagas-sub').textContent = 'de ' + limite + ' disponíveis no plano';
+  document.getElementById('m-cands').textContent = total;
+  document.getElementById('m-taxa').textContent = taxa + '%';
+  document.getElementById('m-taxa-sub').textContent = aprov + ' aprovado' + (aprov !== 1 ? 's' : '') + ' do total';
+
+  // Badge "novas hoje"
+  const hoje = new Date().toDateString();
+  const novasHoje = candsData.filter(c => new Date(c.created_at).toDateString() === hoje).length;
+  const badgeEl = document.getElementById('m-novas-badge');
+  if (novasHoje > 0) {
+    badgeEl.innerHTML = '<span class="dash-novas-badge">+' + novasHoje + ' hoje</span>';
+  } else {
+    badgeEl.textContent = 'total recebidas';
+  }
+
+  renderDashCharts();
+}
+
+function renderDashCharts() {
+  renderDashBarChart();
+  renderDashDonut();
+  renderDashMatchList();
+}
+
+function renderDashBarChart() {
+  const vagasAtivas = vagasData.filter(v => v.status === 'ativa' && v.empresa_id === empresaData?.id);
+  const listEl = document.getElementById('dash-hbar-list');
+  const legendEl = document.getElementById('dash-legend-vagas');
+  if (!listEl) return;
+
+  if (vagasAtivas.length === 0) {
+    listEl.innerHTML = '<div style="font-size:0.82rem;color:var(--ink-3);padding:1rem 0;text-align:center">Nenhuma vaga ativa</div>';
+    return;
+  }
+
+  const STATUS = [
+    { key: 'aprovada', cor: '#3B6D11', bg: '#EAF3DE', label: 'Aprovados' },
+    { key: 'talvez',   cor: '#854F0B', bg: '#FAEEDA', label: 'Talvez' },
+    { key: 'pendente', cor: '#888780', bg: '#F1EFE8', label: 'Pendentes' },
+    { key: 'reprovada',cor: '#A32D2D', bg: '#FCEBEB', label: 'Reprovados' },
+  ];
+
+  // Legenda compacta no título
+  legendEl.innerHTML = STATUS.map(s =>
+    `<div class="dash-legend-item"><div class="dash-legend-sq" style="background:${s.cor}"></div>${s.label}</div>`
+  ).join('');
+
+  // Máx de candidatos por vaga para escalar as barras
+  const totais = vagasAtivas.map(v => candsData.filter(c => c.vaga_id === v.id).length);
+  const maxTotal = Math.max(...totais, 1);
+
+  listEl.innerHTML = vagasAtivas.map((v, i) => {
+    const counts = STATUS.map(s => candsData.filter(c => c.vaga_id === v.id && c.status === s.key).length);
+    const total = counts.reduce((a, b) => a + b, 0);
+    const titulo = v.titulo.length > 22 ? v.titulo.substring(0, 22) + '…' : v.titulo;
+
+    const segmentos = STATUS.map((s, si) => {
+      const n = counts[si];
+      if (n === 0) return '';
+      const w = Math.round((n / maxTotal) * 100);
+      return `<div class="dash-hbar-seg" style="width:${w}%;background:${s.bg};border:1px solid ${s.cor};color:${s.cor}" title="${s.label}: ${n}">${n > 0 && w > 12 ? n : ''}</div>`;
+    }).join('');
+
+    return `<div class="dash-hbar-row">
+      <div class="dash-hbar-label" title="${v.titulo}">${titulo}</div>
+      <div class="dash-hbar-bars">${segmentos || '<div style="font-size:0.72rem;color:var(--ink-3)">sem candidatos</div>'}</div>
+      <div class="dash-hbar-total">${total}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderDashDonut() {
+  const aprov = candsData.filter(c => c.status === 'aprovada').length;
+  const talvez = candsData.filter(c => c.status === 'talvez').length;
+  const pend = candsData.filter(c => c.status === 'pendente').length;
+  const reprov = candsData.filter(c => c.status === 'reprovada').length;
+  const total = candsData.length;
+  if (total === 0) return;
+
+  const dados = [
+    {label:'Aprovados', val:aprov, bg:'#3B6D11', light:'#EAF3DE'},
+    {label:'Talvez', val:talvez, bg:'#854F0B', light:'#FAEEDA'},
+    {label:'Pendentes', val:pend, bg:'#888780', light:'#F1EFE8'},
+    {label:'Reprovados', val:reprov, bg:'#A32D2D', light:'#FCEBEB'},
+  ];
+
+  const legendEl = document.getElementById('dash-donut-legend');
+  legendEl.innerHTML = dados.map(d => `
+    <div class="dash-donut-row">
+      <div class="dash-legend-item"><div class="dash-legend-sq" style="background:${d.bg}"></div>${d.label}</div>
+      <span style="font-size:0.8rem;font-weight:600;color:var(--ink)">${d.val} <span style="font-weight:400;color:var(--ink-3)">(${Math.round(d.val/total*100)}%)</span></span>
+    </div>`).join('');
+
+  const ctx = document.getElementById('dash-donut-chart').getContext('2d');
+  if (dashDonutChart) { dashDonutChart.destroy(); dashDonutChart = null; }
+  dashDonutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: dados.map(d => d.label),
+      datasets: [{ data: dados.map(d => d.val), backgroundColor: dados.map(d => d.bg), borderWidth: 2, borderColor: '#ffffff', hoverOffset: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '68%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => c.label + ': ' + c.parsed } } }
+    }
+  });
+}
+
+async function renderDashMatchList() {
+  const listEl = document.getElementById('dash-match-list');
+  if (!listEl) return;
+  if (candsData.length === 0) { listEl.innerHTML = '<div style="font-size:0.82rem;color:var(--ink-3);padding:1rem 0;text-align:center">Nenhuma candidatura ainda</div>'; return; }
+
+  listEl.innerHTML = '<div style="font-size:0.78rem;color:var(--ink-3);padding:0.5rem 0">Calculando aderência…</div>';
+
+  const amostra = candsData.slice(0, 10);
+  const scores = [];
+
+  for (const c of amostra) {
+    const vaga = vagasData.find(v => v.id === c.vaga_id);
+    if (!vaga) continue;
+    try {
+      const res = await calcularMatch(c, vaga);
+      scores.push({ cand: c, vaga, score: res.score });
+    } catch(e) { scores.push({ cand: c, vaga, score: 0 }); }
+  }
+
+  scores.sort((a, b) => b.score - a.score);
+  const top = scores.slice(0, 5);
+
+  listEl.innerHTML = top.map(item => {
+    const nome = item.cand.nome || item.cand.candidatos?.nome || 'Candidato';
+    const iniciais = nome.split(' ').slice(0,2).map(p => p[0]).join('').toUpperCase();
+    const vagaTitulo = item.vaga?.titulo || '';
+    const pct = Math.round(item.score);
+    const cor = pct >= 75 ? '#3B6D11' : pct >= 50 ? '#854F0B' : '#888780';
+    return `<div class="dash-match-row">
+      <div class="dash-match-avatar">${iniciais}</div>
+      <div class="dash-match-info">
+        <div class="dash-match-nome">${nome}</div>
+        <div class="dash-match-vaga">${vagaTitulo}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <span class="dash-match-pct" style="color:${cor}">${pct}%</span>
+        <div class="dash-match-bar-wrap"><div class="dash-match-bar" style="width:${pct}%;background:${cor}"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Aderência média
+  if (scores.length > 0) {
+    const media = Math.round(scores.reduce((s, x) => s + x.score, 0) / scores.length);
+    document.getElementById('m-match').textContent = media + '%';
+  }
+}
+
+// =============================================
+// PÁGINA DE PLANOS
+// =============================================
+function renderPlanosPage() {
+  const plano = empresaData?.plano || 'gratuito';
+  const venc = empresaData?.plano_vencimento;
+  const vagasAtivas = vagasData.filter(v => v.status === 'ativa' && v.empresa_id === empresaData?.id).length;
+
+  const INFO = {
+    gratuito: { nome: 'Gratuito', preco: 'R$ 0/mês', vagas: 1, cands: 'ilimitados', dest: 'Nenhuma', cor: '#888780' },
+    pro:      { nome: 'Pro',      preco: 'R$ 79/mês', vagas: 5, cands: 'Ilimitados', dest: '1 vaga', cor: '#185FA5' },
+    empresa:  { nome: 'Empresa',  preco: 'R$ 179/mês', vagas: 15, cands: 'Ilimitados', dest: 'até 5 vagas', cor: '#3B6D11' },
+  };
+  const info = INFO[plano] || INFO.gratuito;
+
+  // Banner de alerta
+  const banner = document.getElementById('planos-banner');
+  if (venc && plano !== 'gratuito') {
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const vencDate = new Date(venc); vencDate.setHours(0,0,0,0);
+    const dias = Math.round((vencDate - hoje) / (1000 * 60 * 60 * 24));
+    if (dias < 0) {
+      banner.style.cssText = 'display:flex;margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:var(--radius);align-items:center;gap:1rem;flex-wrap:wrap;background:#FCEBEB;border:1px solid #F09595';
+      banner.innerHTML = '<span style="font-size:1.2rem">⚠️</span><div style="flex:1"><strong style="color:#A32D2D">Plano vencido</strong><div style="font-size:0.82rem;color:#A32D2D;margin-top:2px">Seu plano venceu em ' + new Date(venc).toLocaleDateString('pt-BR') + '. Renove para continuar publicando vagas.</div></div><button onclick="entrarEmContato()" style="background:#A32D2D;color:#fff;border:none;border-radius:100px;padding:0.5rem 1.25rem;font-size:0.85rem;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif">Renovar agora →</button>';
+    } else if (dias <= 7) {
+      banner.style.cssText = 'display:flex;margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:var(--radius);align-items:center;gap:1rem;flex-wrap:wrap;background:#FAEEDA;border:1px solid #EF9F27';
+      banner.innerHTML = '<span style="font-size:1.2rem">⏰</span><div style="flex:1"><strong style="color:#854F0B">Plano vencendo em ' + dias + ' dia' + (dias !== 1 ? 's' : '') + '</strong><div style="font-size:0.82rem;color:#854F0B;margin-top:2px">Renove antes de ' + new Date(venc).toLocaleDateString('pt-BR') + ' para não perder o acesso às suas vagas.</div></div><button onclick="entrarEmContato()" style="background:#854F0B;color:#fff;border:none;border-radius:100px;padding:0.5rem 1.25rem;font-size:0.85rem;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif">Renovar agora →</button>';
+    } else {
+      banner.style.display = 'none';
+    }
+  } else {
+    banner.style.display = 'none';
+  }
+
+  // Card plano atual — nome e preço
+  document.getElementById('pp-nome').textContent = info.nome;
+  document.getElementById('pp-preco').textContent = info.preco;
+
+  // Badge status
+  const badgeEl = document.getElementById('pp-status-badge');
+  if (plano === 'gratuito') {
+    badgeEl.innerHTML = '<span style="background:#F1EFE8;color:#5F5E5A;font-size:0.72rem;font-weight:600;padding:0.3rem 0.8rem;border-radius:100px">Gratuito</span>';
+  } else if (venc) {
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const vencDate = new Date(venc); vencDate.setHours(0,0,0,0);
+    const dias = Math.round((vencDate - hoje) / (1000 * 60 * 60 * 24));
+    if (dias < 0) {
+      badgeEl.innerHTML = '<span style="background:#FCEBEB;color:#A32D2D;font-size:0.72rem;font-weight:600;padding:0.3rem 0.8rem;border-radius:100px">⚠ Vencido</span>';
+    } else if (dias <= 7) {
+      badgeEl.innerHTML = '<span style="background:#FAEEDA;color:#854F0B;font-size:0.72rem;font-weight:600;padding:0.3rem 0.8rem;border-radius:100px">⚠ Vence em ' + dias + 'd</span>';
+    } else {
+      badgeEl.innerHTML = '<span style="background:#EAF3DE;color:#3B6D11;font-size:0.72rem;font-weight:600;padding:0.3rem 0.8rem;border-radius:100px">✓ Ativo</span>';
+    }
+  } else {
+    badgeEl.innerHTML = '<span style="background:#EAF3DE;color:#3B6D11;font-size:0.72rem;font-weight:600;padding:0.3rem 0.8rem;border-radius:100px">✓ Ativo</span>';
+  }
+
+  // Detalhes do plano
+  const pct = Math.min((vagasAtivas / info.vagas) * 100, 100);
+  document.getElementById('pp-vagas-txt').textContent = vagasAtivas + ' de ' + info.vagas;
+  document.getElementById('pp-vagas-bar').style.width = pct + '%';
+  document.getElementById('pp-vagas-bar').style.background = pct >= 100 ? '#A32D2D' : 'var(--accent)';
+  document.getElementById('pp-venc-txt').textContent = venc && plano !== 'gratuito' ? new Date(venc).toLocaleDateString('pt-BR') : 'Sem prazo';
+  document.getElementById('pp-cands-txt').textContent = info.cands;
+  document.getElementById('pp-dest-txt').textContent = info.dest;
+
+  // Histórico de pagamentos
+  const histEl = document.getElementById('pp-historico');
+  const pagoEm = empresaData?.plano_pago_em;
+  const valor = empresaData?.plano_valor;
+  if (pagoEm && valor && plano !== 'gratuito') {
+    histEl.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:0.72rem;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.05em">Data</span>
+        <span style="font-size:0.72rem;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.05em">Plano</span>
+        <span style="font-size:0.72rem;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.05em;text-align:right">Valor</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;padding:0.75rem 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:0.85rem;color:var(--ink)">${new Date(pagoEm).toLocaleDateString('pt-BR')}</span>
+        <span style="font-size:0.85rem;color:var(--ink)">${info.nome}</span>
+        <span style="font-size:0.85rem;font-weight:500;color:var(--green);text-align:right">R$ ${Number(valor).toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
+      </div>
+      <div style="font-size:0.75rem;color:var(--ink-3);margin-top:0.75rem">Pagamento via PIX confirmado pelo administrador.</div>`;
+  } else if (plano !== 'gratuito') {
+    histEl.innerHTML = '<div style="font-size:0.85rem;color:var(--ink-3);text-align:center;padding:2rem 0">Nenhum pagamento registrado</div>';
+  } else {
+    histEl.innerHTML = '<div style="font-size:0.85rem;color:var(--ink-3);text-align:center;padding:2rem 0">Plano gratuito não possui histórico de pagamentos</div>';
+  }
+
+  // Comparativo de planos
+  const PLANOS = [
+    { id: 'gratuito', nome: 'Gratuito', preco: 'R$ 0', periodo: 'para sempre', vagas: '1 vaga', cands: 'ilimitados por vaga', dest: 'Sem destaques', cor: '#888780', bg: '#F1EFE8', features: ['1 vaga ativa','Candidatos ilimitados por vaga','Perfil da empresa','Candidaturas ilimitadas'] },
+    { id: 'pro',      nome: 'Pro',      preco: 'R$ 79', periodo: '/mês', vagas: '5 vagas', cands: 'Ilimitados', dest: '1 vaga em destaque', cor: '#185FA5', bg: '#E6F1FB', features: ['5 vagas ativas','Candidatos ilimitados','1 vaga em destaque','Suporte prioritário'] },
+    { id: 'empresa',  nome: 'Empresa',  preco: 'R$ 179', periodo: '/mês', vagas: '15 vagas', cands: 'Ilimitados', dest: 'até 5 em destaque', cor: '#3B6D11', bg: '#EAF3DE', features: ['15 vagas ativas','Candidatos ilimitados','até 5 vagas em destaque','Suporte prioritário'] },
+  ];
+
+  const grid = document.getElementById('pp-planos-grid');
+  grid.innerHTML = PLANOS.map(p => {
+    const isAtual = p.id === plano;
+    const border = isAtual ? `2px solid ${p.cor}` : '1px solid var(--border)';
+    const btnHtml = isAtual
+      ? `<div style="text-align:center;padding:0.6rem;border-radius:100px;background:${p.bg};color:${p.cor};font-size:0.82rem;font-weight:600">✓ Plano atual</div>`
+      : p.id === 'gratuito'
+        ? ''
+        : `<button onclick="entrarEmContato()" style="width:100%;padding:0.65rem;border-radius:100px;background:${p.cor};color:#fff;border:none;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer">Quero este plano →</button>`;
+    return `
+      <div style="background:var(--white);border:${border};border-radius:var(--radius);padding:1.5rem;display:flex;flex-direction:column;gap:0">
+        ${isAtual ? `<div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${p.cor};margin-bottom:0.5rem">Plano atual</div>` : '<div style="margin-bottom:1.3rem"></div>'}
+        <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--ink)">${p.nome}</div>
+        <div style="margin:0.5rem 0 1rem"><span style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:700;color:var(--ink)">${p.preco}</span><span style="font-size:0.82rem;color:var(--ink-3)">${p.periodo}</span></div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.25rem;flex:1">
+          ${p.features.map(f => `<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.82rem;color:var(--ink-2)"><span style="color:${p.cor};font-size:0.9rem">✓</span>${f}</div>`).join('')}
+        </div>
+        ${btnHtml}
+      </div>`;
+  }).join('');
+}
+
+function mostrarModalLimite(limite, nomePlano) {
+  const overlay = document.getElementById('limite-overlay');
+  const isMaxPlano = nomePlano === 'Empresa';
+  document.getElementById('limite-titulo').textContent = `Limite do plano ${nomePlano} atingido`;
+
+  if (isMaxPlano) {
+    document.getElementById('limite-texto').textContent = `Você já tem ${limite} vagas ativas, que é o máximo do plano ${nomePlano}. Para publicar uma nova vaga, pause ou encerre uma das vagas existentes.`;
+    document.getElementById('limite-btn-upgrade').style.display = 'none';
+    document.getElementById('limite-btn-vagas').style.display = 'inline-flex';
+  } else {
+    document.getElementById('limite-texto').textContent = `Você já tem ${limite} vaga${limite > 1 ? 's' : ''} ativa${limite > 1 ? 's' : ''}, que é o máximo do plano ${nomePlano}. Faça upgrade para publicar mais vagas ou pause/encerre uma existente.`;
+    document.getElementById('limite-btn-upgrade').style.display = 'inline-flex';
+    document.getElementById('limite-btn-vagas').style.display = 'inline-flex';
+  }
+
+  overlay.style.display = 'flex';
+}
+
+function fecharModalLimite() {
+  document.getElementById('limite-overlay').style.display = 'none';
+}
+
+function entrarEmContato() {
+  window.location.href = 'mailto:contato.opportunia@gmail.com?subject=Interesse em plano Opportunia';
+}
+
+
+// =============================================
+// AUTOCOMPLETE DE CIDADES
+// =============================================
+const CIDADES_BR = [
+  // Região de Bauru e interior paulista
+  'Agudos','Arealva','Areiópolis','Avaré','Bauru','Bocaina','Borebi','Botucatu',
+  'Brotas','Cabrália Paulista','Cafelândia','Campos Novos Paulista','Cerqueira César',
+  'Duartina','Espírito Santo do Turvo','Fartura','Gália','Garça','Getulina',
+  'Guaiçara','Guaimbê','Guarantã','Iacanga','Igaraçu do Tietê','Itaju','Itapuí',
+  'Itaporanga','Itatinga','Jaú','Lençóis Paulista','Lins','Lucianópolis',
+  'Luiziânia','Macatuba','Manduri','Marília','Mineiros do Tietê','Paranapanema',
+  'Pederneiras','Pirajuí','Piratininga','Pombal','Pompeia','Presidente Alves',
+  'Promissão','Reginópolis','Sabino','São Manuel','Ubirajara','Uru',
+  // Grande SP e RMSP
+  'São Paulo','Guarulhos','Campinas','São Bernardo do Campo','Santo André',
+  'Osasco','São José dos Campos','Ribeirão Preto','Sorocaba','Mauá',
+  'São José do Rio Preto','Mogi das Cruzes','Santos','Diadema','Jundiaí',
+  'Piracicaba','Carapicuíba','Franca','Barueri','Itaquaquecetuba','Americana',
+  'Araraquara','Limeira','São Carlos','Cotia','Suzano','Taboão da Serra',
+  'Sumaré','Embu das Artes','São Vicente','Taubaté','Praia Grande','Paulínia',
+  'Volta Redonda','Indaiatuba','Hortolândia','Jacareí','Itu','Pindamonhangaba',
+  // Outras capitais e grandes cidades do Brasil
+  'Rio de Janeiro','Belo Horizonte','Salvador','Fortaleza','Curitiba','Manaus',
+  'Recife','Porto Alegre','Belém','Goiânia','Florianópolis','Maceió','Natal',
+  'Teresina','Campo Grande','João Pessoa','Aracaju','Cuiabá','Macapá','Porto Velho',
+  'Rio Branco','Palmas','Boa Vista','São Luís','Vitória','Uberlândia','Contagem',
+  'Feira de Santana','Niterói','Londrina','Joinville','Juiz de Fora','Ananindeua',
+  'São Gonçalo','Duque de Caxias','Nova Iguaçu','Aparecida de Goiânia'
+].sort((a,b) => a.localeCompare(b, 'pt-BR'));
+
+let cidadeDropdownIdx = -1;
+
+function filtrarCidades(q) {
+  const dd = document.getElementById('cidade-dropdown');
+  if (!dd) return;
+  const query = q.trim().toLowerCase();
+  if (!query) { dd.style.display = 'none'; return; }
+
+  const matches = CIDADES_BR.filter(c => 
+    c.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .includes(query.normalize('NFD').replace(/[̀-ͯ]/g,''))
+  ).slice(0, 8);
+
+  if (!matches.length) { dd.style.display = 'none'; return; }
+
+  cidadeDropdownIdx = -1;
+  dd.innerHTML = matches.map((c, i) =>
+    `<div class="cidade-opt" onmousedown="selecionarCidade('${c}')" data-idx="${i}">${c}</div>`
+  ).join('');
+  dd.style.display = 'block';
+}
+
+function selecionarCidade(cidade) {
+  const input = document.getElementById('f-cidade-vaga');
+  if (input) input.value = cidade;
+  fecharCidades();
+}
+
+function fecharCidades() {
+  const dd = document.getElementById('cidade-dropdown');
+  if (dd) dd.style.display = 'none';
+  cidadeDropdownIdx = -1;
+}
+
+function navCidades(e) {
+  const dd = document.getElementById('cidade-dropdown');
+  if (!dd || dd.style.display === 'none') return;
+  const opts = dd.querySelectorAll('.cidade-opt');
+  if (!opts.length) return;
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    cidadeDropdownIdx = Math.min(cidadeDropdownIdx + 1, opts.length - 1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    cidadeDropdownIdx = Math.max(cidadeDropdownIdx - 1, 0);
+  } else if (e.key === 'Enter' && cidadeDropdownIdx >= 0) {
+    e.preventDefault();
+    e.stopPropagation();
+    selecionarCidade(opts[cidadeDropdownIdx].textContent);
+    return;
+  } else if (e.key === 'Escape') {
+    fecharCidades(); return;
+  } else return;
+
+  opts.forEach((o, i) => o.classList.toggle('selected', i === cidadeDropdownIdx));
+  opts[cidadeDropdownIdx]?.scrollIntoView({ block: 'nearest' });
+}
+
+// =============================================
+// NAVEGAÇÃO
+// =============================================
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.s-nav li a').forEach(a => a.classList.remove('active'));
+  if(typeof event !== 'undefined' && event.currentTarget) event.currentTarget.classList.add('active');
+
+  if (page === 'vagas') renderVagasTable();
+  if (page === 'candidatos') renderCandidatosPage();
+  if (page === 'planos') renderPlanosPage();
+}
+
+// =============================================
+// PANEL
+// =============================================
+function openPanel(isEdit = false) {
+  // Verifica limite apenas para novas vagas, não para edição
+  if (!isEdit) {
+    const planoAtual = empresaData?.plano || 'gratuito';
+    const limiteAtual = planoAtual === 'pro' ? 5 : planoAtual === 'empresa' ? 15 : 1;
+    const ativasAtual = vagasData.filter(v => v.status === 'ativa').length;
+
+    if (ativasAtual >= limiteAtual) {
+      const nomes = { gratuito: 'Gratuito', pro: 'Pro', empresa: 'Empresa' };
+      mostrarModalLimite(limiteAtual, nomes[planoAtual]);
+      return;
+    }
+  }
+
+  document.getElementById('panel-title').textContent = 'Publicar nova vaga';
+  document.getElementById('editing-vaga-id').value = '';
+  document.getElementById('f-titulo').value = '';
+  document.getElementById('f-area').value = '';
+  document.getElementById('f-nivel').value = '';
+  document.getElementById('f-sal-min').value = '';
+  document.getElementById('f-descricao').value = '';
+  document.getElementById('f-requisitos').value = '';
+  document.getElementById('f-responsabilidades').value = '';
+  document.getElementById('f-beneficios').value = '';
+
+  document.getElementById('panel-error').classList.remove('show');
+  document.getElementById('panel-success').classList.remove('show');
+  document.getElementById('btn-pub').disabled = false;
+  document.getElementById('btn-pub').textContent = 'Publicar vaga →';
+  setToggle('f-modalidade', 'Presencial');
+  setToggle('f-contrato', 'CLT');
+
+  // Reseta arrays e reconstrói os campos de habilidades
+  habObrig = [];
+  habDesej = [];
+  formTags = [];
+  const cidadeInputEl = document.getElementById('f-cidade-vaga');
+  if (cidadeInputEl) cidadeInputEl.value = 'Bauru';
+  renderSkillsVaga('obrig');
+  renderSkillsVaga('desej');
+  renderFormTags();
+
+  document.getElementById('panel-overlay').classList.add('open');
+  document.getElementById('side-panel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePanel() {
+  document.getElementById('panel-overlay').classList.remove('open');
+  document.getElementById('side-panel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// =============================================
+// HELPERS
+// =============================================
+function verPerfil(elOuId) {
+  const candId = typeof elOuId === 'string' ? elOuId : elOuId.dataset?.id || elOuId;
+  if (!candId) { alert('ID não encontrado'); return; }
+  window.open('oportunia-perfil-publico.html?candidatura=' + candId, '_blank');
+}
+
+function addFormTag() {
+  const nivel = document.getElementById('form-tag-nivel')?.value.trim();
+  const curso = document.getElementById('form-tag-curso')?.value.trim();
+  const errEl = document.getElementById('form-tag-error');
+
+  if (!nivel) { errEl.textContent = 'Selecione o nível da formação.'; errEl.style.display = 'block'; return; }
+
+  const label = curso ? `${nivel} em ${curso}` : nivel;
+  if (formTags.includes(label)) { errEl.textContent = 'Esta formação já foi adicionada.'; errEl.style.display = 'block'; return; }
+
+  errEl.style.display = 'none';
+  formTags.push(label);
+  document.getElementById('form-tag-nivel').value = '';
+  document.getElementById('form-tag-curso').value = '';
+  renderFormTags();
+}
+
+function removeFormTag(idx) {
+  formTags.splice(idx, 1);
+  renderFormTags();
+}
+
+function renderFormTags() {
+  const list = document.getElementById('form-tags-list');
+  if (!list) return;
+  list.innerHTML = formTags.map((t, i) => `
+    <span style="display:inline-flex;align-items:center;gap:4px;background:#EAF3DE;border:1px solid #b7d9a0;border-radius:100px;padding:4px 12px;font-size:0.8rem;color:#3B6D11">
+      📄 ${t}
+      <button type="button" onclick="removeFormTag(${i})" style="border:none;background:none;cursor:pointer;color:#3B6D11;font-size:1rem;padding:0;line-height:1;margin-left:2px">×</button>
+    </span>`).join('');
+}
+
+function checkPendingSkill(tipo) {
+  const inputId = tipo === 'obrig' ? 'hab-obrig-input' : 'hab-desej-input';
+  const warnId = tipo === 'obrig' ? 'obrig-pending-warn' : 'desej-pending-warn';
+  const textId = tipo === 'obrig' ? 'obrig-pending-text' : 'desej-pending-text';
+  const val = document.getElementById(inputId)?.value.trim();
+  const warn = document.getElementById(warnId);
+  const txt = document.getElementById(textId);
+  if (val && warn && txt) { warn.style.display='block'; txt.textContent=val; }
+  else if (warn) { warn.style.display='none'; }
+}
+
+function addSkillVaga(e, tipo) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  e.stopPropagation();
+  const val = e.target.value.trim();
+  if (!val) return;
+  if (tipo === 'obrig') {
+    if (!habObrig.includes(val)) { habObrig.push(val); renderSkillsVaga('obrig'); }
+  } else {
+    if (!habDesej.includes(val)) { habDesej.push(val); renderSkillsVaga('desej'); }
+  }
+  e.target.value = '';
+  // Esconde aviso após confirmar
+  const warnId = tipo === 'obrig' ? 'obrig-pending-warn' : 'desej-pending-warn';
+  const warn = document.getElementById(warnId);
+  if (warn) warn.style.display = 'none';
+}
+
+function renderSkillsVaga(tipo) {
+  const arr = tipo === 'obrig' ? habObrig : habDesej;
+  const wrapId = tipo === 'obrig' ? 'hab-obrig-wrap' : 'hab-desej-wrap';
+  const inputId = tipo === 'obrig' ? 'hab-obrig-input' : 'hab-desej-input';
+  const wrap = document.getElementById(wrapId);
+  const input = document.getElementById(inputId);
+  wrap.innerHTML = '';
+  arr.forEach((s, i) => {
+    const tag = document.createElement('span');
+    tag.style.cssText = 'display:flex;align-items:center;gap:0.35rem;background:var(--white);border:1px solid var(--border);padding:0.25rem 0.75rem;border-radius:100px;font-size:0.82rem;color:var(--ink-2)';
+    tag.innerHTML = `${s} <button type="button" onclick="removeSkillVaga(${i},'${tipo}')" style="background:none;border:none;cursor:pointer;color:var(--ink-3);font-size:0.9rem;line-height:1;padding:0">×</button>`;
+    wrap.appendChild(tag);
+  });
+  wrap.appendChild(input);
+}
+
+function removeSkillVaga(idx, tipo) {
+  if (tipo === 'obrig') { habObrig.splice(idx, 1); renderSkillsVaga('obrig'); }
+  else { habDesej.splice(idx, 1); renderSkillsVaga('desej'); }
+}
+
+function toggleBtn(btn, group) {
+  document.querySelectorAll('#' + group + ' .toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggleSalTipo(tipo, btn) {
+  document.querySelectorAll('#f-sal-tipo .toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const wrap = document.getElementById('f-sal-wrap');
+  wrap.style.display = tipo === 'fixo' ? 'block' : 'none';
+  if (tipo === 'combinado') document.getElementById('f-sal-min').value = '';
+}
+
+function formatSalario(min, max) {
+  if (min && max && min !== max) return `R$ ${Number(min).toLocaleString('pt-BR')} – R$ ${Number(max).toLocaleString('pt-BR')}`;
+  if (min) return `R$ ${Number(min).toLocaleString('pt-BR')}`;
+  return 'A combinar';
+}
+
+function tempoRelativo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const h = Math.floor(diff / 36e5);
+  if (h < 1) return 'agora';
+  if (h < 24) return `há ${h}h`;
+  const d = Math.floor(h / 24);
+  return d === 1 ? 'há 1 dia' : `há ${d} dias`;
+}
+</script>
+</body>
+</html>

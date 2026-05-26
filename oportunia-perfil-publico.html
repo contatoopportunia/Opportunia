@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Perfil do Candidato — Opportunia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#0f1117;--ink-2:#3a3d4a;--ink-3:#7a7f94;--surface:#f5f4f0;--white:#fff;--accent:#e8440a;--accent-light:#fff0eb;--blue:#1a3c6e;--blue-light:#e8eef8;--green:#0f6b3a;--green-light:#e6f4ed;--gold:#c9920a;--gold-light:#fdf3dc;--red:#b91c1c;--red-light:#fde8e8;--border:rgba(15,17,23,.1);--border-strong:rgba(15,17,23,.18);--radius:12px;--radius-sm:8px;--radius-lg:20px;--radius-pill:100px}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);font-size:16px;line-height:1.6}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;background:rgba(245,244,240,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:var(--ink);text-decoration:none;letter-spacing:-.02em}
+.nav-logo span{color:var(--accent)}
+.nav-back{display:flex;align-items:center;gap:.5rem;padding:.5rem 1.25rem;border:1px solid var(--border-strong);border-radius:var(--radius-pill);background:transparent;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--ink-2);cursor:pointer;text-decoration:none;transition:all .15s}
+.nav-back:hover{border-color:var(--ink);color:var(--ink)}
+.wrap{max-width:860px;margin:0 auto;padding:6rem 2rem 4rem}
+.hero{background:var(--ink);border-radius:var(--radius-lg);padding:2.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.hero::before{content:'Opportunia';position:absolute;font-family:'Syne',sans-serif;font-size:10rem;font-weight:800;color:rgba(255,255,255,.03);right:-1rem;top:50%;transform:translateY(-50%);pointer-events:none;white-space:nowrap}
+.hero-top{display:flex;gap:1.5rem;align-items:flex-start}
+.avatar{width:80px;height:80px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;color:var(--blue);flex-shrink:0;border:3px solid rgba(255,255,255,.1)}
+.h-nome{font-family:'Syne',sans-serif;font-weight:700;font-size:1.5rem;color:var(--white);letter-spacing:-.02em}
+.h-cargo{font-size:.95rem;color:rgba(255,255,255,.6);margin-top:.2rem}
+.h-local{font-size:.82rem;color:rgba(255,255,255,.4);margin-top:.3rem}
+.h-links{display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap}
+.h-link{font-size:.78rem;padding:.25rem .75rem;border-radius:var(--radius-pill);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);text-decoration:none}
+.h-link:hover{border-color:rgba(255,255,255,.4);color:var(--white)}
+.hero-actions{display:flex;gap:.75rem;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.08);flex-wrap:wrap}
+.btn-aprovar{padding:.6rem 1.5rem;background:var(--accent);color:var(--white);border:none;border-radius:var(--radius-pill);font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:background .2s}
+.btn-aprovar:hover{background:#c93a08}
+.btn-reprovar{padding:.6rem 1.5rem;background:transparent;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.2);border-radius:var(--radius-pill);font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer;transition:all .2s}
+.btn-reprovar:hover{border-color:rgba(255,255,255,.4);color:var(--white)}
+.cand-status-box{padding:.5rem 1rem;border-radius:var(--radius-pill);font-size:.82rem;font-weight:500;margin-left:auto;align-self:center}
+.cs-pendente{background:rgba(201,146,10,.2);color:#fcd34d}
+.cs-aprovada{background:rgba(15,107,58,.2);color:#6ee7b7}
+.cs-reprovada{background:rgba(185,28,28,.2);color:#fca5a5}
+.cs-visualizada{background:rgba(26,60,110,.2);color:#93c5fd}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem;margin-bottom:1.5rem}
+.card-ttl{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--ink);margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+.item{padding:1rem 0;border-bottom:1px solid var(--border)}
+.item:last-child{border-bottom:none;padding-bottom:0}
+.item:first-child{padding-top:0}
+.item-hdr{display:flex;gap:.75rem;align-items:flex-start}
+.item-ico{width:40px;height:40px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.item-cnt{flex:1}
+.item-ttl{font-weight:500;font-size:.95rem;color:var(--ink)}
+.item-sub{font-size:.85rem;color:var(--ink-2);margin-top:2px}
+.item-per{font-size:.78rem;color:var(--ink-3);margin-top:2px}
+.item-dsc{font-size:.85rem;color:var(--ink-2);margin-top:.5rem;line-height:1.6}
+.item-lnk{font-size:.78rem;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;margin-top:.4rem}
+.tags{display:flex;flex-wrap:wrap;gap:.5rem}
+.tag{background:var(--surface);border:1px solid var(--border);padding:.3rem .8rem;border-radius:var(--radius-pill);font-size:.82rem;color:var(--ink-2)}
+.idrow{display:flex;align-items:center;gap:1rem;padding:.65rem 0;border-bottom:1px solid var(--border)}
+.idrow:last-child{border-bottom:none}
+.idnm{font-size:.9rem;font-weight:500;flex:1}
+.nbadge{font-size:.75rem;padding:.2rem .75rem;border-radius:var(--radius-pill);font-weight:500}
+.nb-bas{background:var(--surface);color:var(--ink-3);border:1px solid var(--border)}
+.nb-int{background:var(--gold-light);color:var(--gold)}
+.nb-ava{background:var(--blue-light);color:var(--blue)}
+.nb-flu{background:var(--green-light);color:var(--green)}
+.nb-nat{background:var(--accent-light);color:var(--accent)}
+.pref-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.pref-item{background:var(--surface);border-radius:var(--radius-sm);padding:.75rem 1rem}
+.pref-lbl{font-size:.72rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem}
+.pref-val{font-size:.9rem;font-weight:500;color:var(--ink)}
+.pref-val.salary{color:var(--accent);font-size:1rem}
+.contato-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem 1.25rem;display:flex;gap:1.5rem;flex-wrap:wrap}
+.contato-item{display:flex;flex-direction:column;gap:2px}
+.contato-lbl{font-size:.72rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.contato-val{font-size:.9rem;font-weight:500;color:var(--ink)}
+.contato-val a{color:var(--accent);text-decoration:none}
+.empty{text-align:center;padding:2rem;color:var(--ink-3);font-size:.88rem}
+.loading{text-align:center;padding:4rem;color:var(--ink-3)}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.notfound{text-align:center;padding:4rem 2rem}
+.notfound h2{font-family:'Syne',sans-serif;font-size:1.4rem;margin-bottom:.5rem}
+.feedback-toast{position:fixed;bottom:2rem;right:2rem;background:var(--green);color:var(--white);padding:.75rem 1.5rem;border-radius:var(--radius-pill);font-size:.88rem;font-weight:500;box-shadow:0 4px 16px rgba(15,107,58,.3);display:none;z-index:999;animation:fup .25s ease}
+.feedback-toast.show{display:block}
+@keyframes fup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:640px){nav{padding:1rem 1.25rem}.wrap{padding:5rem 1rem 3rem}.hero{padding:1.5rem}.pref-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="oportunia-integrado.html" class="nav-logo">Opportu<span>nia</span></a>
+  <a href="javascript:history.back()" class="nav-back">← Voltar</a>
+</nav>
+
+<div class="wrap">
+  <div id="content">
+    <div class="loading">
+      <div class="spinner"></div>
+      Carregando perfil…
+    </div>
+  </div>
+</div>
+
+<div class="feedback-toast" id="toast"></div>
+
+<script>
+const SB_URL='https://lvexahtskdhgujwrlkex.supabase.co';
+const SB_KEY='sb_publishable_AvhhaT_r4vsz3iuiZpZ3AA_zW7rxPo4';
+const{createClient}=supabase;
+const sb=createClient(SB_URL,SB_KEY);
+const NC={Básico:'nb-bas',Intermediário:'nb-int',Avançado:'nb-ava',Fluente:'nb-flu',Nativo:'nb-nat'};
+
+let candidaturaId=null;
+let candidatoId=null;
+
+document.addEventListener('DOMContentLoaded',async()=>{
+  const params=new URLSearchParams(window.location.search);
+  candidaturaId=params.get('candidatura');
+  candidatoId=params.get('candidato');
+
+  if(!candidaturaId&&!candidatoId){mostrarNotFound();return;}
+
+  // Verifica se é empresa logada
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){mostrarNotFound();return;}
+
+  // Carrega dados
+  if(candidaturaId){
+    await carregarPorCandidatura(candidaturaId,session.user);
+  } else {
+    await carregarPorCandidato(candidatoId,session.user);
+  }
+});
+
+async function carregarPorCandidatura(candId,user){
+  // Busca candidatura com dados da vaga e candidato
+  const{data:cand}=await sb.from('candidaturas').select('*,vagas(titulo,empresa_id)').eq('id',candId).single();
+  if(!cand){mostrarNotFound();return;}
+
+  // Verifica se empresa tem acesso (é dona da vaga)
+  const{data:empresa}=await sb.from('empresas').select('id').eq('user_id',user.id).single();
+  if(!empresa||cand.vagas?.empresa_id!==empresa.id){mostrarNotFound();return;}
+
+  // Marca candidatura como visualizada
+  await sb.from('candidaturas').update({status:'visualizada'}).eq('id',candId).eq('status','pendente');
+
+  // Busca perfil completo do candidato
+  if(cand.candidato_id){
+    await carregarPerfil(cand.candidato_id,cand);
+  } else {
+    // Candidato sem conta — mostra só dados básicos
+    renderBasico(cand);
+  }
+}
+
+async function carregarPorCandidato(candidatoId,user){
+  await carregarPerfil(candidatoId,null);
+}
+
+async function carregarPerfil(cid,candidatura){
+  const[pRes,expRes,foRes,ctRes,idRes,prRes]=await Promise.all([
+    sb.from('candidatos').select('*').eq('id',cid).single(),
+    sb.from('experiencias').select('*').eq('candidato_id',cid).order('data_inicio',{ascending:false}),
+    sb.from('formacoes').select('*').eq('candidato_id',cid).order('data_inicio',{ascending:false}),
+    sb.from('certificados').select('*').eq('candidato_id',cid).order('data_emissao',{ascending:false}),
+    sb.from('idiomas').select('*').eq('candidato_id',cid),
+    sb.from('premios').select('*').eq('candidato_id',cid).order('data',{ascending:false}),
+  ]);
+
+  const p=pRes.data;
+  if(!p){mostrarNotFound();return;}
+
+  renderPerfil(p,pRes.data,expRes.data||[],foRes.data||[],ctRes.data||[],idRes.data||[],prRes.data||[],candidatura);
+}
+
+function renderBasico(cand){
+  document.getElementById('content').innerHTML=`
+    <div class="hero">
+      <div class="hero-top">
+        <div class="avatar">${(cand.nome||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()}</div>
+        <div style="flex:1">
+          <div class="h-nome">${cand.nome||'—'}</div>
+          <div class="h-cargo">Candidato sem perfil completo</div>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <span class="cand-status-box cs-${cand.status}">${{pendente:'⏳ Pendente',visualizada:'👁 Visualizada',aprovada:'✓ Aprovado',reprovada:'✕ Não selecionado'}[cand.status]||cand.status}</span>
+        ${cand.status!=='aprovada'?`<button class="btn-aprovar" onclick="updateStatus('${cand.id}','aprovada')">✓ Aprovar candidatura</button>`:''}
+        ${cand.status!=='reprovada'?`<button class="btn-reprovar" onclick="updateStatus('${cand.id}','reprovada')">✕ Reprovar</button>`:''}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">📋 Dados de contato</div>
+      <div class="contato-box">
+        <div class="contato-item"><div class="contato-lbl">Nome</div><div class="contato-val">${cand.nome||'—'}</div></div>
+        <div class="contato-item"><div class="contato-lbl">E-mail</div><div class="contato-val"><a href="mailto:${cand.email}">${cand.email}</a></div></div>
+        ${cand.telefone?`<div class="contato-item"><div class="contato-lbl">WhatsApp</div><div class="contato-val"><a href="https://wa.me/55${cand.telefone.replace(/\D/g,'')}" target="_blank">${cand.telefone}</a></div></div>`:''}
+      </div>
+      ${cand.mensagem?`<div style="margin-top:1rem;padding:1rem;background:var(--surface);border-radius:var(--radius-sm)"><div style="font-size:.75rem;color:var(--ink-3);margin-bottom:.25rem">MENSAGEM DO CANDIDATO</div><p style="font-size:.9rem;color:var(--ink-2)">${cand.mensagem}</p></div>`:''}
+    </div>
+    <div class="card"><div class="empty">Este candidato não tem perfil completo na Opportunia.<br>O contato foi feito diretamente pelo formulário da vaga.</div></div>
+  `;
+}
+
+function renderPerfil(p,_,exps,forms,certs,idiomas,premios,candidatura){
+  const nome=p.nome||'';
+  const iniciais=nome.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()||'?';
+  const local=[p.bairro,p.cidade||'Bauru',p.estado||'SP'].filter(Boolean).join(', ');
+  const salario=p.salario_min&&p.salario_max?`R$ ${Number(p.salario_min).toLocaleString('pt-BR')} – R$ ${Number(p.salario_max).toLocaleString('pt-BR')}`:p.salario_min?`A partir de R$ ${Number(p.salario_min).toLocaleString('pt-BR')}`:'A combinar';
+  const lks=[];
+  if(p.linkedin)lks.push(`<a class="h-link" href="https://${p.linkedin.replace('https://','')}" target="_blank">in LinkedIn</a>`);
+  if(p.portfolio)lks.push(`<a class="h-link" href="https://${p.portfolio.replace('https://','')}" target="_blank">🔗 Portfólio</a>`);
+
+  const statusLabel={pendente:'⏳ Pendente',visualizada:'👁 Visualizada',aprovada:'✓ Aprovado',reprovada:'✕ Não selecionado'};
+  const statusCls={pendente:'cs-pendente',visualizada:'cs-visualizada',aprovada:'cs-aprovada',reprovada:'cs-reprovada'};
+
+  let html=`
+    <div class="hero">
+      <div class="hero-top">
+        <div class="avatar">${iniciais}</div>
+        <div style="flex:1">
+          <div class="h-nome">${nome}</div>
+          <div class="h-cargo">${p.cargo_desejado||'—'}</div>
+          <div class="h-local">📍 ${local}</div>
+          ${lks.length?`<div class="h-links">${lks.join('')}</div>`:''}
+        </div>
+      </div>
+      <div class="hero-actions">
+        ${candidatura?`<span class="cand-status-box ${statusCls[candidatura.status]||'cs-pendente'}" id="status-box">${statusLabel[candidatura.status]||candidatura.status}</span>`:''}
+        ${candidatura&&candidatura.status!=='aprovada'?`<button class="btn-aprovar" onclick="updateStatus('${candidatura.id}','aprovada')">✓ Chamar para entrevista</button>`:''}
+        ${candidatura&&candidatura.status!=='reprovada'?`<button class="btn-reprovar" onclick="updateStatus('${candidatura.id}','reprovada')">✕ Reprovar</button>`:''}
+        ${p.telefone?`<a href="https://wa.me/55${p.telefone.replace(/\D/g,'')}" target="_blank" style="padding:.6rem 1.5rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2);border-radius:var(--radius-pill);font-family:'DM Sans',sans-serif;font-size:.9rem;text-decoration:none;transition:all .2s">💬 WhatsApp</a>`:''}
+        ${p.email?`<a href="mailto:${p.email}" style="padding:.6rem 1.5rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2);border-radius:var(--radius-pill);font-family:'DM Sans',sans-serif;font-size:.9rem;text-decoration:none">✉️ E-mail</a>`:''}
+      </div>
+    </div>`;
+
+  // Contato
+  html+=`<div class="card"><div class="card-ttl">📋 Contato</div>
+    <div class="contato-box">
+      <div class="contato-item"><div class="contato-lbl">E-mail</div><div class="contato-val"><a href="mailto:${p.email}">${p.email}</a></div></div>
+      ${p.telefone?`<div class="contato-item"><div class="contato-lbl">WhatsApp</div><div class="contato-val"><a href="https://wa.me/55${p.telefone.replace(/\D/g,'')}" target="_blank">${p.telefone}</a></div></div>`:''}
+      ${p.cidade?`<div class="contato-item"><div class="contato-lbl">Localização</div><div class="contato-val">${local}</div></div>`:''}
+      ${p.data_nascimento?`<div class="contato-item"><div class="contato-lbl">Nascimento</div><div class="contato-val">${new Date(p.data_nascimento).toLocaleDateString('pt-BR')}</div></div>`:''}
+      ${p.pcd?`<div class="contato-item"><div class="contato-lbl">PCD</div><div class="contato-val">Sim ♿</div></div>`:''}
+    </div>
+    ${candidatura?.mensagem?`<div style="margin-top:1rem;padding:1rem;background:var(--surface);border-radius:var(--radius-sm)"><div style="font-size:.75rem;color:var(--ink-3);margin-bottom:.25rem">MENSAGEM DO CANDIDATO</div><p style="font-size:.9rem;color:var(--ink-2)">${candidatura.mensagem}</p></div>`:''}
+  </div>`;
+
+  // Sobre
+  if(p.resumo) html+=`<div class="card"><div class="card-ttl">💬 Sobre</div><p style="font-size:.95rem;color:var(--ink-2);line-height:1.8">${p.resumo}</p></div>`;
+
+  // Preferências
+  html+=`<div class="card"><div class="card-ttl">🎯 Preferências</div>
+    <div class="pref-grid">
+      <div class="pref-item"><div class="pref-lbl">Pretensão salarial</div><div class="pref-val salary">${salario}</div></div>
+      <div class="pref-item"><div class="pref-lbl">Modalidade</div><div class="pref-val">${p.modalidade||'—'}</div></div>
+      <div class="pref-item"><div class="pref-lbl">Contrato</div><div class="pref-val">${p.contrato||'—'}</div></div>
+      <div class="pref-item"><div class="pref-lbl">Área desejada</div><div class="pref-val">${p.area||'—'}</div></div>
+      <div class="pref-item"><div class="pref-lbl">Nível</div><div class="pref-val">${p.nivel||'—'}</div></div>
+      <div class="pref-item"><div class="pref-lbl">Disponibilidade</div><div class="pref-val">${p.disponibilidade||'—'}</div></div>
+    </div>
+  </div>`;
+
+  // Experiências
+  if(exps.length) html+=`<div class="card"><div class="card-ttl">💼 Experiências profissionais</div>${exps.map(e=>`
+    <div class="item"><div class="item-hdr"><div class="item-ico">🏢</div><div class="item-cnt">
+      <div class="item-ttl">${e.cargo}</div>
+      <div class="item-sub">${e.empresa}</div>
+      <div class="item-per">${fp(e.data_inicio,e.data_fim,e.emprego_atual)}</div>
+      ${e.descricao?`<div class="item-dsc">${e.descricao}</div>`:''}
+    </div></div></div>`).join('')}</div>`;
+
+  // Formação
+  if(forms.length) html+=`<div class="card"><div class="card-ttl">🎓 Formação acadêmica</div>${forms.map(f=>`
+    <div class="item"><div class="item-hdr"><div class="item-ico">🎓</div><div class="item-cnt">
+      <div class="item-ttl">${f.curso}</div>
+      <div class="item-sub">${f.instituicao}${f.grau?' · '+f.grau:''}</div>
+      <div class="item-per">${fp(f.data_inicio,f.data_fim,f.cursando)}</div>
+    </div></div></div>`).join('')}</div>`;
+
+  // Habilidades
+  if(p.habilidades?.length) html+=`<div class="card"><div class="card-ttl">⚡ Habilidades</div><div class="tags">${p.habilidades.map(s=>`<span class="tag">${s}</span>`).join('')}</div></div>`;
+
+  // Certificados
+  if(certs.length) html+=`<div class="card"><div class="card-ttl">🏅 Certificados</div>${certs.map(c=>`
+    <div class="item"><div class="item-hdr"><div class="item-ico">🏅</div><div class="item-cnt">
+      <div class="item-ttl">${c.nome}</div>
+      ${c.instituicao?`<div class="item-sub">${c.instituicao}</div>`:''}
+      ${c.data_emissao?`<div class="item-per">Emitido em ${fd(c.data_emissao)}${c.sem_expiracao?' · Sem expiração':c.data_expiracao?' · Expira em '+fd(c.data_expiracao):''}</div>`:''}
+      ${c.link?`<a class="item-lnk" href="${c.link}" target="_blank">🔗 Ver certificado</a>`:''}
+    </div></div></div>`).join('')}</div>`;
+
+  // Idiomas
+  if(idiomas.length) html+=`<div class="card"><div class="card-ttl">🌐 Idiomas</div>${idiomas.map(i=>`
+    <div class="idrow"><div class="idnm">🌐 ${i.idioma}</div><span class="nbadge ${NC[i.nivel]||'nb-bas'}">${i.nivel}</span></div>`).join('')}</div>`;
+
+  // Prêmios
+  if(premios.length) html+=`<div class="card"><div class="card-ttl">🏆 Prêmios e reconhecimentos</div>${premios.map(p=>`
+    <div class="item"><div class="item-hdr"><div class="item-ico">🏆</div><div class="item-cnt">
+      <div class="item-ttl">${p.titulo}</div>
+      ${p.emissor?`<div class="item-sub">${p.emissor}</div>`:''}
+      ${p.data?`<div class="item-per">${fd(p.data)}</div>`:''}
+      ${p.descricao?`<div class="item-dsc">${p.descricao}</div>`:''}
+    </div></div></div>`).join('')}</div>`;
+
+  document.getElementById('content').innerHTML=html;
+}
+
+async function updateStatus(candId,novoStatus){
+  const{error}=await sb.from('candidaturas').update({status:novoStatus}).eq('id',candId);
+  if(!error){
+    const cls={aprovada:'cs-aprovada',reprovada:'cs-reprovada'};
+    const lbl={aprovada:'✓ Aprovado',reprovada:'✕ Não selecionado'};
+    const box=document.getElementById('status-box');
+    if(box){box.className=`cand-status-box ${cls[novoStatus]}`;box.textContent=lbl[novoStatus];}
+    showToast(novoStatus==='aprovada'?'✓ Candidato aprovado! Agora entre em contato.':'Candidato reprovado.');
+    // Esconde botão clicado
+    setTimeout(()=>location.reload(),1500);
+  }
+}
+
+function mostrarNotFound(){
+  document.getElementById('content').innerHTML=`
+    <div class="notfound">
+      <p style="font-size:2rem;margin-bottom:1rem">🔍</p>
+      <h2>Perfil não encontrado</h2>
+      <p style="color:var(--ink-3);margin-top:.5rem">Você não tem permissão para ver este perfil ou ele não existe.</p>
+      <a href="oportunia-painel-empresa.html" style="display:inline-block;margin-top:1.5rem;color:var(--accent);text-decoration:none;font-weight:500">← Voltar ao painel</a>
+    </div>`;
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function fd(d){if(!d)return'';const[y,m]=d.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(m)-1]+' '+y;}
+function fp(ini,fim,at){const i=ini?fd(ini.substring(0,7)):null;const f=at?'Atual':fim?fd(fim.substring(0,7)):null;if(i&&f)return`${i} – ${f}`;if(i)return`Desde ${i}`;return'';}
+</script>
+</body>
+</html>

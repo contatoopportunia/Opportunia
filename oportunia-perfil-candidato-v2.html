@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meu Perfil | Opportunia</title>
+<meta name="description" content="Gerencie seu perfil na Opportunia e acompanhe suas candidaturas a vagas de emprego em Bauru e região." />
+<meta name="keywords" content="perfil candidato Opportunia, minhas candidaturas Bauru, meu perfil empregos Bauru" />
+<meta name="robots" content="index, follow" />
+<meta name="author" content="Opportunia" />
+<link rel="canonical" href="https://opportunia.com.br/oportunia-perfil-candidato-v2.html" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://opportunia.com.br/oportunia-perfil-candidato-v2.html" />
+<meta property="og:title" content="Meu Perfil | Opportunia" />
+<meta property="og:description" content="Gerencie seu perfil na Opportunia e acompanhe suas candidaturas a vagas de emprego em Bauru e região." />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:site_name" content="Opportunia" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Meu Perfil | Opportunia" />
+<meta name="twitter:description" content="Gerencie seu perfil na Opportunia e acompanhe suas candidaturas a vagas de emprego em Bauru e região." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#0f1117;--ink-2:#3a3d4a;--ink-3:#7a7f94;--surface:#f5f4f0;--white:#ffffff;--accent:#e8440a;--accent-light:#fff0eb;--blue:#1a3c6e;--blue-light:#e8eef8;--green:#0f6b3a;--green-light:#e6f4ed;--gold:#c9920a;--gold-light:#fdf3dc;--red:#b91c1c;--red-light:#fde8e8;--border:rgba(15,17,23,0.1);--border-strong:rgba(15,17,23,0.18);--radius:12px;--radius-sm:8px;--radius-lg:20px;--radius-pill:100px;--sw:280px}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);display:flex;min-height:100vh}
+.sidebar{width:var(--sw);background:var(--ink);min-height:100vh;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;padding:1.5rem 1rem;z-index:50;overflow-y:auto}
+.s-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;color:var(--white);text-decoration:none;letter-spacing:-.02em;margin-bottom:.25rem;padding:0 .5rem;display:block}
+.s-logo span{color:var(--accent)}
+.s-user{font-size:.78rem;color:rgba(255,255,255,.3);padding:0 .5rem;margin-bottom:1.25rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.s-prog{padding:.75rem;background:rgba(255,255,255,.06);border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,.08);margin-bottom:1.5rem}
+.s-prog-lbl{font-size:.72rem;color:rgba(255,255,255,.35);margin-bottom:.4rem;display:flex;justify-content:space-between}
+.s-prog-lbl span{color:var(--accent);font-weight:600}
+.s-prog-bar-wrap{height:4px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden}
+.s-prog-bar{height:100%;background:var(--accent);border-radius:4px;transition:width .5s}
+.s-sec{font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);padding:0 .5rem;margin-bottom:.5rem;margin-top:1rem}
+.s-nav{list-style:none;display:flex;flex-direction:column;gap:2px}
+.s-nav li a{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border-radius:var(--radius-sm);text-decoration:none;font-size:.85rem;color:rgba(255,255,255,.5);transition:all .15s;cursor:pointer}
+.s-nav li a:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.s-nav li a.active{background:rgba(255,255,255,.1);color:var(--white)}
+.s-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.s-chk{font-size:.7rem;margin-left:auto;color:var(--green)}
+.s-dot{font-size:.7rem;margin-left:auto;color:rgba(255,255,255,.2)}
+.s-bot{margin-top:auto;padding-top:1rem;display:flex;flex-direction:column;gap:.5rem}
+.s-vagas{display:block;text-align:center;padding:.6rem;background:var(--accent);color:var(--white);border-radius:var(--radius-pill);font-size:.82rem;font-weight:500;text-decoration:none}
+.s-vagas:hover{background:#c93a08}
+.s-out{display:block;text-align:center;padding:.45rem;background:transparent;color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-pill);font-size:.78rem;cursor:pointer;font-family:'DM Sans',sans-serif}
+.s-out:hover{color:var(--white);border-color:rgba(255,255,255,.3)}
+.main{margin-left:var(--sw);flex:1;padding:2.5rem;max-width:calc(100% - var(--sw))}
+.page{display:none}
+.page.active{display:block}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem;margin-bottom:1.5rem}
+.card-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
+.card-ttl{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--ink)}
+.card-sub{font-size:.82rem;color:var(--ink-3);margin-top:2px}
+.hero{background:var(--ink);border-radius:var(--radius-lg);padding:2rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.hero::before{content:'Opportunia';position:absolute;font-family:'Syne',sans-serif;font-size:9rem;font-weight:800;color:rgba(255,255,255,.03);right:-1rem;top:50%;transform:translateY(-50%);pointer-events:none;white-space:nowrap}
+.hero-top{display:flex;gap:1.5rem;align-items:flex-start}
+.avatar{width:80px;height:80px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;color:var(--blue);flex-shrink:0;border:3px solid rgba(255,255,255,.1);position:relative;cursor:pointer;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0}
+.avatar-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;border-radius:50%;font-size:.65rem;color:#fff;font-weight:600;text-align:center;line-height:1.4;z-index:2}
+.avatar:hover .avatar-overlay{opacity:1}
+#foto-input{display:none}
+.foto-hint{font-size:.68rem;color:rgba(255,255,255,.3);margin-top:.5rem;cursor:pointer;text-align:left}
+.foto-hint:hover{color:rgba(255,255,255,.6)}
+.h-nome{font-family:'Syne',sans-serif;font-weight:700;font-size:1.5rem;color:var(--white);letter-spacing:-.02em}
+.h-cargo{font-size:.95rem;color:rgba(255,255,255,.6);margin-top:.2rem}
+.h-local{font-size:.82rem;color:rgba(255,255,255,.4);margin-top:.3rem}
+.h-links{display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap}
+.h-link{font-size:.78rem;padding:.25rem .75rem;border-radius:var(--radius-pill);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);text-decoration:none}
+.h-link:hover{border-color:rgba(255,255,255,.4);color:var(--white)}
+.comp-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;font-weight:500;padding:.3rem .75rem;border-radius:var(--radius-pill);margin-top:.75rem}
+.cb-low{background:rgba(185,28,28,.2);color:#fca5a5}
+.cb-mid{background:rgba(201,146,10,.2);color:#fcd34d}
+.cb-hi{background:rgba(15,107,58,.2);color:#6ee7b7}
+.h-acts{display:flex;gap:.5rem;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid rgba(255,255,255,.08);flex-wrap:wrap}
+.hbtn{padding:.5rem 1.25rem;border-radius:var(--radius-pill);font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer}
+.hbtn-p{background:var(--accent);color:var(--white);border:none}
+.hbtn-p:hover{background:#c93a08}
+.hbtn-o{background:transparent;color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.2);text-decoration:none}
+.hbtn-o:hover{border-color:rgba(255,255,255,.4);color:var(--white)}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+.fgrp{display:flex;flex-direction:column;gap:.35rem}
+.fgrp.full{grid-column:1/-1}
+label{font-size:.82rem;font-weight:500;color:var(--ink-2)}
+.lp{font-size:.7rem;color:var(--ink-3);font-weight:400;margin-left:.3rem}
+input,select,textarea{width:100%;padding:.7rem 1rem;border:1px solid var(--border-strong);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--ink);background:var(--surface);outline:none;transition:border-color .2s;appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);background:var(--white);box-shadow:0 0 0 3px var(--accent-light)}
+input:disabled,select:disabled,textarea:disabled{opacity:.55;cursor:not-allowed}
+textarea{resize:vertical;min-height:90px}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7f94' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem}
+.btn-ed{padding:.4rem 1rem;border:1px solid var(--border-strong);border-radius:var(--radius-pill);background:transparent;font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--ink-2);cursor:pointer}
+.btn-ed:hover{border-color:var(--ink);color:var(--ink)}
+.btn-sv{padding:.4rem 1rem;border:none;border-radius:var(--radius-pill);background:var(--accent);font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--white);cursor:pointer}
+.btn-sv:hover{background:#c93a08}
+.btn-sv:disabled{background:var(--ink-3);cursor:not-allowed}
+.btn-add{display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;border:1.5px dashed var(--border-strong);border-radius:var(--radius-sm);background:transparent;font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--ink-3);cursor:pointer;width:100%;justify-content:center;margin-top:1rem}
+.btn-add:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+.btn-rm{background:none;border:none;cursor:pointer;color:var(--ink-3);font-size:1rem;padding:.25rem}
+.btn-rm:hover{color:var(--red)}
+.item{padding:1.25rem 0;border-bottom:1px solid var(--border)}
+.item:last-child{border-bottom:none;padding-bottom:0}
+.item:first-child{padding-top:0}
+.item-hdr{display:flex;gap:.75rem;align-items:flex-start}
+.item-ico{width:40px;height:40px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.item-cnt{flex:1;min-width:0}
+.item-ttl{font-weight:500;font-size:.95rem;color:var(--ink)}
+.item-sub{font-size:.85rem;color:var(--ink-2);margin-top:2px}
+.item-per{font-size:.78rem;color:var(--ink-3);margin-top:2px}
+.item-dsc{font-size:.85rem;color:var(--ink-2);margin-top:.5rem;line-height:1.6}
+.item-lnk{font-size:.78rem;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;margin-top:.4rem}
+.sw{display:flex;flex-wrap:wrap;gap:.5rem;padding:.75rem;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--surface);min-height:52px;cursor:text}
+.sw:focus-within{border-color:var(--accent);background:var(--white);box-shadow:0 0 0 3px var(--accent-light)}
+.stag{display:flex;align-items:center;gap:.35rem;background:var(--white);border:1px solid var(--border);padding:.25rem .75rem;border-radius:var(--radius-pill);font-size:.82rem;color:var(--ink-2)}
+.stag button{background:none;border:none;cursor:pointer;color:var(--ink-3);font-size:.9rem;line-height:1;padding:0}
+.sinp{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--ink);min-width:140px;background:transparent;padding:.2rem 0}
+.idrow{display:flex;align-items:center;gap:1rem;padding:.75rem 0;border-bottom:1px solid var(--border)}
+.idrow:last-child{border-bottom:none}
+.idnm{font-size:.9rem;font-weight:500;flex:1}
+.nbadge{font-size:.75rem;padding:.2rem .75rem;border-radius:var(--radius-pill);font-weight:500}
+.nb-bas{background:var(--surface);color:var(--ink-3);border:1px solid var(--border)}
+.nb-int{background:var(--gold-light);color:var(--gold)}
+.nb-ava{background:var(--blue-light);color:var(--blue)}
+.nb-flu{background:var(--green-light);color:var(--green)}
+.nb-nat{background:var(--accent-light);color:var(--accent)}
+.tgg{display:flex;gap:.5rem;flex-wrap:wrap}
+.tgb{padding:.4rem .9rem;border-radius:var(--radius-pill);border:1px solid var(--border-strong);background:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--ink-2);cursor:pointer}
+.tgb.active{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(15,17,23,.6);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:1rem}
+.modal-ov.open{display:flex}
+.modal{background:var(--white);border-radius:var(--radius-lg);padding:2rem;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;animation:fup .2s ease;position:relative}
+.modal h3{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:1.5rem}
+.mcls{position:absolute;top:1.25rem;right:1.25rem;background:var(--surface);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;color:var(--ink-3);display:flex;align-items:center;justify-content:center}
+.mftr{display:flex;gap:.75rem;margin-top:1.5rem}
+.mcan{flex:1;padding:.75rem;border:1px solid var(--border-strong);border-radius:var(--radius-pill);background:transparent;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--ink-2);cursor:pointer}
+.msub{flex:2;padding:.75rem;background:var(--accent);color:var(--white);border:none;border-radius:var(--radius-pill);font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer}
+.msub:hover{background:#c93a08}
+.msub:disabled{background:var(--ink-3);cursor:not-allowed}
+.mg{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem}
+.mg2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.fb{font-size:.82rem;padding:.6rem .75rem;border-radius:var(--radius-sm);display:none;margin-top:.75rem}
+.fb.show{display:block}
+.fb.ok{background:var(--green-light);color:var(--green)}
+.fb.err{background:var(--red-light);color:var(--red)}
+.priv{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.75rem 1rem;margin-bottom:1.5rem;display:flex;gap:.75rem;align-items:flex-start}
+.priv p{font-size:.82rem;color:var(--ink-3);line-height:1.5}
+.priv strong{color:var(--ink-2);display:block;margin-bottom:.15rem;font-size:.85rem}
+.citem{display:flex;align-items:center;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--border)}
+.citem:last-child{border-bottom:none}
+.cico{width:40px;height:40px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.cttl{font-size:.9rem;font-weight:500}
+.csub{font-size:.78rem;color:var(--ink-3);margin-top:2px}
+.sp{font-size:.72rem;font-weight:500;padding:.25rem .75rem;border-radius:var(--radius-pill);white-space:nowrap}
+.sp-p{background:var(--gold-light);color:var(--gold)}
+.sp-v{background:var(--blue-light);color:var(--blue)}
+.sp-a{background:var(--green-light);color:var(--green)}
+.sp-r{background:var(--red-light);color:var(--red)}
+.emp{text-align:center;padding:2rem;color:var(--ink-3);font-size:.88rem}
+.salrow{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;align-items:end}
+.salsp{font-size:.85rem;color:var(--ink-3);text-align:center;padding-bottom:.75rem}
+.cbrow{display:flex;align-items:center;gap:.5rem;font-size:.88rem;color:var(--ink-2);cursor:pointer}
+.cbrow input[type=checkbox]{width:auto;padding:0}
+.lgate{display:none;align-items:center;justify-content:center;min-height:100vh;width:100%}
+.lgate.show{display:flex}
+.lbox{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2.5rem;max-width:400px;width:90%;text-align:center}
+.lbox h2{font-family:'Syne',sans-serif;font-weight:700;font-size:1.4rem;margin-bottom:.5rem}
+.lbtn{width:100%;padding:.85rem;background:var(--ink);color:var(--white);border:none;border-radius:var(--radius-pill);font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:500;cursor:pointer;margin-top:.5rem}
+.lbtn:hover{background:var(--accent)}
+.lerr{color:var(--red);font-size:.82rem;background:var(--red-light);padding:.6rem .75rem;border-radius:var(--radius-sm);display:none;margin-top:.5rem}
+.lerr.show{display:block}
+@keyframes fup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;padding:1.25rem;max-width:100%}.fg,.fg3,.mg2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="lgate" id="lgate">
+  <div class="lbox">
+    <div style="font-size:2rem;margin-bottom:1rem">👤</div>
+    <h2>Meu Perfil</h2>
+    <p style="font-size:.9rem;color:var(--ink-3);margin-bottom:2rem">Entre com sua conta para acessar e editar seu perfil completo.</p>
+    <div style="text-align:left">
+      <div style="margin-bottom:1rem"><label>E-mail</label><input type="email" id="le" placeholder="seu@email.com" /></div>
+      <div style="margin-bottom:1rem"><label>Senha</label><input type="password" id="ls" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()" /></div>
+      <div class="lerr" id="lerr"></div>
+      <button class="lbtn" onclick="login()">Entrar →</button>
+    </div>
+    <p style="margin-top:1.5rem;font-size:.82rem">Não tem conta? <a href="oportunia-integrado.html" style="color:var(--accent);text-decoration:none;font-weight:500">Cadastre-se grátis</a></p>
+    <p style="margin-top:.5rem;font-size:.82rem">É empresa? <a href="oportunia-painel-empresa.html" style="color:var(--blue);text-decoration:none;font-weight:500">Acessar painel →</a></p>
+  </div>
+</div>
+
+<aside class="sidebar" id="sb" style="display:none">
+  <a href="oportunia-integrado.html" class="s-logo">Oportu<span>nia</span><sup style="font-size:1rem;font-weight:500;vertical-align:super;letter-spacing:0;color:var(--ink-3);margin-left:1px">®</sup></a>
+  <div class="s-user" id="su"></div>
+  <div class="s-prog">
+    <div class="s-prog-lbl">Perfil completo <span id="pp">0%</span></div>
+    <div class="s-prog-bar-wrap"><div class="s-prog-bar" id="pb" style="width:0%"></div></div>
+  </div>
+  <div class="s-sec">Meu perfil</div>
+  <ul class="s-nav">
+    <li><a class="active" onclick="sp('ap')"><span class="s-icon">👤</span> Apresentação <span class="s-dot" id="ca">○</span></a></li>
+    <li><a onclick="sp('dd')"><span class="s-icon">📋</span> Dados pessoais <span class="s-dot" id="cd">○</span></a></li>
+    <li><a onclick="sp('ex')"><span class="s-icon">💼</span> Experiências <span class="s-dot" id="ce">○</span></a></li>
+    <li><a onclick="sp('fo')"><span class="s-icon">🎓</span> Formação <span class="s-dot" id="cf">○</span></a></li>
+    <li><a onclick="sp('hb')"><span class="s-icon">⚡</span> Habilidades <span class="s-dot" id="ch">○</span></a></li>
+    <li><a onclick="sp('ct')"><span class="s-icon">🏅</span> Certificados <span class="s-dot" id="cc">○</span></a></li>
+    <li><a onclick="sp('id')"><span class="s-icon">🌐</span> Idiomas <span class="s-dot" id="ci">○</span></a></li>
+    <li><a onclick="sp('pr')"><span class="s-icon">🏆</span> Prêmios <span class="s-dot" id="cp">○</span></a></li>
+    <li><a onclick="sp('pf')"><span class="s-icon">🎯</span> Preferências <span class="s-dot" id="cpf">○</span></a></li>
+    <li><a onclick="sp('ca')"><span class="s-icon">📬</span> Candidaturas</a></li>
+    <li><a onclick="sp('vs')"><span class="s-icon">🔖</span> Vagas salvas</a></li>
+  </ul>
+  <div class="s-bot">
+    <a href="oportunia-integrado.html#vagas" class="s-vagas">🔍 Ver vagas</a>
+    <button class="s-out" onclick="logout()">Sair da conta</button>
+  </div>
+</aside>
+
+<main class="main" id="ma" style="display:none">
+
+  <div class="page active" id="page-ap">
+    <div class="hero">
+      <div class="hero-top">
+        <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+          <div class="avatar" id="av" onclick="document.getElementById('foto-input').click()">
+            <span id="av-txt">??</span>
+            <div class="avatar-overlay">📷<br>Trocar foto</div>
+          </div>
+          <div class="foto-hint" onclick="document.getElementById('foto-input').click()">📷 Adicionar foto</div>
+          <div style="font-size:.6rem;color:rgba(255,255,255,.2);margin-top:.3rem;line-height:1.6;text-align:center">
+            JPG, PNG ou WEBP<br>Até 200x200px<br>Máx. 500KB
+          </div>
+          <input type="file" id="foto-input" accept="image/jpeg,image/png,image/webp" onchange="uploadFoto(this)">
+        </div>
+        <div style="flex:1">
+          <div class="h-nome" id="hn">—</div>
+          <div class="h-cargo" id="hc">—</div>
+          <div class="h-local" id="hl">—</div>
+          <div class="h-links" id="hlk"></div>
+          <div><span class="comp-badge cb-low" id="cbg">Perfil incompleto</span></div>
+        </div>
+      </div>
+      <div class="h-acts">
+        <button class="hbtn hbtn-p" onclick="sp('dd')">✏️ Editar perfil</button>
+        <button class="hbtn hbtn-o" onclick="sp('ca')">📬 Candidaturas</button>
+        <a href="oportunia-integrado.html#vagas" class="hbtn hbtn-o">🔍 Ver vagas</a>
+      </div>
+    </div>
+    <div id="prog-card-wrap" style="margin-bottom:1.5rem"></div>
+    <div id="rp"></div>
+  </div>
+
+  <div class="page" id="page-dd">
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-ttl">Dados pessoais</div><div class="card-sub">Informações de contato e identificação</div></div>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn-ed" id="be-dd" onclick="te('dd')">Editar</button>
+          <button class="btn-sv" id="bs-dd" style="display:none" onclick="saveDados()">Salvar</button>
+        </div>
+      </div>
+      <div class="fg">
+        <div class="fgrp"><label>Nome completo</label><input type="text" id="d-nm" disabled /></div>
+        <div class="fgrp"><label>E-mail</label><input type="email" id="d-em" disabled /></div>
+        <div class="fgrp"><label>WhatsApp</label><input type="tel" id="d-tel" placeholder="(14) 99999-0000" disabled /></div>
+        <div class="fgrp"><label>Data de nascimento</label><input type="date" id="d-dn" disabled /></div>
+        <div class="fgrp"><label>Gênero</label><select id="d-gen" disabled><option value="">Selecione</option><option>Masculino</option><option>Feminino</option><option>Não-binário</option><option>Prefiro não informar</option></select></div>
+        <div class="fgrp"><label>PCD</label><select id="d-pcd" disabled><option value="false">Não</option><option value="true">Sim — Pessoa com deficiência</option></select></div>
+      </div>
+      <div style="margin:1.5rem 0;border-top:1px solid var(--border);padding-top:1.5rem">
+        <div class="card-ttl" style="font-size:.95rem;margin-bottom:1rem">Endereço</div>
+        <div class="fg3">
+          <div class="fgrp"><label>CEP</label><input type="text" id="d-cep" placeholder="17000-000" disabled /></div>
+          <div class="fgrp"><label>Cidade</label><input type="text" id="d-cid" placeholder="Bauru" disabled /></div>
+          <div class="fgrp"><label>Estado</label><input type="text" id="d-est" placeholder="SP" disabled /></div>
+          <div class="fgrp full"><label>Rua / Avenida</label><input type="text" id="d-rua" placeholder="Ex: Rua das Flores" disabled /></div>
+          <div class="fgrp"><label>Número</label><input type="text" id="d-num" placeholder="123" disabled /></div>
+          <div class="fgrp"><label>Bairro</label><input type="text" id="d-bai" placeholder="Ex: Vila Aviação" disabled /></div>
+          <div class="fgrp"><label>Complemento</label><input type="text" id="d-cmp" placeholder="Apto, bloco…" disabled /></div>
+        </div>
+      </div>
+      <div style="margin:1.5rem 0;border-top:1px solid var(--border);padding-top:1.5rem">
+        <div class="priv"><span style="font-size:1.1rem">🔒</span><p><strong>Dados privados</strong>CPF só é visível para empresas após você aceitar uma proposta. Nunca é público.</p></div>
+        <div class="fg">
+          <div class="fgrp"><label>CPF <span class="lp">(privado)</span></label><input type="text" id="d-cpf" placeholder="000.000.000-00" disabled /></div>
+          <div class="fgrp"><label>LinkedIn</label><input type="text" id="d-li" placeholder="linkedin.com/in/seu-perfil" disabled /></div>
+          <div class="fgrp"><label>Portfólio / Site</label><input type="text" id="d-po" placeholder="seusite.com.br" disabled /></div>
+        </div>
+      </div>
+      <div class="fb" id="fb-dd"></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-ex">
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-ttl">Experiências profissionais</div><div class="card-sub">Seu histórico de trabalho</div></div></div>
+      <div id="exl"></div>
+      <button class="btn-add" onclick="om('ex')">+ Adicionar experiência</button>
+    </div>
+  </div>
+
+  <div class="page" id="page-fo">
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-ttl">Formação acadêmica</div><div class="card-sub">Cursos e graduações</div></div></div>
+      <div id="fol"></div>
+      <button class="btn-add" onclick="om('fo')">+ Adicionar formação</button>
+    </div>
+  </div>
+
+  <div class="page" id="page-hb">
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-ttl">Habilidades e ferramentas</div><div class="card-sub">Suas competências técnicas e comportamentais</div></div>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn-ed" id="be-hb" onclick="te('hb')">Editar</button>
+          <button class="btn-sv" id="bs-hb" style="display:none" onclick="saveHab()">Salvar</button>
+        </div>
+      </div>
+      <div class="sw" id="sw" onclick="document.getElementById('si').focus()">
+        <input class="sinp" id="si" type="text" placeholder="Digite e pressione Enter…" onkeydown="addSk(event)" disabled />
+      </div>
+      <div style="font-size:.75rem;color:var(--ink-3);margin-top:.4rem">Ex: Excel, Google Ads, Liderança, Atendimento ao cliente…</div>
+      <div class="fb" id="fb-hb"></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-ct">
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-ttl">Licenças e certificados</div><div class="card-sub">Cursos, certificações e habilitações</div></div></div>
+      <div id="ctl"></div>
+      <button class="btn-add" onclick="om('ct')">+ Adicionar certificado</button>
+    </div>
+  </div>
+
+  <div class="page" id="page-id">
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-ttl">Idiomas</div><div class="card-sub">Línguas que você fala</div></div></div>
+      <div id="idl"></div>
+      <button class="btn-add" onclick="om('id')">+ Adicionar idioma</button>
+    </div>
+  </div>
+
+  <div class="page" id="page-pr">
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-ttl">Prêmios e reconhecimentos</div><div class="card-sub">Conquistas e destaques da sua carreira</div></div></div>
+      <div id="prl"></div>
+      <button class="btn-add" onclick="om('pr')">+ Adicionar prêmio</button>
+    </div>
+  </div>
+
+  <div class="page" id="page-pf">
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-ttl">Preferências de trabalho</div><div class="card-sub">O que você busca na próxima oportunidade</div></div>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn-ed" id="be-pf" onclick="te('pf')">Editar</button>
+          <button class="btn-sv" id="bs-pf" style="display:none" onclick="savePref()">Salvar</button>
+        </div>
+      </div>
+      <div class="fg">
+        <div class="fgrp"><label>Área desejada</label><select id="p-ar" disabled><option value="">Selecione</option><option>Administrativo</option><option>Agronegócio</option><option>Alimentação e Gastronomia</option><option>Arquitetura e Urbanismo</option><option>Atendimento ao Cliente</option><option>Comunicação e Publicidade</option><option>Compras e Suprimentos</option><option>Construção Civil</option><option>Contabilidade e Finanças</option><option>Design</option><option>Educação</option><option>Engenharia</option><option>Estética e Beleza</option><option>Indústria</option><option>Jurídico</option><option>Logística e Transporte</option><option>Marketing</option><option>Operações</option><option>Produção e Manufatura</option><option>Qualidade</option><option>RH e Pessoas</option><option>Saúde</option><option>Segurança do Trabalho</option><option>TI e Tecnologia</option><option>Vendas</option><option>Outro</option></select></div>
+        <div class="fgrp"><label>Nível pretendido</label><select id="p-nv" disabled><option value="">Selecione</option><option>Estágio</option><option>Júnior</option><option>Pleno</option><option>Sênior</option><option>Gestor / Líder</option></select></div>
+        <div class="fgrp full"><label>Pretensão salarial</label>
+          <div class="salrow">
+            <div><label style="font-size:.75rem;color:var(--ink-3)">Mínimo</label><input type="number" id="p-sm" placeholder="R$ mínimo" disabled /></div>
+            <span class="salsp">até</span>
+            <div><label style="font-size:.75rem;color:var(--ink-3)">Máximo</label><input type="number" id="p-sx" placeholder="R$ máximo" disabled /></div>
+          </div>
+        </div>
+        <div class="fgrp"><label>Modalidade preferida</label>
+          <div class="tgg" id="p-mod"><button class="tgb" onclick="tgb(this,'p-mod')" disabled>Presencial</button><button class="tgb" onclick="tgb(this,'p-mod')" disabled>Híbrido</button><button class="tgb" onclick="tgb(this,'p-mod')" disabled>Remoto</button><button class="tgb" onclick="tgb(this,'p-mod')" disabled>Indiferente</button></div>
+        </div>
+        <div class="fgrp"><label>Tipo de contrato</label>
+          <div class="tgg" id="p-con"><button class="tgb" onclick="tgb(this,'p-con')" disabled>CLT</button><button class="tgb" onclick="tgb(this,'p-con')" disabled>PJ</button><button class="tgb" onclick="tgb(this,'p-con')" disabled>Estágio</button><button class="tgb" onclick="tgb(this,'p-con')" disabled>Indiferente</button></div>
+        </div>
+        <div class="fgrp"><label>Disponibilidade</label><select id="p-dv" disabled><option value="">Selecione</option><option>Imediata</option><option>Em 15 dias</option><option>Em 30 dias</option><option>Em 60 dias</option><option>A combinar</option></select></div>
+      </div>
+      <div class="fb" id="fb-pf"></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-ca">
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-ttl">Minhas candidaturas</div><div class="card-sub">Acompanhe o status de cada vaga</div></div></div>
+      <div id="cal"></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-vs">
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-ttl">Vagas salvas</div><div class="card-sub">Vagas que você guardou para ver depois</div></div></div>
+      <div id="vsl"></div>
+    </div>
+  </div>
+
+</main>
+
+<div class="modal-ov" id="mov" onclick="if(event.target===this)fm()">
+  <div class="modal"><button class="mcls" onclick="fm()">✕</button><div id="mb"></div></div>
+</div>
+
+<script>
+const SB_URL='https://lvexahtskdhgujwrlkex.supabase.co';
+const SB_KEY='sb_publishable_AvhhaT_r4vsz3iuiZpZ3AA_zW7rxPo4';
+const{createClient}=supabase;
+const sb=createClient(SB_URL,SB_KEY);
+let usr=null,prf=null,sks=[],mtp=null;
+let ext={experiencias:[],formacoes:[],certificados:[],idiomas:[],premios:[]};
+const NC={Básico:'nb-bas',Intermediário:'nb-int',Avançado:'nb-ava',Fluente:'nb-flu',Nativo:'nb-nat'};
+
+document.addEventListener('DOMContentLoaded',async()=>{
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){document.getElementById('lgate').classList.add('show');return;}
+  await init(session.user);
+});
+
+async function init(u){
+  usr=u;
+  let{data:p}=await sb.from('candidatos').select('*').eq('user_id',u.id).single();
+  if(!p){const nm=u.user_metadata?.nome||u.email.split('@')[0];const{data:nv}=await sb.from('candidatos').insert({user_id:u.id,nome:nm,email:u.email}).select().single();p=nv;}
+  prf=p;sks=p.habilidades||[];
+  await loadExt();
+  document.getElementById('lgate').classList.remove('show');
+  document.getElementById('sb').style.display='flex';
+  document.getElementById('ma').style.display='block';
+  fill();comp();rr();
+
+  // Redireciona para seção correta se vier da home com ?page=
+  const params = new URLSearchParams(window.location.search);
+  const page = params.get('page');
+  if (page === 'candidaturas') setTimeout(() => sp('ca'), 200);
+}
+
+async function loadExt(){
+  const id=prf.id;
+  const[a,b,c,d,e]=await Promise.all([
+    sb.from('experiencias').select('*').eq('candidato_id',id).order('data_inicio',{ascending:false}),
+    sb.from('formacoes').select('*').eq('candidato_id',id).order('data_inicio',{ascending:false}),
+    sb.from('certificados').select('*').eq('candidato_id',id).order('data_emissao',{ascending:false}),
+    sb.from('idiomas').select('*').eq('candidato_id',id),
+    sb.from('premios').select('*').eq('candidato_id',id).order('data',{ascending:false}),
+  ]);
+  ext.experiencias=a.data||[];ext.formacoes=b.data||[];ext.certificados=c.data||[];ext.idiomas=d.data||[];ext.premios=e.data||[];
+  rEx();rFo();rCt();rId();rPr();
+}
+
+async function login(){
+  const em=gv('le'),sn=gv('ls'),er=document.getElementById('lerr');
+  if(!em||!sn){er.textContent='Preencha os campos.';er.classList.add('show');return;}
+  const{data,error}=await sb.auth.signInWithPassword({email:em,password:sn});
+  if(error){er.textContent='E-mail ou senha incorretos.';er.classList.add('show');return;}
+  await init(data.user);
+}
+
+async function logout(){
+  await sb.auth.signOut();
+  window.location.href = 'oportunia-integrado.html';
+}
+
+function fill(){
+  const p=prf,nm=p.nome||'';
+  document.getElementById('su').textContent=nm;
+  document.getElementById('av').textContent=nm.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()||'??';
+  document.getElementById('hn').textContent=nm||'—';
+  document.getElementById('hc').textContent=p.cargo_desejado||'Complete seu perfil';
+  document.getElementById('hl').textContent=[p.bairro,p.cidade||'Bauru',p.estado||'SP'].filter(Boolean).join(', ');
+  const lks=[];
+  if(p.linkedin)lks.push(`<a class="h-link" href="https://${p.linkedin.replace('https://','')}" target="_blank">in LinkedIn</a>`);
+  if(p.portfolio)lks.push(`<a class="h-link" href="https://${p.portfolio.replace('https://','')}" target="_blank">🔗 Portfólio</a>`);
+  document.getElementById('hlk').innerHTML=lks.join('');
+  sv('d-nm',p.nome);sv('d-em',p.email);sv('d-tel',p.telefone);sv('d-dn',p.data_nascimento);
+  // Foto/iniciais do avatar
+  const avTxt=document.getElementById('av-txt');
+  const avEl=document.getElementById('av');
+  const fotoHint=document.querySelector('.foto-hint');
+  let avImg=avEl.querySelector('img');
+  if(p.foto){
+    if(!avImg){avImg=document.createElement('img');avImg.style.zIndex='1';avEl.appendChild(avImg);}
+    avImg.src=p.foto;
+    if(avTxt)avTxt.style.display='none';
+    if(fotoHint)fotoHint.textContent='📷 Trocar foto';
+  } else {
+    if(avImg)avImg.remove();
+    if(avTxt){avTxt.style.display='';avTxt.textContent=p.nome?p.nome.trim().split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase():'??';}
+    if(fotoHint)fotoHint.textContent='📷 Adicionar foto';
+  }
+  sv('d-gen',p.genero);sv('d-pcd',p.pcd?'true':'false');
+  sv('d-cep',p.cep);sv('d-cid',p.cidade||'Bauru');sv('d-est',p.estado||'SP');
+  sv('d-rua',p.rua);sv('d-num',p.numero);sv('d-bai',p.bairro);sv('d-cmp',p.complemento);
+  sv('d-cpf',p.cpf);sv('d-li',p.linkedin);sv('d-po',p.portfolio);
+  rSk();
+  sv('p-ar',p.area);sv('p-nv',p.nivel);sv('p-sm',p.salario_min);sv('p-sx',p.salario_max);sv('p-dv',p.disponibilidade);
+  if(p.modalidade)sa('p-mod',p.modalidade);
+  if(p.contrato)sa('p-con',p.contrato);
+}
+
+function sv(id,v){const el=document.getElementById(id);if(el&&v!=null)el.value=v;}
+function gv(id){return(document.getElementById(id)?.value||'').trim();}
+function sa(gid,val){document.querySelectorAll(`#${gid} .tgb`).forEach(b=>b.classList.toggle('active',b.textContent.trim()===val));}
+
+async function uploadFoto(input){
+  const file=input.files[0];
+  if(!file)return;
+  // Valida formato
+  const formatsOk=['image/jpeg','image/jpg','image/png','image/webp'];
+  if(!formatsOk.includes(file.type)){
+    alert('Formato não suportado.\nUse apenas JPG ou PNG.');
+    input.value='';return;
+  }
+  // Valida tamanho bruto (máx 5MB para ter margem de compressão)
+  if(file.size>5*1024*1024){
+    alert('Arquivo muito grande ('+Math.round(file.size/1024/1024*10)/10+'MB).\nEscolha uma imagem menor que 5MB.');
+    input.value='';return;
+  }
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const maxSize=200;
+      let w=img.width,h=img.height;
+      if(w>maxSize||h>maxSize){const r=Math.min(maxSize/w,maxSize/h);w=Math.round(w*r);h=Math.round(h*r);}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      let q=0.85,b64,kb;
+      do{b64=canvas.toDataURL('image/jpeg',q);kb=(b64.length*3/4)/1024;q-=0.08;}while(kb>500&&q>0.25);
+      // Valida resultado final
+      if(kb>500){
+        alert('Não foi possível comprimir a imagem para menos de 500KB.\nTente uma imagem diferente.');
+        input.value='';return;
+      }
+      // Atualiza preview
+      const avEl=document.getElementById('av');
+      const avTxt=document.getElementById('av-txt');
+      let avImg=avEl.querySelector('img');
+      if(!avImg){avImg=document.createElement('img');avImg.style.zIndex='1';avEl.appendChild(avImg);}
+      avImg.src=b64;
+      if(avTxt)avTxt.style.display='none';
+      const fotoHint=document.querySelector('.foto-hint');
+      if(fotoHint)fotoHint.textContent='📷 Trocar foto';
+      // Salva no banco
+      sb.from('candidatos').update({foto:b64}).eq('user_id',usr.id).then(({error})=>{
+        if(error){alert('Erro ao salvar foto. Tente novamente.');}
+        else{prf.foto=b64;showFb('fb-dd','✓ Foto salva! ('+Math.round(kb)+'KB)','ok');}
+      });
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function comp(){
+  const p=prf;
+
+  // Itens OBRIGATÓRIOS para 100%
+  const checks=[
+    {ok:!!p.nome, label:'Nome completo', icon:'👤', section:'dd'},
+    {ok:!!p.telefone, label:'WhatsApp', icon:'📱', section:'dd'},
+    {ok:!!p.bairro, label:'Localização', icon:'📍', section:'dd'},
+    {ok:!!p.data_nascimento, label:'Data de nascimento', icon:'🎂', section:'dd'},
+    {ok:!!p.cargo_desejado, label:'Cargo desejado', icon:'💼', section:'pf'},
+    {ok:!!p.area, label:'Área de atuação', icon:'🎯', section:'pf'},
+    {ok:!!p.nivel, label:'Nível profissional', icon:'📊', section:'pf'},
+    {ok:!!p.resumo, label:'Sobre mim', icon:'✍️', section:'pf'},
+    {ok:sks.length>0, label:'Habilidades', icon:'⚡', section:'hb'},
+    {ok:ext.experiencias.length>0, label:'Experiência profissional', icon:'🏢', section:'ex'},
+    {ok:ext.formacoes.length>0, label:'Formação acadêmica', icon:'🎓', section:'fo'},
+    {ok:ext.idiomas.length>0, label:'Idiomas', icon:'🌐', section:'id'},
+    {ok:!!p.salario_min, label:'Pretensão salarial', icon:'💰', section:'pf'},
+    {ok:!!p.modalidade, label:'Modalidade preferida', icon:'🏠', section:'pf'},
+    {ok:!!p.contrato, label:'Tipo de contrato preferido', icon:'📋', section:'pf'},
+  ];
+
+  // Itens OPCIONAIS — bônus no match mas não bloqueiam 100%
+  const extras=[
+    {ok:ext.certificados.length>0, label:'Certificados', icon:'🏅', section:'ct', desc:'diferencial'},
+    {ok:ext.premios.length>0, label:'Prêmios', icon:'🏆', section:'pr', desc:'diferencial'},
+    {ok:!!p.linkedin||!!p.portfolio, label:'LinkedIn ou Portfólio', icon:'🔗', section:'dd', desc:'diferencial'},
+    {ok:ext.idiomas.length>0&&ext.idiomas.some(i=>['Avançado','Fluente','Nativo'].includes(i.nivel)), label:'Idioma avançado', icon:'🌐', section:'id', desc:'+pts no match'},
+  ];
+
+  const done = checks.filter(c=>c.ok).length;
+  const total = checks.length;
+  const pct = Math.round(done/total*100);
+
+  // Atualiza sidebar
+  document.getElementById('pp').textContent=pct+'%';
+  document.getElementById('pb').style.width=pct+'%';
+  const b=document.getElementById('cbg');
+  if(pct<35){b.className='comp-badge cb-low';b.textContent='Perfil incompleto';}
+  else if(pct<75){b.className='comp-badge cb-mid';b.textContent=`Perfil ${pct}% completo`;}
+  else{b.className='comp-badge cb-hi';b.textContent=`Perfil ${pct}% completo ✓`;}
+
+  const u=(id,v)=>{const el=document.getElementById(id);if(el){el.textContent=v?'✓':'○';el.className=v?'s-chk':'s-dot';}};
+  u('ca',!!p.cargo_desejado);u('cd',!!p.telefone&&!!p.bairro);
+  u('ce',ext.experiencias.length>0);u('cf',ext.formacoes.length>0);
+  u('ch',sks.length>0);u('cc',ext.certificados.length>0);
+  u('ci',ext.idiomas.length>0);u('cp',ext.premios.length>0);
+  u('cpf',!!p.salario_min&&!!p.modalidade&&!!p.contrato);
+
+  // Renderiza card de progresso
+  const todo = checks.filter(c=>!c.ok);
+  const doneItems = checks.filter(c=>c.ok);
+
+  let msg, msgCls;
+  if(pct<35){ msg='🚀 Seu perfil está no início! Quanto mais completo, mais empresas te encontram.'; msgCls='prog-msg-low'; }
+  else if(pct<60){ msg='📈 Bom começo! Complete mais seções para aparecer mais nas buscas das empresas.'; msgCls='prog-msg-low'; }
+  else if(pct<80){ msg='⭐ Você está quase lá! Perfis completos recebem até 3x mais visualizações.'; msgCls='prog-msg-mid'; }
+  else if(pct<100){ msg='🎯 Perfil quase perfeito! Finalize os últimos detalhes para se destacar.'; msgCls='prog-msg-mid'; }
+  else { msg='🏆 Parabéns! Seu perfil está 100% completo. Máximas chances de ser encontrado!'; msgCls='prog-msg-high'; }
+
+  const todoHtml = todo.slice(0,6).map(c=>`
+    <div class="prog-item todo" onclick="sp('${c.section}')" style="cursor:pointer" title="Clique para preencher">
+      <span class="prog-item-icon">${c.icon}</span>
+      <span>${c.label}</span>
+    </div>`).join('');
+
+  const doneHtml = doneItems.slice(0,6).map(c=>`
+    <div class="prog-item done">
+      <span class="prog-item-icon">✅</span>
+      <span>${c.label}</span>
+    </div>`).join('');
+
+  // Itens opcionais
+  const extDone = extras.filter(e=>e.ok);
+  const extTodo = extras.filter(e=>!e.ok);
+  const extHtml = extTodo.map(e=>`
+    <div class="prog-item todo" onclick="sp('${e.section}')" style="cursor:pointer" title="Clique para adicionar">
+      <span class="prog-item-icon">${e.icon}</span>
+      <span>${e.label} <span style="color:var(--accent);font-size:.7rem">(${e.desc||'diferencial'})</span></span>
+    </div>`).join('');
+
+  const cardHtml = `
+    <div class="prog-card">
+      <div class="prog-header">
+        <div>
+          <div class="prog-title" style="font-size:1rem;font-weight:700">
+            Como funciona o perfil?
+            <button onclick="abrirGuiaPerfil()" style="background:rgba(15,17,23,.08);border:none;width:22px;height:22px;border-radius:50%;font-size:.75rem;cursor:pointer;margin-left:.4rem;color:var(--ink-2);font-weight:700;vertical-align:middle">?</button>
+          </div>
+          <div style="font-size:.75rem;color:var(--ink-3);margin-top:.2rem">${done} de ${total} itens preenchidos</div>
+        </div>
+        <div style="text-align:right;line-height:1">
+          <div class="prog-pct-big" style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--accent)">${pct}%</div>
+        </div>
+      </div>
+      <div class="prog-bar-wrap">
+        <div class="prog-bar-fill" style="width:${pct}%"></div>
+      </div>
+
+      <div class="prog-msg ${msgCls}">${msg}</div>
+      ${todo.length > 0 ? `
+        <div style="font-size:.73rem;font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.5rem">📝 Clique para completar</div>
+        <div class="prog-items">${todoHtml}</div>
+      ` : ''}
+      ${extTodo.length > 0 ? `
+        <div style="font-size:.73rem;font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em;margin:1rem 0 .5rem">⭐ Diferenciais — aumentam seu score no match</div>
+        <div class="prog-items">${extHtml}</div>
+      ` : ''}
+      ${extDone.length > 0 ? `
+        <div style="font-size:.75rem;color:var(--green);margin-top:.75rem;text-align:center">
+          ✓ Você tem ${extDone.length} diferencial${extDone.length>1?'is':''} — isso te destaca ainda mais!
+        </div>
+      ` : ''}
+    </div>`;
+
+  const wrap = document.getElementById('prog-card-wrap');
+  if(wrap) wrap.innerHTML = cardHtml;
+}
+
+async function loadVagasSalvas(){
+  const el = document.getElementById('vsl');
+  if(!el) return;
+  el.innerHTML = '<div style="color:var(--ink-3);font-size:.85rem;padding:1rem 0">Carregando...</div>';
+  const { data, error } = await sb.from('vagas_salvas')
+    .select('id, vaga_id, created_at, vagas(id, titulo, area, salario_min, salario_max, status, empresas(nome, logo))')
+    .eq('candidato_id', usr.id)
+    .order('created_at', { ascending: false });
+  if(!data || data.length === 0){
+    el.innerHTML = '<div style="color:var(--ink-3);font-size:.85rem;padding:1rem 0;text-align:center">Nenhuma vaga salva ainda.<br><a href="oportunia-integrado.html#vagas" style="color:var(--accent)">Ver vagas disponíveis →</a></div>';
+    return;
+  }
+  el.innerHTML = data.map(sv => {
+    const v = sv.vagas;
+    if(!v) return '';
+    const logo = v.empresas?.logo ? `<img src="${v.empresas.logo}" style="width:36px;height:36px;border-radius:8px;object-fit:cover">` : `<div style="width:36px;height:36px;border-radius:8px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:var(--ink-2)">${(v.empresas?.nome||'?')[0]}</div>`;
+    const sal = v.salario_min ? `R$ ${Number(v.salario_min).toLocaleString('pt-BR')}` : 'A combinar';
+    const ativa = v.status === 'ativa';
+    return `<div style="display:flex;align-items:center;gap:.75rem;padding:.85rem 0;border-bottom:1px solid var(--border)">
+      ${logo}
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:.9rem;color:var(--ink-1)">${v.titulo}</div>
+        <div style="font-size:.78rem;color:var(--ink-3)">${v.empresas?.nome||''} · ${sal}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        ${ativa ? `<a href="oportunia-vaga-integrado.html?id=${v.id}" style="font-size:.78rem;color:var(--accent);text-decoration:none;font-weight:600">Ver vaga →</a>` : `<span style="font-size:.75rem;color:var(--ink-3)">Encerrada</span>`}
+        <button onclick="removerVagaSalva('${sv.id}', this)" style="background:none;border:none;color:var(--ink-3);cursor:pointer;font-size:1rem;padding:.2rem" title="Remover">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function removerVagaSalva(id, btn){
+  await sb.from('vagas_salvas').delete().eq('id', id);
+  btn.closest('div[style]').remove();
+  const el = document.getElementById('vsl');
+  if(el && !el.querySelector('div[style]')){
+    el.innerHTML = '<div style="color:var(--ink-3);font-size:.85rem;padding:1rem 0;text-align:center">Nenhuma vaga salva ainda.<br><a href="oportunia-integrado.html#vagas" style="color:var(--accent)">Ver vagas disponíveis →</a></div>';
+  }
+}
+
+function rr(){
+  const p=prf,ss=[];
+  if(p.resumo)ss.push(`<div class="card"><div class="card-hdr"><div class="card-ttl">Sobre mim</div><button class="btn-ed" onclick="sp('pf')">✏️</button></div><p style="font-size:.92rem;color:var(--ink-2);line-height:1.7">${p.resumo}</p></div>`);
+  if(ext.experiencias.length)ss.push(`<div class="card"><div class="card-hdr"><div class="card-ttl">💼 Experiências</div><button class="btn-ed" onclick="sp('ex')">Ver tudo</button></div>${ext.experiencias.slice(0,3).map(e=>`<div class="item"><div class="item-hdr"><div class="item-ico">🏢</div><div class="item-cnt"><div class="item-ttl">${e.cargo}</div><div class="item-sub">${e.empresa}</div><div class="item-per">${fp(e.data_inicio,e.data_fim,e.emprego_atual)}</div>${e.descricao?`<div class="item-dsc">${e.descricao}</div>`:''}</div></div></div>`).join('')}</div>`);
+  if(ext.formacoes.length)ss.push(`<div class="card"><div class="card-hdr"><div class="card-ttl">🎓 Formação</div><button class="btn-ed" onclick="sp('fo')">Ver tudo</button></div>${ext.formacoes.slice(0,2).map(f=>`<div class="item"><div class="item-hdr"><div class="item-ico">🎓</div><div class="item-cnt"><div class="item-ttl">${f.curso}</div><div class="item-sub">${f.instituicao}${f.grau?' · '+f.grau:''}</div><div class="item-per">${fp(f.data_inicio,f.data_fim,f.cursando)}</div></div></div></div>`).join('')}</div>`);
+  if(sks.length)ss.push(`<div class="card"><div class="card-hdr"><div class="card-ttl">⚡ Habilidades</div><button class="btn-ed" onclick="sp('hb')">✏️</button></div><div style="display:flex;flex-wrap:wrap;gap:.5rem">${sks.map(s=>`<span style="background:var(--surface);border:1px solid var(--border);padding:.3rem .8rem;border-radius:var(--radius-pill);font-size:.82rem;color:var(--ink-2)">${s}</span>`).join('')}</div></div>`);
+  if(ext.certificados.length)ss.push(`<div class="card"><div class="card-hdr"><div class="card-ttl">🏅 Certificados</div><button class="btn-ed" onclick="sp('ct')">Ver tudo</button></div>${ext.certificados.slice(0,3).map(c=>`<div class="item"><div class="item-hdr"><div class="item-ico">🏅</div><div class="item-cnt"><div class="item-ttl">${c.nome}</div>${c.instituicao?`<div class="item-sub">${c.instituicao}</div>`:''}</div></div></div>`).join('')}</div>`);
+  if(ext.idiomas.length)ss.push(`<div class="card"><div class="card-hdr"><div class="card-ttl">🌐 Idiomas</div><button class="btn-ed" onclick="sp('id')">✏️</button></div>${ext.idiomas.map(i=>`<div class="idrow"><div class="idnm">🌐 ${i.idioma}</div><span class="nbadge ${NC[i.nivel]||'nb-bas'}">${i.nivel}</span></div>`).join('')}</div>`);
+  if(ext.premios.length)ss.push(`<div class="card"><div class="card-hdr"><div class="card-ttl">🏆 Prêmios</div><button class="btn-ed" onclick="sp('pr')">Ver tudo</button></div>${ext.premios.slice(0,2).map(p=>`<div class="item"><div class="item-hdr"><div class="item-ico">🏆</div><div class="item-cnt"><div class="item-ttl">${p.titulo}</div>${p.emissor?`<div class="item-sub">${p.emissor}</div>`:''}</div></div></div>`).join('')}</div>`);
+  document.getElementById('rp').innerHTML=ss.join('')||`<div class="card" style="text-align:center;padding:3rem"><p style="font-size:1.5rem;margin-bottom:.75rem">✨</p><h3 style="font-family:Syne;font-size:1rem;margin-bottom:.5rem">Complete seu perfil</h3><p style="font-size:.88rem;color:var(--ink-3)">Adicione experiências, formação e habilidades para ser encontrado pelas empresas de Bauru.</p></div>`;
+}
+
+function rEx(){const el=document.getElementById('exl');el.innerHTML=ext.experiencias.length?ext.experiencias.map(e=>`<div class="item"><div class="item-hdr"><div class="item-ico">🏢</div><div class="item-cnt"><div class="item-ttl">${e.cargo}</div><div class="item-sub">${e.empresa}</div><div class="item-per">${fp(e.data_inicio,e.data_fim,e.emprego_atual)}</div>${e.descricao?`<div class="item-dsc">${e.descricao}</div>`:''}</div><div><button class="btn-rm" onclick="del('experiencias','${e.id}',rEx)">🗑</button></div></div></div>`).join(''):'<div class="emp">Nenhuma experiência adicionada.</div>';}
+function rFo(){const el=document.getElementById('fol');el.innerHTML=ext.formacoes.length?ext.formacoes.map(f=>`<div class="item"><div class="item-hdr"><div class="item-ico">🎓</div><div class="item-cnt"><div class="item-ttl">${f.curso}</div><div class="item-sub">${f.instituicao}${f.grau?' · '+f.grau:''}</div><div class="item-per">${fp(f.data_inicio,f.data_fim,f.cursando)}</div></div><div><button class="btn-rm" onclick="del('formacoes','${f.id}',rFo)">🗑</button></div></div></div>`).join(''):'<div class="emp">Nenhuma formação adicionada.</div>';}
+function rCt(){const el=document.getElementById('ctl');el.innerHTML=ext.certificados.length?ext.certificados.map(c=>`<div class="item"><div class="item-hdr"><div class="item-ico">🏅</div><div class="item-cnt"><div class="item-ttl">${c.nome}</div>${c.instituicao?`<div class="item-sub">${c.instituicao}</div>`:''}<div class="item-per">${c.data_emissao?'Emitido em '+fd(c.data_emissao)+(c.sem_expiracao?' · Sem expiração':c.data_expiracao?' · Expira em '+fd(c.data_expiracao):''):''}</div>${c.link?`<a class="item-lnk" href="${c.link}" target="_blank">🔗 Ver certificado</a>`:''}</div><div><button class="btn-rm" onclick="del('certificados','${c.id}',rCt)">🗑</button></div></div></div>`).join(''):'<div class="emp">Nenhum certificado adicionado.</div>';}
+function rId(){const el=document.getElementById('idl');el.innerHTML=ext.idiomas.length?ext.idiomas.map(i=>`<div class="idrow"><div class="idnm">🌐 ${i.idioma}</div><span class="nbadge ${NC[i.nivel]||'nb-bas'}">${i.nivel}</span><button class="btn-rm" onclick="del('idiomas','${i.id}',rId)">🗑</button></div>`).join(''):'<div class="emp">Nenhum idioma adicionado.</div>';}
+function rPr(){const el=document.getElementById('prl');el.innerHTML=ext.premios.length?ext.premios.map(p=>`<div class="item"><div class="item-hdr"><div class="item-ico">🏆</div><div class="item-cnt"><div class="item-ttl">${p.titulo}</div>${p.emissor?`<div class="item-sub">${p.emissor}</div>`:''}<div class="item-per">${p.data?fd(p.data):''}</div>${p.descricao?`<div class="item-dsc">${p.descricao}</div>`:''}</div><div><button class="btn-rm" onclick="del('premios','${p.id}',rPr)">🗑</button></div></div></div>`).join(''):'<div class="emp">Nenhum prêmio adicionado.</div>';}
+function rSk(){const w=document.getElementById('sw'),inp=document.getElementById('si');w.innerHTML='';sks.forEach((s,i)=>{const t=document.createElement('span');t.className='stag';t.innerHTML=`${s} <button type="button" onclick="rmSk(${i})">×</button>`;w.appendChild(t);});w.appendChild(inp);}
+
+async function saveDados(){
+  const btn=document.getElementById('bs-dd');btn.disabled=true;btn.textContent='Salvando…';
+  const u={nome:gv('d-nm'),email:gv('d-em'),telefone:gv('d-tel'),data_nascimento:gv('d-dn')||null,genero:gv('d-gen'),pcd:gv('d-pcd')==='true',cep:gv('d-cep'),cidade:gv('d-cid')||'Bauru',estado:gv('d-est')||'SP',rua:gv('d-rua'),numero:gv('d-num'),bairro:gv('d-bai'),complemento:gv('d-cmp'),cpf:gv('d-cpf'),linkedin:gv('d-li'),portfolio:gv('d-po')};
+  const{error}=await sb.from('candidatos').update(u).eq('user_id',usr.id);
+  if(error){showFb('fb-dd','Erro ao salvar.','err');}else{prf={...prf,...u};fill();comp();rr();showFb('fb-dd','✓ Dados salvos!','ok');te('dd');}
+  btn.disabled=false;btn.textContent='Salvar';
+}
+
+async function saveHab(){
+  const btn=document.getElementById('bs-hb');btn.disabled=true;btn.textContent='Salvando…';
+  const{error}=await sb.from('candidatos').update({habilidades:sks}).eq('user_id',usr.id);
+  if(error){showFb('fb-hb','Erro.','err');}else{prf.habilidades=sks;comp();rr();showFb('fb-hb','✓ Habilidades salvas!','ok');te('hb');}
+  btn.disabled=false;btn.textContent='Salvar';
+}
+
+async function savePref(){
+  const btn=document.getElementById('bs-pf');btn.disabled=true;btn.textContent='Salvando…';
+  const mod=document.querySelector('#p-mod .tgb.active')?.textContent.trim()||'';
+  const con=document.querySelector('#p-con .tgb.active')?.textContent.trim()||'';
+  const u={area:gv('p-ar'),nivel:gv('p-nv'),salario_min:gv('p-sm')||null,salario_max:gv('p-sx')||null,modalidade:mod,contrato:con,disponibilidade:gv('p-dv')};
+  const{error}=await sb.from('candidatos').update(u).eq('user_id',usr.id);
+  if(error){showFb('fb-pf','Erro.','err');}else{prf={...prf,...u};comp();showFb('fb-pf','✓ Preferências salvas!','ok');te('pf');}
+  btn.disabled=false;btn.textContent='Salvar';
+}
+
+function om(t){
+  mtp=t;
+  const T={
+    ex:`<h3>Adicionar experiência</h3><div class="mg"><label>Cargo *</label><input type="text" id="mc" placeholder="Ex: Analista de Marketing"/></div><div class="mg"><label>Empresa *</label><input type="text" id="me" placeholder="Ex: Empresa XYZ"/></div><div class="mg2"><div class="mg"><label>Data início</label><input type="month" id="mi"/></div><div class="mg"><label>Data fim</label><input type="month" id="mf"/></div></div><label class="cbrow" style="margin-bottom:1rem"><input type="checkbox" id="ma2" onchange="document.getElementById('mf').disabled=this.checked"> Emprego atual</label><div class="mg"><label>Descrição</label><textarea id="md" placeholder="Responsabilidades e conquistas…"></textarea></div>`,
+    fo:`<h3>Adicionar formação</h3><div class="mg"><label>Curso *</label><input type="text" id="mcu" placeholder="Ex: Administração de Empresas"/></div><div class="mg"><label>Instituição *</label><input type="text" id="mit" placeholder="Ex: UNESP Bauru"/></div><div class="mg"><label>Grau</label><select id="mgr"><option value="">Selecione</option><option>Ensino Médio</option><option>Técnico</option><option>Graduação</option><option>Pós-graduação</option><option>MBA</option><option>Mestrado</option><option>Doutorado</option></select></div><div class="mg2"><div class="mg"><label>Data início</label><input type="month" id="mi"/></div><div class="mg"><label>Data fim</label><input type="month" id="mf"/></div></div><label class="cbrow"><input type="checkbox" id="ma2" onchange="document.getElementById('mf').disabled=this.checked"> Cursando atualmente</label>`,
+    ct:`<h3>Adicionar certificado</h3><div class="mg"><label>Nome *</label><input type="text" id="mnm" placeholder="Ex: Google Analytics Certified"/></div><div class="mg"><label>Instituição emissora</label><input type="text" id="mit" placeholder="Ex: Google"/></div><div class="mg2"><div class="mg"><label>Data emissão</label><input type="month" id="mem"/></div><div class="mg"><label>Data expiração</label><input type="month" id="mex" disabled/></div></div><label class="cbrow" style="margin-bottom:1rem"><input type="checkbox" id="mse" checked onchange="document.getElementById('mex').disabled=this.checked"> Sem data de expiração</label><div class="mg"><label>Link do certificado</label><input type="url" id="mlk" placeholder="https://..."/></div>`,
+    id:`<h3>Adicionar idioma</h3><div class="mg"><label>Idioma *</label><select id="mid"><option value="">Selecione</option><option>Inglês</option><option>Espanhol</option><option>Francês</option><option>Alemão</option><option>Italiano</option><option>Mandarim</option><option>Japonês</option><option>Português</option><option>Outro</option></select></div><div class="mg"><label>Nível *</label><select id="mnv"><option value="">Selecione</option><option>Básico</option><option>Intermediário</option><option>Avançado</option><option>Fluente</option><option>Nativo</option></select></div>`,
+    pr:`<h3>Adicionar prêmio</h3><div class="mg"><label>Título *</label><input type="text" id="mtt" placeholder="Ex: Melhor Vendedor do Ano"/></div><div class="mg"><label>Emissor</label><input type="text" id="mes" placeholder="Ex: Empresa XYZ"/></div><div class="mg"><label>Data</label><input type="month" id="mdt"/></div><div class="mg"><label>Descrição</label><textarea id="mds" placeholder="Descreva o reconhecimento…"></textarea></div>`
+  };
+  document.getElementById('mb').innerHTML=(T[t]||'')+`<div class="mftr"><button class="mcan" onclick="fm()">Cancelar</button><button class="msub" id="msb" onclick="sm()">Salvar →</button></div>`;
+  document.getElementById('mov').classList.add('open');
+}
+
+function fm(){document.getElementById('mov').classList.remove('open');mtp=null;}
+function toDate(val){
+  if(!val || val.trim() === '') return null;
+  val = val.trim();
+  // Formato "MM/AAAA" → "AAAA-MM-01"
+  if(/^\d{2}\/\d{4}$/.test(val)) {
+    const [m, y] = val.split('/');
+    return y + '-' + m + '-01';
+  }
+  // Formato "AAAA-MM" (month input) → "AAAA-MM-01"
+  if(/^\d{4}-\d{2}$/.test(val)) return val + '-01';
+  // Formato "AAAA" apenas → "AAAA-01-01"
+  if(/^\d{4}$/.test(val)) return val + '-01-01';
+  // Já está completo "AAAA-MM-DD"
+  return val;
+}
+
+async function sm(){
+  const btn=document.getElementById('msb');btn.disabled=true;btn.textContent='Salvando…';
+  const id=prf.id;let pl={},tb='',fn=null;
+  if(mtp==='ex'){
+    tb='experiencias';fn=()=>{rEx();comp();rr();};
+    const at=document.getElementById('ma2').checked;
+    pl={candidato_id:id,cargo:gv('mc'),empresa:gv('me'),data_inicio:toDate(gv('mi')),data_fim:at?null:toDate(gv('mf')),emprego_atual:at,descricao:gv('md')};
+    if(!pl.cargo||!pl.empresa){btn.disabled=false;btn.textContent='Salvar →';alert('Cargo e empresa são obrigatórios.');return;}
+  }else if(mtp==='fo'){
+    tb='formacoes';fn=()=>{rFo();comp();rr();};
+    const at=document.getElementById('ma2').checked;
+    pl={candidato_id:id,curso:gv('mcu'),instituicao:gv('mit'),grau:gv('mgr'),data_inicio:toDate(gv('mi')),data_fim:at?null:toDate(gv('mf')),cursando:at};
+    if(!pl.curso||!pl.instituicao){btn.disabled=false;btn.textContent='Salvar →';alert('Curso e instituição são obrigatórios.');return;}
+  }else if(mtp==='ct'){
+    tb='certificados';fn=()=>{rCt();comp();};
+    const se=document.getElementById('mse').checked;
+    pl={candidato_id:id,nome:gv('mnm'),instituicao:gv('mit'),data_emissao:toDate(gv('mem')),data_expiracao:se?null:toDate(gv('mex')),sem_expiracao:se,link:gv('mlk')};
+    if(!pl.nome){btn.disabled=false;btn.textContent='Salvar →';alert('Nome é obrigatório.');return;}
+  }else if(mtp==='id'){
+    tb='idiomas';fn=()=>{rId();comp();rr();};
+    pl={candidato_id:id,idioma:gv('mid'),nivel:gv('mnv')};
+    if(!pl.idioma||!pl.nivel){btn.disabled=false;btn.textContent='Salvar →';alert('Idioma e nível são obrigatórios.');return;}
+  }else if(mtp==='pr'){
+    tb='premios';fn=()=>{rPr();comp();};
+    pl={candidato_id:id,titulo:gv('mtt'),emissor:gv('mes'),data:toDate(gv('mdt')),descricao:gv('mds')};
+    if(!pl.titulo){btn.disabled=false;btn.textContent='Salvar →';alert('Título é obrigatório.');return;}
+  }
+  const{data,error}=await sb.from(tb).insert(pl).select().single();
+  if(error){btn.disabled=false;btn.textContent='Salvar →';alert('Erro ao salvar. Tente novamente.');return;}
+  ext[tb]=[...(ext[tb]||[]),data];fn();fm();
+}
+
+async function del(tb,id,fn){
+  if(!confirm('Remover este item?'))return;
+  await sb.from(tb).delete().eq('id',id);
+  ext[tb]=ext[tb].filter(i=>i.id!==id);fn();comp();rr();
+}
+
+async function loadCands(){
+  const{data}=await sb.from('candidaturas').select('*,vagas(titulo,area,salario_min)').eq('email',prf.email).order('created_at',{ascending:false});
+  const el=document.getElementById('cal');
+  if(!data||!data.length){el.innerHTML='<div class="emp">Nenhuma candidatura ainda. <a href="oportunia-integrado.html#vagas" style="color:var(--accent);text-decoration:none;font-weight:500">Ver vagas →</a></div>';return;}
+  const cls={pendente:'sp-p',visualizada:'sp-v',aprovada:'sp-a',reprovada:'sp-r'};
+  const lbl={pendente:'⏳ Pendente',visualizada:'👁 Visualizada',aprovada:'✓ Aprovado!',reprovada:'✕ Não selecionado'};
+  el.innerHTML=data.map(c=>`<div class="citem"><div class="cico">💼</div><div style="flex:1"><div class="cttl">${c.vagas?.titulo||'Vaga'}</div><div class="csub">${c.vagas?.area||''} · ${c.vagas?.salario_min?'R$ '+Number(c.vagas.salario_min).toLocaleString('pt-BR'):'A combinar'} · ${tr(c.created_at)}</div></div><span class="sp ${cls[c.status]||'sp-p'}">${lbl[c.status]||c.status}</span></div>`).join('');
+}
+
+function sp(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.s-nav li a').forEach(a=>a.classList.remove('active'));
+  if(event?.currentTarget)event.currentTarget.classList.add('active');
+  if(p==='ca')loadCands();
+  if(p==='ap')rr();
+  if(p==='vs')loadVagasSalvas();
+}
+
+function te(s){
+  const idMap={dd:['d-nm','d-em','d-tel','d-dn','d-gen','d-pcd','d-cep','d-cid','d-est','d-rua','d-num','d-bai','d-cmp','d-cpf','d-li','d-po'],hb:[],pf:['p-ar','p-nv','p-sm','p-sx','p-dv']};
+  const ids=idMap[s]||[];
+  const bsv=document.getElementById('bs-'+s);
+  const editing=bsv.style.display==='none';
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=!editing;});
+  document.getElementById('be-'+s).style.display=editing?'none':'inline-block';
+  bsv.style.display=editing?'inline-block':'none';
+  if(s==='hb')document.getElementById('si').disabled=!editing;
+  if(s==='pf')document.querySelectorAll('#p-mod .tgb,#p-con .tgb').forEach(b=>b.disabled=!editing);
+}
+
+function tgb(btn,g){if(btn.disabled)return;document.querySelectorAll('#'+g+' .tgb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function addSk(e){if(e.key!=='Enter')return;e.preventDefault();const v=e.target.value.trim();if(!v||sks.includes(v))return;sks.push(v);e.target.value='';rSk();}
+function rmSk(i){sks.splice(i,1);rSk();}
+function showFb(id,msg,t){const el=document.getElementById(id);el.textContent=msg;el.className=`fb ${t} show`;setTimeout(()=>el.classList.remove('show'),3000);}
+function tr(d){const h=Math.floor((Date.now()-new Date(d))/36e5);if(h<1)return'agora';if(h<24)return`há ${h}h`;const dd=Math.floor(h/24);return dd===1?'há 1 dia':`há ${dd} dias`;}
+function fd(d){if(!d)return'';const[y,m]=d.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(m)-1]+' '+y;}
+function fp(ini,fim,at){const i=ini?fd(ini.substring(0,7)):null;const f=at?'Atual':fim?fd(fim.substring(0,7)):null;if(i&&f)return`${i} – ${f}`;if(i)return`Desde ${i}`;return'';}
+
+function abrirGuiaPerfil(){
+  if(!document.getElementById('guia-modal')){
+    const modal=document.createElement('div');
+    modal.id='guia-modal';
+    modal.style.cssText='display:none;position:fixed;inset:0;background:rgba(15,17,23,.6);z-index:400;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
+    const obrig=[
+      ['👤','Nome completo','Dados pessoais'],
+      ['📱','WhatsApp','Dados pessoais'],
+      ['📍','Localização','Dados pessoais'],
+      ['🎂','Data de nascimento','Dados pessoais'],
+      ['✍️','Sobre mim — obrigatório para match','Preferências'],
+      ['💼','Cargo desejado — obrigatório para match','Preferências'],
+      ['🎯','Área de atuação — obrigatório para match','Preferências'],
+      ['📊','Nível profissional — obrigatório para match','Preferências'],
+      ['🏠','Modalidade preferida — obrigatório para match','Preferências'],
+      ['💰','Pretensão salarial — obrigatório para match','Preferências'],
+      ['⚡','Pelo menos 1 habilidade','Habilidades'],
+      ['🏢','Pelo menos 1 experiência','Experiências'],
+      ['🎓','Pelo menos 1 formação','Formação'],
+      ['🌐','Pelo menos 1 idioma','Idiomas'],
+    ];
+    const opc=[
+      ['🏅','Certificados e cursos','Certificados'],
+      ['🏆','Prêmios e reconhecimentos','Prêmios'],
+      ['🔗','LinkedIn ou Portfólio','Dados pessoais'],
+    ];
+    modal.innerHTML=`
+      <div style="background:var(--white);border-radius:20px;padding:2rem;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;position:relative">
+        <button onclick="fecharGuia()" style="position:absolute;top:1rem;right:1rem;background:var(--surface);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;color:var(--ink-3)">✕</button>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.2rem;margin-bottom:.25rem">Como funciona o perfil? 🎯</div>
+        <div style="font-size:.85rem;color:var(--ink-3);margin-bottom:1.25rem">Entenda o que conta para chegar a 100% e se destacar nas vagas</div>
+        <div style="background:var(--accent-light);border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.85rem;color:var(--accent);font-weight:500">
+          💡 Perfis mais completos tendem a ter uma aderência melhor às vagas e são priorizados pelas empresas.
+        </div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:.6rem">✅ Critérios obrigatórios (contam para os 100%)</div>
+        <div style="display:flex;flex-direction:column;gap:.35rem;margin-bottom:1.25rem">
+          ${obrig.map(([icon,label,sec])=>`<div style="display:flex;align-items:center;gap:.6rem;padding:.4rem .6rem;background:var(--surface);border-radius:8px;font-size:.82rem"><span>${icon}</span><span style="flex:1;color:var(--ink-2)">${label}</span><span style="font-size:.72rem;color:var(--ink-3)">${sec}</span></div>`).join('')}
+        </div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:.6rem">⭐ Diferenciais — aumentam seu score no match (te destacam ainda mais)</div>
+        <div style="display:flex;flex-direction:column;gap:.35rem;margin-bottom:1.25rem">
+          ${opc.map(([icon,label,sec])=>`<div style="display:flex;align-items:center;gap:.6rem;padding:.4rem .6rem;background:var(--gold-light);border-radius:8px;font-size:.82rem"><span>${icon}</span><span style="flex:1;color:var(--ink-2)">${label}</span><span style="font-size:.72rem;color:var(--gold)">${sec}</span></div>`).join('')}
+        </div>
+        <div style="background:var(--green-light);border-radius:8px;padding:.75rem 1rem;font-size:.82rem;color:var(--green)">
+          🚀 Dica: clique em cada item faltando no card de progresso para ir direto à seção!
+        </div>
+        <button onclick="fecharGuia()" style="width:100%;margin-top:1.25rem;padding:.75rem;background:var(--ink);color:var(--white);border:none;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer">
+          Entendi! Vou completar meu perfil →
+        </button>
+      </div>`;
+    modal.onclick=(e)=>{if(e.target===modal)fecharGuia();};
+    document.body.appendChild(modal);
+  }
+  document.getElementById('guia-modal').style.display='flex';
+}
+
+function fecharGuia(){
+  const m=document.getElementById('guia-modal');
+  if(m)m.style.display='none';
+}
+</script>
+</body>
+</html>
