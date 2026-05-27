@@ -223,6 +223,12 @@
   @media (max-width: 768px) {
     nav { padding: 1rem 1.25rem; }
     .nav-links { display: none; }
+    .nav-links.open { display: flex; flex-direction: column; position: fixed; top: 60px; left: 0; right: 0; background: rgba(245,244,240,0.98); backdrop-filter: blur(12px); padding: 1.25rem; gap: 1rem; border-bottom: 1px solid var(--border); z-index: 99; }
+    .nav-links.open li { list-style: none; }
+    .nav-links.open a { font-size: 1rem; color: var(--ink-2); text-decoration: none; display: block; padding: 0.5rem 0; }
+    #nav-hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+    #nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--ink); border-radius: 2px; transition: all 0.2s; }
+    #nav-user-area { display: none !important; }
     .hero { padding: 5rem 1.25rem 3rem; }
     .hero-inner { grid-template-columns: 1fr; gap: 2rem; }
     .hero-right { display: none; }
@@ -231,8 +237,10 @@
     .how-section { padding: 3.5rem 1.25rem; }
     .plans-grid { grid-template-columns: 1fr; max-width: 100%; }
     .cta-section { padding: 4rem 1.25rem; }
-    footer { padding: 2rem 1.25rem; flex-direction: column; align-items: flex-start; }
+    footer { padding: 2rem 1.25rem; flex-direction: column; align-items: center; text-align: center; }
+    .footer-links { justify-content: center; flex-wrap: wrap; }
   }
+  #nav-hamburger { display: none; }
 </style>
 </head>
 <body>
@@ -240,6 +248,9 @@
 <!-- NAV -->
 <nav>
   <a href="#" class="nav-logo">Opportu<span>nia</span><sup style="font-size:1rem;font-weight:500;vertical-align:super;letter-spacing:0;color:var(--ink-3);margin-left:2px">®</sup></a>
+  <button id="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
   <ul class="nav-links">
     <li><a href="oportunia-vagas.html">Vagas</a></li>
     <li><a href="#como-funciona">Como funciona</a></li>
@@ -1050,6 +1061,11 @@ async function enviarCandidatura() {
 // =============================================
 // UI HELPERS
 // =============================================
+function toggleMenu() {
+  const links = document.querySelector('.nav-links');
+  links.classList.toggle('open');
+}
+
 function openAuthModal(tipo) {
   document.getElementById('modal-auth').classList.add('open');
   if (tipo === 'empresa') {
