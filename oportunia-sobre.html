@@ -24,6 +24,7 @@
 <meta name="twitter:description" content="Conheça a Opportunia, a plataforma de vagas de emprego de Bauru e região. Nossa missão é conectar talentos locais a empresas com transparência e sem custo." />
 
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
@@ -276,7 +277,18 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 async function carregarStats() {
   const [vagasRes, empresasRes, candidatosRes] = await Promise.all([
     sb.from('vagas').select('*', { count: 'exact', head: true }).eq('status', 'ativa'),
-    sb.from('empresas').select('*', { count: 'exact', head: true }).eq('aprovada', true),
+    sb.from('empresas').select('*', { count: 'exact', head: true }),
+    sb.from('candidatos').select('*', { count: 'exact', head: true })
+  ]);
+
+  const vagas = vagasRes.count || 0;
+  const empresas = empresasRes.count || 0;
+  const candidatos = candidatosRes.count || 0;
+
+  if (document.getElementById('stat-vagas')) document.getElementById('stat-vagas').innerHTML = `${vagas}<span>+</span>`;
+  if (document.getElementById('stat-empresas')) document.getElementById('stat-empresas').innerHTML = `${empresas}<span>+</span>`;
+  if (document.getElementById('stat-candidatos')) document.getElementById('stat-candidatos').innerHTML = `${candidatos}<span>+</span>`;
+}
     sb.from('candidatos').select('*', { count: 'exact', head: true }),
   ]);
 
