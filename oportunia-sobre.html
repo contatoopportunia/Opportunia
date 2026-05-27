@@ -289,17 +289,6 @@ async function carregarStats() {
   if (document.getElementById('stat-empresas')) document.getElementById('stat-empresas').innerHTML = `${empresas}<span>+</span>`;
   if (document.getElementById('stat-candidatos')) document.getElementById('stat-candidatos').innerHTML = `${candidatos}<span>+</span>`;
 }
-    sb.from('candidatos').select('*', { count: 'exact', head: true }),
-  ]);
-
-  const vagas = vagasRes.count || 0;
-  const empresas = empresasRes.count || 0;
-  const candidatos = candidatosRes.count || 0;
-
-  document.getElementById('stat-vagas').innerHTML = `${vagas}<span>+</span>`;
-  document.getElementById('stat-empresas').innerHTML = `${empresas}<span>+</span>`;
-  document.getElementById('stat-candidatos').innerHTML = `${candidatos}<span>+</span>`;
-}
 
 carregarStats();
 </script>
