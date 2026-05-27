@@ -4,8 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Admin — Opportunia</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -873,6 +872,7 @@ function renderVagas() {
         : '<button class="btn-sm btn-gray" onclick="toggleDestaque(\'' + v.id + '\',false)">Remover destaque</button>';
       const btnStatus = v.status === 'ativa'
         ? '<button class="btn-sm btn-red" onclick="confirmar(\'Remover vaga\',\'Deseja remover esta vaga?\',\'vaga\',\'' + v.id + '\',\'encerrada\')">Remover</button>'
+        + '<button class="btn-sm btn-red" style="margin-left:4px" onclick="confirmar(\'Excluir permanentemente\',\'Esta ação é irreversível. Deseja excluir esta vaga?\',\'excluir_vaga\',\'' + v.id + '\',\'\')">🗑 Excluir</button>'
         : '<button class="btn-sm btn-green" onclick="acao(\'vaga\',\'' + v.id + '\',\'ativa\')">Reativar</button>';
       vagasHtml += '<div class="data-row" style="padding-left:2rem">'
         + '<div class="row-info">'
@@ -1050,6 +1050,14 @@ async function acao(tipo, id, valor) {
     renderCandidatos();
     atualizarMetrics();
     showToast('Candidato excluído permanentemente.');
+    fecharModal();
+    return;
+  } else if (tipo === 'excluir_vaga') {
+    await sb.from('candidaturas').delete().eq('vaga_id', id);
+    await sb.from('vagas').delete().eq('id', id);
+    vagas = vagas.filter(v => v.id !== id);
+    renderVagas(); atualizarMetrics();
+    showToast('Vaga excluída permanentemente.');
     fecharModal();
     return;
   } else if (tipo === 'vaga') {
