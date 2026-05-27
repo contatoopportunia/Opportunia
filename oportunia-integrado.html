@@ -543,6 +543,12 @@ let usuarioLogado = null;
 // INIT
 // =============================================
 document.addEventListener('DOMContentLoaded', async () => {
+  // Verifica se é um link de recuperação de senha pelo hash da URL
+  const hash = window.location.hash;
+  if (hash && hash.includes('type=recovery')) {
+    document.getElementById('modal-nova-senha').classList.add('open');
+  }
+
   await verificarSessao();
   await carregarVagas();
 
