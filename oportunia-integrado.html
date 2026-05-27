@@ -149,7 +149,7 @@
   .step-desc { font-size: 0.85rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
 
   /* PLANOS */
-  .plans-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 900px; margin: 0 auto; }
+  .plans-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 900px; }
   .plan-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem 1.5rem; position: relative; transition: all 0.2s; }
   .plan-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(15,17,23,0.1); }
   .plan-card.popular { border: 2px solid var(--accent); background: #fffaf8; }
@@ -362,7 +362,7 @@
 </section>
 
 <!-- PLANOS -->
-<section class="section" id="planos" style="padding-top:1.5rem;scroll-margin-top:70px;text-align:center">
+<section class="section" id="planos" style="padding-top:1.5rem;scroll-margin-top:70px">
   <div class="section-label" style="font-size:1rem">Para empresas</div>
   <div class="section-title">Planos que crescem com você</div>
   <p class="section-sub">Comece grátis. Escale quando precisar.</p>
@@ -376,7 +376,8 @@
         <li>1 vaga ativa</li>
         <li>Painel de candidaturas</li>
         <li>Perfil da empresa</li>
-        <li>Candidatos ilimitados por vaga</li>
+        <li>Até 30 candidatos por vaga</li>
+        <li class="disabled">Candidatos ilimitados</li>
       </ul>
       <button class="btn btn-ghost" onclick="openAuthModal('empresa')">Começar grátis</button>
     </div>
@@ -450,7 +451,24 @@
       <div class="form-group"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')document.getElementById('login-senha').focus()" /></div>
       <div class="form-group"><label>Senha</label><input type="password" id="login-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()" /></div>
       <div class="modal-error" id="login-error"></div>
+      <div id="login-success" style="display:none;background:#e8f5e9;color:#2e7d32;border-radius:8px;padding:.75rem 1rem;font-size:.88rem;margin-bottom:.75rem"></div>
+      <div style="text-align:right;margin-bottom:.75rem">
+        <button onclick="mostrarRecuperarSenha()" style="background:none;border:none;color:var(--accent);font-size:.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;text-decoration:underline">Esqueci minha senha</button>
+      </div>
       <button class="btn-submit" id="btn-login-submit" onclick="fazerLogin()">Entrar →</button>
+    </div>
+
+    <!-- RECUPERAR SENHA -->
+    <div id="form-recuperar" style="display:none">
+      <h2>Recuperar senha</h2>
+      <p>Digite seu e-mail e enviaremos um link para redefinir sua senha.</p>
+      <div class="form-group"><label>E-mail</label><input type="email" id="recuperar-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')enviarRecuperacao()" /></div>
+      <div class="modal-error" id="recuperar-error"></div>
+      <div id="recuperar-success" style="display:none;background:#e8f5e9;color:#2e7d32;border-radius:8px;padding:.75rem 1rem;font-size:.88rem;margin-bottom:.75rem"></div>
+      <button class="btn-submit" id="btn-recuperar-submit" onclick="enviarRecuperacao()">Enviar link →</button>
+      <div style="text-align:center;margin-top:1rem">
+        <button onclick="voltarParaLogin()" style="background:none;border:none;color:var(--ink-3);font-size:.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0">← Voltar ao login</button>
+      </div>
     </div>
 
     <!-- CADASTRO -->
@@ -655,6 +673,54 @@ document.addEventListener('click', (e) => {
     }
   }
 });
+
+function mostrarRecuperarSenha() {
+  document.getElementById('form-login').style.display = 'none';
+  document.getElementById('form-recuperar').style.display = 'block';
+  document.getElementById('recuperar-error').textContent = '';
+  document.getElementById('recuperar-success').style.display = 'none';
+  setTimeout(() => document.getElementById('recuperar-email').focus(), 100);
+}
+
+function voltarParaLogin() {
+  document.getElementById('form-recuperar').style.display = 'none';
+  document.getElementById('form-login').style.display = 'block';
+}
+
+async function enviarRecuperacao() {
+  const email = document.getElementById('recuperar-email').value.trim();
+  const btn = document.getElementById('btn-recuperar-submit');
+  const err = document.getElementById('recuperar-error');
+  const suc = document.getElementById('recuperar-success');
+
+  err.textContent = '';
+  suc.style.display = 'none';
+
+  if (!email) {
+    err.textContent = 'Digite seu e-mail.';
+    err.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/oportunia-integrado.html?reset=true'
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Enviar link →';
+
+  if (error) {
+    err.textContent = 'Erro ao enviar. Verifique o e-mail e tente novamente.';
+    err.classList.add('show');
+  } else {
+    suc.textContent = '✓ Link enviado! Verifique sua caixa de entrada (e o spam).';
+    suc.style.display = 'block';
+    err.classList.remove('show');
+  }
+}
 
 async function fazerLogin() {
   const email = document.getElementById('login-email').value.trim();
