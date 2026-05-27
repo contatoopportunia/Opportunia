@@ -513,6 +513,19 @@
   </div>
 </div>
 
+<!-- Modal Nova Senha -->
+<div class="modal-overlay" id="modal-nova-senha">
+  <div class="modal" style="position:relative;max-width:400px">
+    <h2 style="margin-bottom:0.5rem">Nova senha</h2>
+    <p style="color:var(--ink-3);font-size:0.9rem;margin-bottom:1.5rem">Digite e confirme sua nova senha.</p>
+    <div class="form-group"><label>Nova senha</label><input type="password" id="nova-senha-input" placeholder="Mínimo 6 caracteres" /></div>
+    <div class="form-group"><label>Confirmar senha</label><input type="password" id="nova-senha-confirma" placeholder="Repita a senha" /></div>
+    <div class="modal-error" id="nova-senha-error"></div>
+    <div class="modal-success" id="nova-senha-success"></div>
+    <button class="btn-submit" id="btn-nova-senha-submit" onclick="salvarNovaSenha()">Salvar nova senha →</button>
+  </div>
+</div>
+
 <script>
 // =============================================
 // SUPABASE CONFIG
@@ -585,6 +598,11 @@ async function verificarSessao() {
   }
 
   sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      // Abre modal de nova senha
+      document.getElementById('modal-nova-senha').classList.add('open');
+      return;
+    }
     if (session) {
       usuarioLogado = session.user;
       atualizarNavUsuario(session.user);
@@ -719,6 +737,37 @@ async function enviarRecuperacao() {
     suc.textContent = '✓ Link enviado! Verifique sua caixa de entrada (e o spam).';
     suc.style.display = 'block';
     err.classList.remove('show');
+  }
+}
+
+async function salvarNovaSenha() {
+  const senha = document.getElementById('nova-senha-input').value;
+  const confirma = document.getElementById('nova-senha-confirma').value;
+  const err = document.getElementById('nova-senha-error');
+  const suc = document.getElementById('nova-senha-success');
+  const btn = document.getElementById('btn-nova-senha-submit');
+
+  err.textContent = ''; suc.style.display = 'none';
+
+  if (!senha || senha.length < 6) { err.textContent = 'Senha deve ter no mínimo 6 caracteres.'; err.classList.add('show'); return; }
+  if (senha !== confirma) { err.textContent = 'As senhas não coincidem.'; err.classList.add('show'); return; }
+
+  btn.disabled = true; btn.textContent = 'Salvando...';
+
+  const { error } = await sb.auth.updateUser({ password: senha });
+
+  btn.disabled = false; btn.textContent = 'Salvar nova senha →';
+
+  if (error) {
+    err.textContent = 'Erro ao salvar senha. Tente novamente.';
+    err.classList.add('show');
+  } else {
+    suc.textContent = '✓ Senha atualizada com sucesso!';
+    suc.style.display = 'block';
+    err.classList.remove('show');
+    setTimeout(() => {
+      document.getElementById('modal-nova-senha').classList.remove('open');
+    }, 2000);
   }
 }
 
