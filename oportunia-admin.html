@@ -871,7 +871,7 @@ function renderVagas() {
         ? '<button class="btn-sm btn-blue" onclick="toggleDestaque(\'' + v.id + '\',true)">⭐ Destacar</button>'
         : '<button class="btn-sm btn-gray" onclick="toggleDestaque(\'' + v.id + '\',false)">Remover destaque</button>';
       const btnStatus = v.status === 'ativa'
-        ? '<button class="btn-sm btn-red" onclick="confirmar(\'Remover vaga\',\'Deseja remover esta vaga?\',\'vaga\',\'' + v.id + '\',\'encerrada\')">Remover</button>'
+        ? '<button class="btn-sm btn-gray" onclick="confirmar(\'Pausar vaga\',\'Deseja pausar esta vaga? Ela ficará invisível para candidatos.\',\'vaga\',\'' + v.id + '\',\'pausada\')">⏸ Pausar</button>'
         + '<button class="btn-sm btn-red" style="margin-left:4px" onclick="confirmar(\'Excluir permanentemente\',\'Esta ação é irreversível. Deseja excluir esta vaga?\',\'excluir_vaga\',\'' + v.id + '\',\'\')">🗑 Excluir</button>'
         : '<button class="btn-sm btn-green" onclick="acao(\'vaga\',\'' + v.id + '\',\'ativa\')">Reativar</button>';
       vagasHtml += '<div class="data-row" style="padding-left:2rem">'
