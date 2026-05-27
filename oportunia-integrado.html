@@ -21,7 +21,7 @@
     --border: rgba(15,17,23,0.1); --border-strong: rgba(15,17,23,0.2);
     --radius: 12px; --radius-sm: 8px; --radius-lg: 20px; --radius-pill: 100px;
   }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; overflow-x: hidden; }
   body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
 
   nav {
@@ -222,18 +222,29 @@
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
   @media (max-width: 768px) {
-    nav { padding: 1rem 1.25rem; }
+    nav { padding: 1rem 1.25rem; width: 100%; box-sizing: border-box; }
     .nav-links { display: none; }
+    .nav-links.open { display: flex; flex-direction: column; position: fixed; top: 60px; left: 0; right: 0; background: rgba(245,244,240,0.98); backdrop-filter: blur(12px); padding: 1.25rem; gap: 1rem; border-bottom: 1px solid var(--border); z-index: 99; }
+    .nav-links.open li { list-style: none; }
+    .nav-links.open a { font-size: 1rem; color: var(--ink-2); text-decoration: none; display: block; padding: 0.5rem 0; }
+    #nav-hamburger { display: flex !important; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+    #nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--ink); border-radius: 2px; }
+    #nav-user-area { display: none !important; }
+    #nav-mobile-entrar { display: flex !important; }
     .hero { padding: 5rem 1.25rem 3rem; }
     .hero-inner { grid-template-columns: 1fr; gap: 2rem; }
     .hero-right { display: none; }
     .hero-stats { gap: 1.25rem; }
-    .section { padding: 3.5rem 1.25rem; }
+    .section { padding: 3.5rem 1.25rem; max-width: 100%; }
     .how-section { padding: 3.5rem 1.25rem; }
+    .how-steps { grid-template-columns: 1fr !important; }
     .plans-grid { grid-template-columns: 1fr; max-width: 100%; }
     .cta-section { padding: 4rem 1.25rem; }
-    footer { padding: 2rem 1.25rem; flex-direction: column; align-items: flex-start; }
+    footer { padding: 2rem 1.25rem; flex-direction: column; align-items: center; text-align: center; }
+    .footer-links { justify-content: center; flex-wrap: wrap; }
   }
+  #nav-hamburger { display: none; }
+  #nav-mobile-entrar { display: none; }
 </style>
 </head>
 <body>
@@ -241,6 +252,10 @@
 <!-- NAV -->
 <nav>
   <a href="#" class="nav-logo">Opportu<span>nia</span><sup style="font-size:1rem;font-weight:500;vertical-align:super;letter-spacing:0;color:var(--ink-3);margin-left:2px">®</sup></a>
+  <button id="nav-mobile-entrar" onclick="openAuthModal('candidato')" style="display:none;padding:0.4rem 1rem;border-radius:100px;border:none;background:var(--ink);color:#fff;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;margin-left:auto;margin-right:0.75rem;">Entrar</button>
+  <button id="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
   <ul class="nav-links">
     <li><a href="oportunia-vagas.html">Vagas</a></li>
     <li><a href="#como-funciona">Como funciona</a></li>
@@ -514,6 +529,19 @@
   </div>
 </div>
 
+<!-- Modal Nova Senha -->
+<div class="modal-overlay" id="modal-nova-senha">
+  <div class="modal" style="position:relative;max-width:400px">
+    <h2 style="margin-bottom:0.5rem">Nova senha</h2>
+    <p style="color:var(--ink-3);font-size:0.9rem;margin-bottom:1.5rem">Digite e confirme sua nova senha.</p>
+    <div class="form-group"><label>Nova senha</label><input type="password" id="nova-senha-input" placeholder="Mínimo 6 caracteres" /></div>
+    <div class="form-group"><label>Confirmar senha</label><input type="password" id="nova-senha-confirma" placeholder="Repita a senha" /></div>
+    <div class="modal-error" id="nova-senha-error"></div>
+    <div class="modal-success" id="nova-senha-success"></div>
+    <button class="btn-submit" id="btn-nova-senha-submit" onclick="salvarNovaSenha()">Salvar nova senha →</button>
+  </div>
+</div>
+
 <script>
 // =============================================
 // SUPABASE CONFIG
@@ -531,6 +559,10 @@ let usuarioLogado = null;
 // INIT
 // =============================================
 document.addEventListener('DOMContentLoaded', async () => {
+  const hash = window.location.hash;
+  if (hash && hash.includes('type=recovery')) {
+    document.getElementById('modal-nova-senha').classList.add('open');
+  }
   await verificarSessao();
   await carregarVagas();
 
@@ -586,6 +618,10 @@ async function verificarSessao() {
   }
 
   sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      document.getElementById('modal-nova-senha').classList.add('open');
+      return;
+    }
     if (session) {
       usuarioLogado = session.user;
       atualizarNavUsuario(session.user);
@@ -996,6 +1032,38 @@ async function enviarCandidatura() {
 // =============================================
 // UI HELPERS
 // =============================================
+function toggleMenu() {
+  const links = document.querySelector('.nav-links');
+  links.classList.toggle('open');
+}
+
+async function salvarNovaSenha() {
+  const senha = document.getElementById('nova-senha-input').value;
+  const confirma = document.getElementById('nova-senha-confirma').value;
+  const err = document.getElementById('nova-senha-error');
+  const suc = document.getElementById('nova-senha-success');
+  const btn = document.getElementById('btn-nova-senha-submit');
+
+  err.textContent = ''; suc.style.display = 'none';
+
+  if (!senha || senha.length < 6) { err.textContent = 'Senha deve ter no mínimo 6 caracteres.'; err.classList.add('show'); return; }
+  if (senha !== confirma) { err.textContent = 'As senhas não coincidem.'; err.classList.add('show'); return; }
+
+  btn.disabled = true; btn.textContent = 'Salvando...';
+  const { error } = await sb.auth.updateUser({ password: senha });
+  btn.disabled = false; btn.textContent = 'Salvar nova senha →';
+
+  if (error) {
+    err.textContent = 'Erro ao salvar senha. Tente novamente.';
+    err.classList.add('show');
+  } else {
+    suc.textContent = '✓ Senha atualizada com sucesso!';
+    suc.style.display = 'block';
+    err.classList.remove('show');
+    setTimeout(() => document.getElementById('modal-nova-senha').classList.remove('open'), 2000);
+  }
+}
+
 function openAuthModal(tipo) {
   document.getElementById('modal-auth').classList.add('open');
   if (tipo === 'empresa') {
