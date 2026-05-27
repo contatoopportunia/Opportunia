@@ -1064,7 +1064,7 @@ async function acao(tipo, id, valor) {
     await sb.from('vagas').update({ status: valor }).eq('id', id);
     vagas = vagas.map(v => v.id === id ? { ...v, status: valor } : v);
     renderVagas(); atualizarMetrics();
-    showToast(valor === 'encerrada' ? 'Vaga removida.' : '✓ Vaga reativada.');
+    showToast(valor === 'pausada' ? '⏸ Vaga pausada.' : valor === 'encerrada' ? 'Vaga encerrada.' : '✓ Vaga reativada.');
   }
   fecharModal();
 }
