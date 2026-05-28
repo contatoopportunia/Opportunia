@@ -315,6 +315,9 @@
     .form-row { grid-template-columns: 1fr !important; }
     .table-head { display: none; }
     .table-row { grid-template-columns: 1fr !important; gap: 0.5rem; }
+    .cand-actions { flex-wrap: wrap; gap: 0.4rem; }
+    .recent-cand-item { flex-direction: column; align-items: flex-start !important; gap: 0.75rem; }
+    .recent-cand-item .cand-actions { width: 100%; }
   }
 </style>
 <!-- Google tag (gtag.js) -->
@@ -1152,6 +1155,7 @@ function mostrarPainel() {
   const mn = document.getElementById('mob-nav');
   if(window.innerWidth > 768) { if(sb) sb.style.display = 'flex'; }
   else { if(mn) mn.style.display = 'flex'; }
+  iniciarMobNav();
 
   // Redireciona para página correta se vier da home com ?page=
   const params = new URLSearchParams(window.location.search);
@@ -2811,32 +2815,14 @@ function tempoRelativo(dateStr) {
 </script>
 
 <script>
-(function(){
-  var btn = document.getElementById('mob-btn');
-  var overlay = document.getElementById('mob-overlay');
-  var sidebar = document.getElementById('sidebar');
-  if(btn) btn.addEventListener('click', function(){
-    sidebar.classList.toggle('mob-open');
-    overlay.classList.toggle('show');
-  });
-  if(overlay) overlay.addEventListener('click', function(){
-    sidebar.classList.remove('mob-open');
-    overlay.classList.remove('show');
-  });
-})();
-</script>
-
-<script>
 function closeMobMenu() {
   var s = document.getElementById('sidebar');
   var o = document.getElementById('mob-overlay');
   if(s) s.classList.remove('mob-open');
   if(o) o.classList.remove('show');
 }
-</script>
 
-<script>
-(function(){
+function iniciarMobNav() {
   var btn = document.getElementById('mob-btn');
   var overlay = document.getElementById('mob-overlay');
   var sidebar = document.getElementById('sidebar');
@@ -2846,7 +2832,7 @@ function closeMobMenu() {
   });
   if(overlay) overlay.addEventListener('click', function(){
     if(sidebar) sidebar.classList.remove('mob-open');
-    overlay.classList.remove('show');
+    if(overlay) overlay.classList.remove('show');
   });
 })();
 </script>
