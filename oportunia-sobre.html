@@ -184,7 +184,7 @@
     <li><a href="oportunia-sobre.html">Sobre nós</a></li>
     <li class="nav-mobile-only" id="nav-mobile-entrar-li"><a href="oportunia-integrado.html?login=true" style="font-weight:500;color:var(--accent);" id="nav-mobile-entrar-link">Entrar / Cadastrar</a></li>
   </ul>
-  <div id="nav-user-area">
+  <div id="nav-user-area" style="visibility:hidden">
     <a href="oportunia-integrado.html?login=true" class="nav-cta" id="btn-entrar">Entrar / Cadastrar</a>
   </div>
 </nav>
@@ -338,13 +338,7 @@ carregarStats();
 </script>
 
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = 'https://lvexahtskdhgujwrlkex.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_AvhhaT_r4vsz3iuiZpZ3AA_zW7rxPo4';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
-
 function toggleMenu() {
   document.querySelector('.nav-links').classList.toggle('open');
 }
@@ -356,14 +350,17 @@ async function fazerLogout() {
 
 async function iniciarNav() {
   const { data: { session } } = await sb.auth.getSession();
+  const area = document.getElementById('nav-user-area');
   if (session) {
-    atualizarNavUsuario(session.user);
+    await atualizarNavUsuario(session.user);
   }
+  if (area) area.style.visibility = 'visible';
   sb.auth.onAuthStateChange((event, session) => {
     if (session) {
       atualizarNavUsuario(session.user);
     } else {
       document.getElementById('nav-user-area').innerHTML = `<a href="oportunia-integrado.html?login=true" class="nav-cta">Entrar / Cadastrar</a>`;
+      document.getElementById('nav-user-area').style.visibility = 'visible';
       const mobileLink = document.getElementById('nav-mobile-entrar-li');
       if (mobileLink) mobileLink.style.display = 'list-item';
     }
