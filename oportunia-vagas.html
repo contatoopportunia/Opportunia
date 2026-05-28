@@ -179,9 +179,11 @@
     #nav-hamburger { display: flex !important; }
     .nav-nome-desktop { display: none; }
 
-    /* No mobile: logo | [nav-links] | balão | hamburguer */
+    /* No mobile: logo | espaço | hamburguer | balão */
     nav { display: flex; align-items: center; }
-    #nav-user-area { margin-left: auto; margin-right: 0.75rem; }
+    #nav-links { flex: 1; }
+    #nav-hamburger { margin-left: auto; }
+    #nav-user-area { margin-left: 0.75rem; }
     #nav-user-area .nav-cta { padding: 0.4rem 1rem; font-size: 0.82rem; }
 
     /* Page header */
@@ -235,12 +237,12 @@
     <li><a href="oportunia-integrado.html#para-empresas">Para empresas</a></li>
     <li><a href="oportunia-sobre.html">Sobre nós</a></li>
   </ul>
-  <div id="nav-user-area" style="visibility:hidden">
-    <button onclick="openAuthModal('candidato')" class="nav-cta" id="btn-entrar">Entrar</button>
-  </div>
   <button id="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
+  <div id="nav-user-area" style="visibility:hidden">
+    <button onclick="openAuthModal('candidato')" class="nav-cta" id="btn-entrar">Entrar</button>
+  </div>
 </nav>
 
 <!-- PAGE HEADER -->
