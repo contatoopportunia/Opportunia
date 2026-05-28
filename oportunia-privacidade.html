@@ -102,10 +102,9 @@
     <li><a href="oportunia-integrado.html#como-funciona">Como funciona</a></li>
     <li><a href="oportunia-integrado.html#planos">Para empresas</a></li>
     <li><a href="oportunia-sobre.html">Sobre nós</a></li>
-    <li class="nav-mobile-only" id="nav-mobile-entrar-li"><a href="oportunia-integrado.html?login=true" style="font-weight:500;color:var(--accent);" id="nav-mobile-entrar-link">Entrar / Cadastrar</a></li>
   </ul>
   <div id="nav-user-area" style="visibility:hidden">
-    <a href="oportunia-integrado.html?login=true" class="nav-cta" id="btn-entrar">Entrar / Cadastrar</a>
+    <a href="oportunia-integrado.html?login=true" class="nav-cta" id="btn-entrar">Entrar</a>
   </div>
 </nav>
 
@@ -235,7 +234,7 @@ async function iniciarNav() {
     if (session) {
       atualizarNavUsuario(session.user);
     } else {
-      document.getElementById('nav-user-area').innerHTML = `<a href="oportunia-integrado.html?login=true" class="nav-cta">Entrar / Cadastrar</a>`;
+      document.getElementById('nav-user-area').innerHTML = `<a href="oportunia-integrado.html?login=true" class="nav-cta">Entrar</a>`;
       document.getElementById('nav-user-area').style.visibility = 'visible';
       const mobileLink = document.getElementById('nav-mobile-entrar-li');
       if (mobileLink) mobileLink.style.display = 'list-item';

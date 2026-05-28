@@ -277,7 +277,7 @@
     <li><a href="oportunia-sobre.html">Sobre nós</a></li>
   </ul>
   <div id="nav-user-area">
-    <button class="nav-cta" id="btn-login" onclick="openAuthModal('candidato')">Entrar / Cadastrar</button>
+    <button class="nav-cta" id="btn-login" onclick="openAuthModal('candidato')">Entrar</button>
   </div>
 </nav>
 
@@ -314,6 +314,9 @@
     <div class="how-step"><div class="step-num">02</div><div class="step-title">Publique a vaga</div><p class="step-desc">Formulário simples. Vagas com salário recebem 3x mais candidaturas.</p></div>
     <div class="how-step"><div class="step-num">03</div><div class="step-title">Receba candidatos</div><p class="step-desc">Cada candidatura vem com um score de aderência de 0 a 100%, calculado automaticamente com base no perfil e nos requisitos da vaga.</p></div>
     <div class="how-step"><div class="step-num">04</div><div class="step-title">Contrate mais rápido</div><p class="step-desc">Candidatos locais e motivados. Reduza seu ciclo de contratação.</p></div>
+  </div>
+  <div style="text-align:center;margin-top:2.5rem">
+    <button onclick="openAuthModal('candidato')" style="background:#e8440a;color:#fff;border:none;padding:0.85rem 0;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:400;cursor:pointer;transition:background 0.2s;width:100%;max-width:380px" onmouseover="this.style.background='#c73508'" onmouseout="this.style.background='#e8440a'">Criar perfil grátis →</button>
   </div>
 </section>
 
@@ -660,7 +663,7 @@ async function verificarSessao() {
       }
     } else {
       usuarioLogado = null;
-      document.getElementById('nav-user-area').innerHTML = `<button class="nav-cta" id="btn-login" onclick="openAuthModal('candidato')">Entrar / Cadastrar</button>`;
+      document.getElementById('nav-user-area').innerHTML = `<button class="nav-cta" id="btn-login" onclick="openAuthModal('candidato')">Entrar</button>`;
     }
   });
 }
