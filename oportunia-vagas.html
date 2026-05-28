@@ -158,6 +158,61 @@
   .modal-error.show { display: block; }
   .modal-success { color: var(--green); font-size: 0.82rem; margin-top: 0.5rem; background: var(--green-light); padding: 0.6rem 0.75rem; border-radius: 8px; display: none; }
   .modal-success.show { display: block; }
+
+  /* HAMBURGUER */
+  #nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+  #nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--ink); border-radius: 2px; }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    nav { padding: 0.9rem 1.25rem; gap: 0.5rem; }
+    .nav-links { display: none; }
+    .nav-links.open {
+      display: flex; flex-direction: column;
+      position: fixed; top: 57px; left: 0; right: 0;
+      background: rgba(245,244,240,0.98); backdrop-filter: blur(12px);
+      padding: 1.25rem; gap: 0.75rem;
+      border-bottom: 1px solid var(--border); z-index: 99;
+    }
+    .nav-links.open li { list-style: none; }
+    .nav-links.open a { font-size: 1rem; color: var(--ink-2); text-decoration: none; display: block; padding: 0.4rem 0; }
+    #nav-hamburger { display: flex !important; }
+
+    /* No mobile: logo + hamburger + botão entrar lado a lado */
+    nav { display: flex; align-items: center; }
+    #nav-user-area { margin-left: auto; margin-right: 0.75rem; }
+    #nav-user-area .nav-cta { padding: 0.4rem 1rem; font-size: 0.82rem; }
+
+    /* Page header */
+    .page-header { padding: 5rem 1.25rem 1.5rem; }
+    .page-header h1 { font-size: 1.4rem; }
+
+    /* Search bar: coluna */
+    .search-bar { flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
+    .search-input-wrap { min-width: unset; width: 100%; }
+
+    /* Selects em grid 2x2 */
+    .filter-select { width: 100%; }
+    .search-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .search-input-wrap { grid-column: 1 / -1; }
+    .btn-buscar { grid-column: 1 / -1; width: 100%; padding: 0.7rem; }
+    .btn-limpar { grid-column: 1 / -1; width: 100%; }
+
+    /* Main */
+    .main { padding: 1.5rem 1.25rem 3rem; }
+
+    /* Grid 1 coluna */
+    .jobs-grid { grid-template-columns: 1fr; }
+
+    /* Results bar */
+    .results-bar { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .sort-wrap { width: 100%; }
+    .sort-select { flex: 1; }
+
+    /* Footer */
+    footer { flex-direction: column; align-items: center; text-align: center; padding: 2rem 1.25rem; }
+    .footer-links { justify-content: center; flex-wrap: wrap; }
+  }
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2W3WST0JQK"></script>
@@ -173,7 +228,7 @@
 <!-- NAV -->
 <nav>
   <a href="oportunia-integrado.html" class="nav-logo">Opportu<span>nia</span><sup style="font-size:1rem;font-weight:500;vertical-align:super;letter-spacing:0;color:var(--ink-3);margin-left:1px">®</sup></a>
-  <ul class="nav-links">
+  <ul class="nav-links" id="nav-links">
     <li><a href="oportunia-vagas.html" style="color:var(--accent);font-weight:500">Vagas</a></li>
     <li><a href="oportunia-integrado.html#como-funciona">Como funciona</a></li>
     <li><a href="oportunia-integrado.html#para-empresas">Para empresas</a></li>
@@ -182,6 +237,9 @@
   <div id="nav-user-area" style="visibility:hidden">
     <button onclick="openAuthModal('candidato')" class="nav-cta" id="btn-entrar">Entrar</button>
   </div>
+  <button id="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- PAGE HEADER -->
@@ -762,6 +820,10 @@ async function criarConta() {
 }
 
 iniciarNav();
+
+function toggleMenu() {
+  document.getElementById('nav-links').classList.toggle('open');
+}
 </script>
 </body>
 </html>
