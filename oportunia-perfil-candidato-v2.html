@@ -29,9 +29,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
 function toggleMobMenu(){
-  const sb = document.getElementById('sb');
+  const sidebarEl = document.getElementById('sb');
   const overlay = document.getElementById('mob-overlay');
-  sb.classList.toggle('mob-open');
+  sidebarEl.classList.toggle('mob-open');
   overlay.classList.toggle('show');
 }
 function closeMobMenu(){
@@ -204,7 +204,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   .mob-nav{display:none}
   .mob-overlay{display:none!important}
 }
-@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;padding:1.25rem;max-width:100%}.fg,.fg3,.mg2{grid-template-columns:1fr}}
+@media(max-width:900px){.sidebar{display:none}.main{overflow-x:hidden;max-width:100vw}.main{margin-left:0;padding:1.25rem;max-width:100%}.fg,.fg3,.mg2{grid-template-columns:1fr}}
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2W3WST0JQK"></script>
