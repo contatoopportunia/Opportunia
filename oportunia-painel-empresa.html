@@ -2197,6 +2197,7 @@ function filtrarCands(vagaId, filtro, btn) {
 
 function confirmarExcluirCand(candId, nome) {
   const modal = document.createElement('div');
+  modal.id = 'modal-excluir-cand';
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,17,23,.6);z-index:400;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
   modal.innerHTML = `
     <div style="background:#fff;border-radius:20px;padding:2rem;max-width:420px;width:90%;text-align:center">
@@ -2205,8 +2206,8 @@ function confirmarExcluirCand(candId, nome) {
       <p style="font-size:.88rem;color:var(--ink-2);line-height:1.6;margin-bottom:.5rem">Antes de excluir, <strong>lembre-se de dar um retorno ao candidato!</strong></p>
       <p style="font-size:.82rem;color:var(--ink-3);margin-bottom:1.5rem">Candidatos que recebem feedback têm uma experiência melhor e isso fortalece a reputação da sua empresa.</p>
       <div style="display:flex;gap:.75rem;justify-content:center">
-        <button onclick="this.closest('[style*=fixed]').remove()" style="padding:.65rem 1.5rem;border-radius:100px;border:1px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer">Cancelar</button>
-        <button onclick="excluirCand('${candId}');this.closest('[style*=fixed]').remove()" style="padding:.65rem 1.5rem;border-radius:100px;border:none;background:var(--red);color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer">Excluir mesmo assim</button>
+        <button onclick="document.getElementById('modal-excluir-cand').remove()" style="padding:.65rem 1.5rem;border-radius:100px;border:1px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer">Cancelar</button>
+        <button onclick="document.getElementById('modal-excluir-cand').remove();excluirCand('${candId}')" style="padding:.65rem 1.5rem;border-radius:100px;border:none;background:var(--red);color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer">Excluir mesmo assim</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
