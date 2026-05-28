@@ -299,6 +299,15 @@
     .mob-overlay.show { display: block; }
     .sidebar.mob-open { display: flex !important; position: fixed; top: 0; left: 0; bottom: 0; width: 260px; z-index: 150; }
   }
+
+  @media(max-width:768px) {
+    .main { margin-left: 0 !important; padding: 0 !important; }
+    .page { padding: 1.25rem; }
+    .top-bar { flex-direction: column; gap: 0.75rem; }
+    .top-bar button { width: 100%; }
+    .metrics { grid-template-columns: 1fr 1fr !important; }
+    .dash-grid { grid-template-columns: 1fr !important; }
+  }
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2W3WST0JQK"></script>
@@ -372,6 +381,13 @@
 
 <!-- MAIN -->
 <main class="main" id="main-area" style="display:none">
+<div class="mob-overlay" id="mob-overlay"></div>
+<div class="mob-nav" id="mob-nav">
+  <a href="oportunia-integrado.html" class="mob-nav-logo">Opportu<span>nia</span></a>
+  <button class="mob-hamburger" id="mob-btn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</div>
 
   <!-- DASHBOARD -->
   <div class="page active" id="page-dashboard">
@@ -2809,6 +2825,22 @@ function closeMobMenu() {
   if(s) s.classList.remove('mob-open');
   if(o) o.classList.remove('show');
 }
+</script>
+
+<script>
+(function(){
+  var btn = document.getElementById('mob-btn');
+  var overlay = document.getElementById('mob-overlay');
+  var sidebar = document.getElementById('sidebar');
+  if(btn) btn.addEventListener('click', function(){
+    if(sidebar) sidebar.classList.toggle('mob-open');
+    if(overlay) overlay.classList.toggle('show');
+  });
+  if(overlay) overlay.addEventListener('click', function(){
+    if(sidebar) sidebar.classList.remove('mob-open');
+    overlay.classList.remove('show');
+  });
+})();
 </script>
 </body>
 </html>
