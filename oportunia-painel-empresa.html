@@ -1123,9 +1123,9 @@ function mostrarLoginGate() {
 
 function mostrarPainel() {
   document.getElementById('login-gate').style.display = 'none';
-  if(window.innerWidth > 768) document.getElementById('sidebar').style.display = 'flex';
-  else document.getElementById('mob-nav').style.display = 'flex';
   document.getElementById('main-area').style.display = 'block';
+  if(window.innerWidth > 768) document.getElementById('sidebar').style.display = 'flex';
+  else { const mn = document.getElementById('mob-nav'); if(mn) mn.style.display = 'flex'; }
 
   // Redireciona para página correta se vier da home com ?page=
   const params = new URLSearchParams(window.location.search);
