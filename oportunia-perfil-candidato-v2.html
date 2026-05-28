@@ -241,7 +241,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   </div>
   <div class="s-sec">Meu perfil</div>
   <ul class="s-nav">
-    <li><a class="active" onclick="sp('ap')"><span class="s-icon">👤</span> Apresentação <span class="s-dot" id="ca">○</span></a></li>
+    <li><a class="active" onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('ap')"><span class="s-icon">👤</span> Apresentação <span class="s-dot" id="ca">○</span></a></li>
     <li><a onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('dd')"><span class="s-icon">📋</span> Dados pessoais <span class="s-dot" id="cd">○</span></a></li>
     <li><a onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('ex')"><span class="s-icon">💼</span> Experiências <span class="s-dot" id="ce">○</span></a></li>
     <li><a onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('fo')"><span class="s-icon">🎓</span> Formação <span class="s-dot" id="cf">○</span></a></li>
