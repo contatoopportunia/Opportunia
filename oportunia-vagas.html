@@ -177,8 +177,9 @@
     .nav-links.open li { list-style: none; }
     .nav-links.open a { font-size: 1rem; color: var(--ink-2); text-decoration: none; display: block; padding: 0.4rem 0; }
     #nav-hamburger { display: flex !important; }
+    .nav-nome-desktop { display: none; }
 
-    /* No mobile: logo + hamburger + botão entrar lado a lado */
+    /* No mobile: logo | [nav-links] | balão | hamburguer */
     nav { display: flex; align-items: center; }
     #nav-user-area { margin-left: auto; margin-right: 0.75rem; }
     #nav-user-area .nav-cta { padding: 0.4rem 1rem; font-size: 0.82rem; }
@@ -719,7 +720,7 @@ async function atualizarNavUsuario(user) {
     <div style="position:relative" id="nav-dd-wrap">
       <button onclick="document.getElementById('nav-dd').style.display=document.getElementById('nav-dd').style.display==='block'?'none':'block'" style="display:flex;align-items:center;gap:.5rem;padding:.5rem 1rem;border-radius:100px;border:1px solid rgba(15,17,23,.2);background:#fff;font-family:'DM Sans',sans-serif;font-size:.88rem;color:#0f1117;cursor:pointer">
         <span style="width:26px;height:26px;border-radius:50%;background:#e8eef8;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#1a3c6e">${iniciais}</span>
-        ${nome.split(' ')[0]} ▾
+        <span class="nav-nome-desktop">${nome.split(' ')[0]}</span> ▾
       </button>
       <div id="nav-dd" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid rgba(15,17,23,.1);border-radius:12px;padding:.5rem;min-width:200px;box-shadow:0 8px 24px rgba(15,17,23,.12);z-index:200">
         <div style="padding:.5rem .75rem .4rem;font-size:.75rem;color:#7a7f94">${email}</div>
