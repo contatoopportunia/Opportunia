@@ -581,6 +581,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('modal-nova-senha').classList.add('open');
   }
   await verificarSessao();
+
+// Abre modal de login se vier de outra página com ?login=true
+if (new URLSearchParams(window.location.search).get('login') === 'true') {
+  window.addEventListener('load', async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      setTimeout(() => openAuthModal('candidato'), 300);
+    }
+  });
+}
   await carregarVagas();
 
   document.getElementById('search-input').addEventListener('keydown', e => {
