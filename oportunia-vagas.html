@@ -135,6 +135,29 @@
   .footer-links { display: flex; gap: 1.5rem; }
   .footer-links a { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
   .footer-links a:hover { color: var(--white); }
+
+  /* MODAL AUTH */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,17,23,0.6); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: var(--radius-lg); padding: 2.5rem; max-width: 420px; width: 90%; animation: fadeUp 0.25s ease; }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+  .modal-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+  .modal-tab { flex: 1; text-align: center; padding: 0.6rem; font-size: 0.88rem; color: var(--ink-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+  .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+  .modal h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.4rem; margin-bottom: 0.25rem; }
+  .modal p { font-size: 0.85rem; color: var(--ink-3); margin-bottom: 1.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 500; margin-bottom: 0.35rem; color: var(--ink-2); }
+  .form-group input, .form-group select { width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-strong); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--ink); background: var(--white); outline: none; transition: border-color 0.15s; }
+  .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+  .btn-submit { width: 100%; padding: 0.85rem; border-radius: var(--radius-pill); border: none; background: var(--accent); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
+  .btn-submit:hover { background: #c73508; }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+  .modal-close { position: absolute; top: 1rem; right: 1rem; background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; color: var(--ink-3); }
+  .modal-error { color: #b91c1c; font-size: 0.82rem; margin-top: 0.5rem; background: #fde8e8; padding: 0.6rem 0.75rem; border-radius: 8px; display: none; }
+  .modal-error.show { display: block; }
+  .modal-success { color: var(--green); font-size: 0.82rem; margin-top: 0.5rem; background: var(--green-light); padding: 0.6rem 0.75rem; border-radius: 8px; display: none; }
+  .modal-success.show { display: block; }
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2W3WST0JQK"></script>
@@ -156,8 +179,8 @@
     <li><a href="oportunia-integrado.html#para-empresas">Para empresas</a></li>
     <li><a href="oportunia-sobre.html">Sobre nós</a></li>
   </ul>
-  <div id="nav-user-area">
-    <a href="oportunia-integrado.html" class="nav-cta">← Voltar à home</a>
+  <div id="nav-user-area" style="visibility:hidden">
+    <button onclick="openAuthModal('candidato')" class="nav-cta" id="btn-entrar">Entrar</button>
   </div>
 </nav>
 
@@ -534,6 +557,62 @@ function tempoRelativo(d) {
 lerUrlParams();
 carregarVagas();
 </script>
+<!-- MODAL AUTH -->
+<div class="modal-overlay" id="modal-auth" onclick="if(event.target===this)closeAuthModal()">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    <div class="modal-tabs">
+      <div class="modal-tab active" id="tab-login" onclick="switchAuthTab('login')">Entrar</div>
+      <div class="modal-tab" id="tab-cadastro" onclick="switchAuthTab('cadastro')">Criar conta</div>
+    </div>
+    <!-- LOGIN -->
+    <div id="form-login">
+      <h2>Bem-vindo de volta</h2>
+      <p>Entre na sua conta Opportunia</p>
+      <div class="form-group"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')document.getElementById('login-senha').focus()" /></div>
+      <div class="form-group"><label>Senha</label><input type="password" id="login-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()" /></div>
+      <div class="modal-error" id="login-error"></div>
+      <div style="text-align:right;margin-bottom:.75rem">
+        <button onclick="mostrarRecuperarSenha()" style="background:none;border:none;color:var(--accent);font-size:.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;text-decoration:underline">Esqueci minha senha</button>
+      </div>
+      <button class="btn-submit" id="btn-login-submit" onclick="fazerLogin()">Entrar →</button>
+    </div>
+    <!-- RECUPERAR SENHA -->
+    <div id="form-recuperar" style="display:none">
+      <h2>Recuperar senha</h2>
+      <p>Digite seu e-mail e enviaremos um link para redefinir sua senha.</p>
+      <div class="form-group"><label>E-mail</label><input type="email" id="recuperar-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')enviarRecuperacao()" /></div>
+      <div class="modal-error" id="recuperar-error"></div>
+      <div id="recuperar-success" style="display:none;background:#e8f5e9;color:#2e7d32;border-radius:8px;padding:.75rem 1rem;font-size:.88rem;margin-bottom:.75rem"></div>
+      <button class="btn-submit" id="btn-recuperar-submit" onclick="enviarRecuperacao()">Enviar link →</button>
+      <div style="text-align:center;margin-top:1rem">
+        <button onclick="voltarParaLogin()" style="background:none;border:none;color:var(--ink-3);font-size:.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0">← Voltar ao login</button>
+      </div>
+    </div>
+    <!-- CADASTRO -->
+    <div id="form-cadastro" style="display:none">
+      <h2>Criar sua conta</h2>
+      <p>Gratuito para candidatos · sempre</p>
+      <div class="form-group"><label>Tipo de conta</label>
+        <select id="tipo-conta">
+          <option value="candidato">Sou candidato</option>
+          <option value="empresa">Sou empresa</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Nome completo / Empresa</label><input type="text" id="cad-nome" placeholder="Seu nome ou nome da empresa" /></div>
+      <div class="form-group"><label>E-mail</label><input type="email" id="cad-email" placeholder="seu@email.com" /></div>
+      <div class="form-group"><label>Senha</label><input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres" /></div>
+      <div class="modal-error" id="cad-error"></div>
+      <div class="modal-success" id="cad-success"></div>
+      <label style="display:flex;align-items:flex-start;gap:0.6rem;font-size:0.82rem;color:var(--ink-3);cursor:pointer;margin-bottom:0.5rem">
+        <input type="checkbox" id="aceite-termos" style="margin-top:3px;flex-shrink:0;accent-color:var(--accent)" />
+        <span>Li e aceito os <a href="oportunia-termos.html" target="_blank" style="color:var(--accent)">Termos de Uso</a> e a <a href="oportunia-privacidade.html" target="_blank" style="color:var(--accent)">Política de Privacidade</a></span>
+      </label>
+      <button class="btn-submit" id="btn-cad-submit" onclick="criarConta()">Criar conta grátis →</button>
+    </div>
+  </div>
+</div>
+
 <footer>
   <div class="footer-logo">Opportu<span>nia</span><sup style="font-size:0.95rem;font-weight:500;vertical-align:super;letter-spacing:0;color:rgba(255,255,255,0.35);margin-left:2px">®</sup></div>
   <div class="footer-links">
@@ -544,5 +623,146 @@ carregarVagas();
   </div>
   <div style="font-size:0.8rem;text-align:center"><div>© 2026 Opportunia® · Bauru, SP</div><div>Todos os direitos reservados.</div></div>
 </footer>
+
+<script>
+// NAV AUTH
+async function iniciarNav() {
+  const { data: { session } } = await sb.auth.getSession();
+  const area = document.getElementById('nav-user-area');
+  if (session) {
+    await atualizarNavUsuario(session.user);
+  } else {
+    area.innerHTML = `<button onclick="openAuthModal('candidato')" class="nav-cta">Entrar</button>`;
+  }
+  if (area) area.style.visibility = 'visible';
+  sb.auth.onAuthStateChange((event, session) => {
+    if (session) {
+      atualizarNavUsuario(session.user);
+    } else {
+      document.getElementById('nav-user-area').innerHTML = `<button onclick="openAuthModal('candidato')" class="nav-cta">Entrar</button>`;
+      document.getElementById('nav-user-area').style.visibility = 'visible';
+    }
+  });
+}
+
+async function atualizarNavUsuario(user) {
+  const email = user.email || '';
+  const tipo = user.user_metadata?.tipo || 'candidato';
+  let nome = user.user_metadata?.nome || email.split('@')[0];
+  let iniciais = nome.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+  const isAdmin = email === 'caueokiyama.adm@gmail.com';
+  const destino1 = isAdmin ? 'oportunia-admin.html' : tipo === 'empresa' ? 'oportunia-painel-empresa.html' : 'oportunia-perfil-candidato-v2.html';
+  const destino2 = isAdmin ? 'oportunia-admin.html?page=vagas' : tipo === 'empresa' ? 'oportunia-painel-empresa.html?page=vagas' : 'oportunia-perfil-candidato-v2.html?page=candidaturas';
+  const destino3 = tipo === 'empresa' ? 'oportunia-painel-empresa.html?page=candidatos' : null;
+  const label1 = isAdmin ? '🔐 Painel Admin' : tipo === 'empresa' ? '📊 Painel da empresa' : '👤 Meu perfil';
+  const label2 = isAdmin ? '📊 Dashboard' : tipo === 'empresa' ? '📋 Minhas vagas' : '📋 Minhas candidaturas';
+  const label3 = isAdmin ? null : tipo === 'empresa' ? '👥 Candidatos' : null;
+  document.getElementById('nav-user-area').innerHTML = `
+    <div style="position:relative" id="nav-dd-wrap">
+      <button onclick="document.getElementById('nav-dd').style.display=document.getElementById('nav-dd').style.display==='block'?'none':'block'" style="display:flex;align-items:center;gap:.5rem;padding:.5rem 1rem;border-radius:100px;border:1px solid rgba(15,17,23,.2);background:#fff;font-family:'DM Sans',sans-serif;font-size:.88rem;color:#0f1117;cursor:pointer">
+        <span style="width:26px;height:26px;border-radius:50%;background:#e8eef8;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#1a3c6e">${iniciais}</span>
+        ${nome.split(' ')[0]} ▾
+      </button>
+      <div id="nav-dd" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid rgba(15,17,23,.1);border-radius:12px;padding:.5rem;min-width:200px;box-shadow:0 8px 24px rgba(15,17,23,.12);z-index:200">
+        <div style="padding:.5rem .75rem .4rem;font-size:.75rem;color:#7a7f94">${email}</div>
+        <div style="height:1px;background:rgba(15,17,23,.1);margin:.4rem 0"></div>
+        <button onclick="window.location.href='${destino1}'" style="display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;border-radius:8px;font-size:.88rem;color:#3a3d4a;cursor:pointer;width:100%;border:none;background:none;text-align:left;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#f5f4f0'" onmouseout="this.style.background='none'">${label1}</button>
+        <button onclick="window.location.href='${destino2}'" style="display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;border-radius:8px;font-size:.88rem;color:#3a3d4a;cursor:pointer;width:100%;border:none;background:none;text-align:left;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#f5f4f0'" onmouseout="this.style.background='none'">${label2}</button>
+        ${label3 ? `<button onclick="window.location.href='${destino3}'" style="display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;border-radius:8px;font-size:.88rem;color:#3a3d4a;cursor:pointer;width:100%;border:none;background:none;text-align:left;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#f5f4f0'" onmouseout="this.style.background='none'">${label3}</button>` : ''}
+        <div style="height:1px;background:rgba(15,17,23,.1);margin:.4rem 0"></div>
+        <button onclick="fazerLogout()" style="display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;border-radius:8px;font-size:.88rem;color:#b91c1c;cursor:pointer;width:100%;border:none;background:none;text-align:left;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#fde8e8'" onmouseout="this.style.background='none'">🚪 Sair da conta</button>
+      </div>
+    </div>
+  `;
+  setTimeout(() => {
+    document.addEventListener('click', function closeDD(e) {
+      const wrap = document.getElementById('nav-dd-wrap');
+      const dd = document.getElementById('nav-dd');
+      if (wrap && !wrap.contains(e.target)) { if (dd) dd.style.display = 'none'; }
+    });
+  }, 100);
+}
+
+async function fazerLogout() {
+  await sb.auth.signOut();
+  window.location.reload();
+}
+
+// MODAL AUTH
+function openAuthModal(tipo) {
+  document.getElementById('modal-auth').classList.add('open');
+  if (tipo === 'empresa') { switchAuthTab('cadastro'); document.getElementById('tipo-conta').value = 'empresa'; }
+  else { switchAuthTab('login'); }
+}
+function closeAuthModal() { document.getElementById('modal-auth').classList.remove('open'); }
+function switchAuthTab(tab) {
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-recuperar').style.display = 'none';
+  document.getElementById('form-cadastro').style.display = tab === 'cadastro' ? 'block' : 'none';
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-cadastro').classList.toggle('active', tab === 'cadastro');
+}
+function mostrarRecuperarSenha() { document.getElementById('form-login').style.display = 'none'; document.getElementById('form-recuperar').style.display = 'block'; }
+function voltarParaLogin() { document.getElementById('form-recuperar').style.display = 'none'; document.getElementById('form-login').style.display = 'block'; }
+function mostrarErroModal(el, msg) { el.textContent = msg; el.classList.add('show'); }
+
+async function enviarRecuperacao() {
+  const email = document.getElementById('recuperar-email').value.trim();
+  const btn = document.getElementById('btn-recuperar-submit');
+  const err = document.getElementById('recuperar-error');
+  const suc = document.getElementById('recuperar-success');
+  err.textContent = ''; suc.style.display = 'none';
+  if (!email) { err.textContent = 'Digite seu e-mail.'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://www.opportunia.com.br/oportunia-integrado.html?reset=true' });
+  btn.disabled = false; btn.textContent = 'Enviar link →';
+  if (error) { err.textContent = 'Erro ao enviar. Verifique o e-mail e tente novamente.'; err.classList.add('show'); }
+  else { suc.textContent = '✓ Link enviado! Verifique sua caixa de entrada (e o spam).'; suc.style.display = 'block'; err.classList.remove('show'); }
+}
+
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const btn = document.getElementById('btn-login-submit');
+  const err = document.getElementById('login-error');
+  if (!email || !senha) { mostrarErroModal(err, 'Preencha e-mail e senha.'); return; }
+  btn.disabled = true; btn.textContent = 'Entrando…';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+  if (error) { mostrarErroModal(err, 'E-mail ou senha incorretos.'); btn.disabled = false; btn.textContent = 'Entrar →'; return; }
+  const user = data.user;
+  const tipo = user.user_metadata?.tipo || 'candidato';
+  const isAdmin = user.email === 'caueokiyama.adm@gmail.com';
+  if (isAdmin) window.location.href = 'oportunia-admin.html';
+  else if (tipo === 'empresa') window.location.href = 'oportunia-painel-empresa.html';
+  else window.location.href = 'oportunia-perfil-candidato-v2.html';
+}
+
+async function criarConta() {
+  const nome = document.getElementById('cad-nome').value.trim();
+  const email = document.getElementById('cad-email').value.trim();
+  const senha = document.getElementById('cad-senha').value;
+  const tipo = document.getElementById('tipo-conta').value;
+  const btn = document.getElementById('btn-cad-submit');
+  const err = document.getElementById('cad-error');
+  const suc = document.getElementById('cad-success');
+  if (!nome || !email || !senha) { mostrarErroModal(err, 'Preencha todos os campos.'); return; }
+  if (senha.length < 6) { mostrarErroModal(err, 'Senha deve ter no mínimo 6 caracteres.'); return; }
+  if (!document.getElementById('aceite-termos')?.checked) { mostrarErroModal(err, 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.'); return; }
+  btn.disabled = true; btn.textContent = 'Criando conta…';
+  const { data, error } = await sb.auth.signUp({ email, password: senha, options: { data: { nome, tipo } } });
+  if (error) { mostrarErroModal(err, error.message === 'User already registered' ? 'Este e-mail já está cadastrado.' : 'Erro ao criar conta. Tente novamente.'); btn.disabled = false; btn.textContent = 'Criar conta grátis →'; return; }
+  if (data.user) {
+    if (tipo === 'candidato') await sb.from('candidatos').insert({ user_id: data.user.id, nome, email });
+    else await sb.from('empresas').insert({ user_id: data.user.id, nome, email, tipo: 'empresa' });
+  }
+  err.classList.remove('show');
+  suc.textContent = '✓ Conta criada! Verifique seu e-mail para confirmar.';
+  suc.classList.add('show');
+  btn.textContent = 'Conta criada!';
+}
+
+iniciarNav();
+</script>
 </body>
+</html>
 </html>
