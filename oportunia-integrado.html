@@ -234,7 +234,6 @@
     .nav-nome-mobile { display: inline; }
     #nav-mobile-entrar { display: flex; }
     #nav-user-area.logado { display: flex !important; }
-    #nav-user-area.logado ~ #nav-mobile-entrar { display: none !important; }
     .hero { padding: 5rem 1.25rem 3rem; }
     .hero-inner { grid-template-columns: 1fr; gap: 2rem; }
     .hero-right { display: none; }
@@ -257,7 +256,6 @@
     .section-sub { text-align: center; }
   }
   #nav-hamburger { display: none; }
-  #nav-mobile-entrar { display: none; }
   .nav-nome-mobile { display: none; }
 </style>
 <!-- Google tag (gtag.js) -->
@@ -274,7 +272,6 @@
 <!-- NAV -->
 <nav>
   <a href="#" class="nav-logo">Opportu<span>nia</span><sup style="font-size:1rem;font-weight:500;vertical-align:super;letter-spacing:0;color:var(--ink-3);margin-left:2px">®</sup></a>
-  <button id="nav-mobile-entrar" onclick="openAuthModal('candidato')" style="display:none;padding:0.4rem 1rem;border-radius:100px;border:none;background:var(--ink);color:#fff;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;margin-left:auto;margin-right:0.75rem;">Entrar</button>
   <button id="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
@@ -646,7 +643,7 @@ async function verificarSessao() {
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
     usuarioLogado = session.user;
-    atualizarNavUsuario(session.user);
+    await atualizarNavUsuario(session.user);
   }
 
   sb.auth.onAuthStateChange((event, session) => {
@@ -669,7 +666,6 @@ async function verificarSessao() {
     } else {
       usuarioLogado = null;
       document.getElementById('nav-user-area').innerHTML = `<button class="nav-cta" id="btn-login" onclick="openAuthModal('candidato')">Entrar / Cadastrar</button>`;
-      document.getElementById('nav-user-area').classList.remove('logado');
     }
   });
 }
@@ -680,11 +676,8 @@ async function atualizarNavUsuario(user) {
   let nome = user.user_metadata?.nome || email.split('@')[0];
   let iniciais = nome.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
 
-  // Mostrar nav-user-area no mobile quando logado
+  // Mostrar nav-user-area
   const navArea = document.getElementById('nav-user-area');
-  if (navArea) navArea.classList.add('logado');
-  const btnMobile = document.getElementById('nav-mobile-entrar');
-  if (btnMobile) btnMobile.style.display = 'none';
 
   // Verifica se é admin
   const isAdmin = email === 'caueokiyama.adm@gmail.com';
