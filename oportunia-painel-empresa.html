@@ -331,16 +331,16 @@
 
   <div class="s-section">Principal</div>
   <ul class="s-nav">
-    <li><a class="active" onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('dashboard', this)"><span class="s-icon">📊</span> Dashboard</a></li>
-    <li><a onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('vagas', this)"><span class="s-icon">📋</span> Minhas vagas</a></li>
-    <li><a onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('candidatos', this)"><span class="s-icon">👥</span> Candidatos</a></li>
+    <li><a class="active" onclick="closeMobMenu();showPage('dashboard', this)"><span class="s-icon">📊</span> Dashboard</a></li>
+    <li><a onclick="closeMobMenu();showPage('vagas', this)"><span class="s-icon">📋</span> Minhas vagas</a></li>
+    <li><a onclick="closeMobMenu();showPage('candidatos', this)"><span class="s-icon">👥</span> Candidatos</a></li>
   </ul>
 
   <div class="s-section">Conta</div>
   <ul class="s-nav">
-    <li><a onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('cadastrais', this)"><span class="s-icon">📄</span> Dados cadastrais</a></li>
-    <li><a onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('sobre', this)"><span class="s-icon">🏢</span> Sobre a empresa</a></li>
-    <li><a onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('planos', this)" style="cursor:pointer"><span class="s-icon">💳</span> Planos</a></li>
+    <li><a onclick="closeMobMenu();showPage('cadastrais', this)"><span class="s-icon">📄</span> Dados cadastrais</a></li>
+    <li><a onclick="closeMobMenu();showPage('sobre', this)"><span class="s-icon">🏢</span> Sobre a empresa</a></li>
+    <li><a onclick="closeMobMenu();showPage('planos', this)" style="cursor:pointer"><span class="s-icon">💳</span> Planos</a></li>
   </ul>
 
   <div class="s-plan">
@@ -1727,7 +1727,7 @@ function renderDashCandidatos() {
     <div class="cand-section">
       <div class="cand-head">
         <h2>Últimas candidaturas</h2>
-        <a onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('candidatos', this)" style="font-size:0.8rem;color:var(--accent);cursor:pointer;text-decoration:none">Ver todas →</a>
+        <a onclick="closeMobMenu();showPage('candidatos', this)" style="font-size:0.8rem;color:var(--accent);cursor:pointer;text-decoration:none">Ver todas →</a>
       </div>
       ${recentes.map(c => renderCandRow(c)).join('')}
     </div>
@@ -2798,6 +2798,15 @@ function tempoRelativo(dateStr) {
     overlay.classList.remove('show');
   });
 })();
+</script>
+
+<script>
+function closeMobMenu() {
+  var s = document.getElementById('sidebar');
+  var o = document.getElementById('mob-overlay');
+  if(s) s.classList.remove('mob-open');
+  if(o) o.classList.remove('show');
+}
 </script>
 </body>
 </html>
