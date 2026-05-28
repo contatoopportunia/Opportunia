@@ -286,6 +286,19 @@
 .sobre-preview-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-bottom:1rem}
 .sobre-badges{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}
 .sobre-badge{display:flex;align-items:center;gap:.35rem;font-size:.78rem;color:var(--ink-2);background:var(--white);border:1px solid var(--border);border-radius:var(--radius-pill);padding:.3rem .75rem}
+
+  /* NAV MOBILE */
+  .mob-nav { display: none; }
+  @media(max-width:768px) {
+    .mob-nav { display: flex; align-items: center; justify-content: space-between; padding: .85rem 1.25rem; background: var(--ink); position: sticky; top: 0; z-index: 100; width: 100%; }
+    .mob-nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; color: #fff; text-decoration: none; }
+    .mob-nav-logo span { color: var(--accent); }
+    .mob-hamburger { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; gap: 5px; padding: 4px; }
+    .mob-hamburger span { display: block; width: 22px; height: 2px; background: #fff; border-radius: 2px; }
+    .mob-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 149; }
+    .mob-overlay.show { display: block; }
+    .sidebar.mob-open { display: flex !important; position: fixed; top: 0; left: 0; bottom: 0; width: 260px; z-index: 150; }
+  }
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2W3WST0JQK"></script>
@@ -318,16 +331,16 @@
 
   <div class="s-section">Principal</div>
   <ul class="s-nav">
-    <li><a class="active" onclick="showPage('dashboard')"><span class="s-icon">📊</span> Dashboard</a></li>
-    <li><a onclick="showPage('vagas')"><span class="s-icon">📋</span> Minhas vagas</a></li>
-    <li><a onclick="showPage('candidatos')"><span class="s-icon">👥</span> Candidatos</a></li>
+    <li><a class="active" onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('dashboard')"><span class="s-icon">📊</span> Dashboard</a></li>
+    <li><a onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('vagas')"><span class="s-icon">📋</span> Minhas vagas</a></li>
+    <li><a onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('candidatos')"><span class="s-icon">👥</span> Candidatos</a></li>
   </ul>
 
   <div class="s-section">Conta</div>
   <ul class="s-nav">
-    <li><a onclick="showPage('cadastrais')"><span class="s-icon">📄</span> Dados cadastrais</a></li>
-    <li><a onclick="showPage('sobre')"><span class="s-icon">🏢</span> Sobre a empresa</a></li>
-    <li><a onclick="showPage('planos')" style="cursor:pointer"><span class="s-icon">💳</span> Planos</a></li>
+    <li><a onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('cadastrais')"><span class="s-icon">📄</span> Dados cadastrais</a></li>
+    <li><a onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('sobre')"><span class="s-icon">🏢</span> Sobre a empresa</a></li>
+    <li><a onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('planos')" style="cursor:pointer"><span class="s-icon">💳</span> Planos</a></li>
   </ul>
 
   <div class="s-plan">
@@ -1110,7 +1123,8 @@ function mostrarLoginGate() {
 
 function mostrarPainel() {
   document.getElementById('login-gate').style.display = 'none';
-  document.getElementById('sidebar').style.display = 'flex';
+  if(window.innerWidth > 768) document.getElementById('sidebar').style.display = 'flex';
+  else document.getElementById('mob-nav').style.display = 'flex';
   document.getElementById('main-area').style.display = 'block';
 
   // Redireciona para página correta se vier da home com ?page=
@@ -1713,7 +1727,7 @@ function renderDashCandidatos() {
     <div class="cand-section">
       <div class="cand-head">
         <h2>Últimas candidaturas</h2>
-        <a onclick="showPage('candidatos')" style="font-size:0.8rem;color:var(--accent);cursor:pointer;text-decoration:none">Ver todas →</a>
+        <a onclick="document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');showPage('candidatos')" style="font-size:0.8rem;color:var(--accent);cursor:pointer;text-decoration:none">Ver todas →</a>
       </div>
       ${recentes.map(c => renderCandRow(c)).join('')}
     </div>
@@ -2767,6 +2781,22 @@ function tempoRelativo(dateStr) {
   const d = Math.floor(h / 24);
   return d === 1 ? 'há 1 dia' : `há ${d} dias`;
 }
+</script>
+
+<script>
+(function(){
+  var btn = document.getElementById('mob-btn');
+  var overlay = document.getElementById('mob-overlay');
+  var sidebar = document.getElementById('sidebar');
+  if(btn) btn.addEventListener('click', function(){
+    sidebar.classList.toggle('mob-open');
+    overlay.classList.toggle('show');
+  });
+  if(overlay) overlay.addEventListener('click', function(){
+    sidebar.classList.remove('mob-open');
+    overlay.classList.remove('show');
+  });
+})();
 </script>
 </body>
 </html>
