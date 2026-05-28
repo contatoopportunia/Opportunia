@@ -674,6 +674,10 @@ async function atualizarNavUsuario(user) {
   let nome = user.user_metadata?.nome || email.split('@')[0];
   let iniciais = nome.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
 
+  // Esconder botão mobile Entrar quando logado
+  const btnMobile = document.getElementById('nav-mobile-entrar');
+  if (btnMobile) btnMobile.style.display = 'none';
+
   // Verifica se é admin
   const isAdmin = email === 'caueokiyama.adm@gmail.com';
 
