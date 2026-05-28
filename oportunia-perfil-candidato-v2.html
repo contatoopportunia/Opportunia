@@ -190,7 +190,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .lerr.show{display:block}
 @keyframes fup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
-@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;padding:1.25rem;max-width:100%}.fg,.fg3,.mg2{grid-template-columns:1fr}}
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;padding:0;max-width:100%}.main>*:not(.mob-nav):not(.mob-overlay){padding:1.25rem}.fg,.fg3,.mg2{grid-template-columns:1fr}}
 
   /* NAV MOBILE */
   .mob-nav { display: none; }
@@ -242,16 +242,16 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   <div class="s-sec">Meu perfil</div>
   <ul class="s-nav">
     <li><a class="active" onclick="sp('ap')"><span class="s-icon">👤</span> Apresentação <span class="s-dot" id="ca">○</span></a></li>
-    <li><a onclick="sp('dd')"><span class="s-icon">📋</span> Dados pessoais <span class="s-dot" id="cd">○</span></a></li>
-    <li><a onclick="sp('ex')"><span class="s-icon">💼</span> Experiências <span class="s-dot" id="ce">○</span></a></li>
-    <li><a onclick="sp('fo')"><span class="s-icon">🎓</span> Formação <span class="s-dot" id="cf">○</span></a></li>
-    <li><a onclick="sp('hb')"><span class="s-icon">⚡</span> Habilidades <span class="s-dot" id="ch">○</span></a></li>
-    <li><a onclick="sp('ct')"><span class="s-icon">🏅</span> Certificados <span class="s-dot" id="cc">○</span></a></li>
-    <li><a onclick="sp('id')"><span class="s-icon">🌐</span> Idiomas <span class="s-dot" id="ci">○</span></a></li>
-    <li><a onclick="sp('pr')"><span class="s-icon">🏆</span> Prêmios <span class="s-dot" id="cp">○</span></a></li>
-    <li><a onclick="sp('pf')"><span class="s-icon">🎯</span> Preferências <span class="s-dot" id="cpf">○</span></a></li>
-    <li><a onclick="sp('ca')"><span class="s-icon">📬</span> Candidaturas</a></li>
-    <li><a onclick="sp('vs')"><span class="s-icon">🔖</span> Vagas salvas</a></li>
+    <li><a onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('dd')"><span class="s-icon">📋</span> Dados pessoais <span class="s-dot" id="cd">○</span></a></li>
+    <li><a onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('ex')"><span class="s-icon">💼</span> Experiências <span class="s-dot" id="ce">○</span></a></li>
+    <li><a onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('fo')"><span class="s-icon">🎓</span> Formação <span class="s-dot" id="cf">○</span></a></li>
+    <li><a onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('hb')"><span class="s-icon">⚡</span> Habilidades <span class="s-dot" id="ch">○</span></a></li>
+    <li><a onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('ct')"><span class="s-icon">🏅</span> Certificados <span class="s-dot" id="cc">○</span></a></li>
+    <li><a onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('id')"><span class="s-icon">🌐</span> Idiomas <span class="s-dot" id="ci">○</span></a></li>
+    <li><a onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('pr')"><span class="s-icon">🏆</span> Prêmios <span class="s-dot" id="cp">○</span></a></li>
+    <li><a onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('pf')"><span class="s-icon">🎯</span> Preferências <span class="s-dot" id="cpf">○</span></a></li>
+    <li><a onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('ca')"><span class="s-icon">📬</span> Candidaturas</a></li>
+    <li><a onclick="document.getElementById('sb').classList.remove('mob-open');document.getElementById('mob-overlay').classList.remove('show');sp('vs')"><span class="s-icon">🔖</span> Vagas salvas</a></li>
   </ul>
   <div class="s-bot">
     <a href="oportunia-integrado.html#vagas" class="s-vagas">🔍 Ver vagas</a>
