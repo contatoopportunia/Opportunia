@@ -27,7 +27,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+function toggleMobMenu(){
+  const sb = document.getElementById('sb');
+  const overlay = document.getElementById('mob-overlay');
+  sb.classList.toggle('mob-open');
+  overlay.classList.toggle('show');
+}
+function closeMobMenu(){
+  document.getElementById('sb').classList.remove('mob-open');
+  document.getElementById('mob-overlay').classList.remove('show');
+}
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--ink:#0f1117;--ink-2:#3a3d4a;--ink-3:#7a7f94;--surface:#f5f4f0;--white:#ffffff;--accent:#e8440a;--accent-light:#fff0eb;--blue:#1a3c6e;--blue-light:#e8eef8;--green:#0f6b3a;--green-light:#e6f4ed;--gold:#c9920a;--gold-light:#fdf3dc;--red:#b91c1c;--red-light:#fde8e8;--border:rgba(15,17,23,0.1);--border-strong:rgba(15,17,23,0.18);--radius:12px;--radius-sm:8px;--radius-lg:20px;--radius-pill:100px;--sw:280px}
@@ -178,6 +189,21 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .lerr{color:var(--red);font-size:.82rem;background:var(--red-light);padding:.6rem .75rem;border-radius:var(--radius-sm);display:none;margin-top:.5rem}
 .lerr.show{display:block}
 @keyframes fup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:900px){
+  .mob-nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.25rem;background:var(--ink);position:sticky;top:0;z-index:100}
+  .mob-nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:#fff;text-decoration:none}
+  .mob-nav-logo span{color:var(--accent)}
+  .mob-hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px}
+  .mob-hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px}
+  .mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:149}
+  .mob-overlay.show{display:block}
+  .sidebar.mob-open{display:flex!important;position:fixed;top:0;left:0;bottom:0;width:260px;z-index:150;transform:translateX(0)}
+}
+@media(min-width:901px){
+  .mob-nav{display:none}
+  .mob-overlay{display:none!important}
+}
 @media(max-width:900px){.sidebar{display:none}.main{margin-left:0;padding:1.25rem;max-width:100%}.fg,.fg3,.mg2{grid-template-columns:1fr}}
 </style>
 <!-- Google tag (gtag.js) -->
@@ -234,6 +260,14 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   </div>
 </aside>
 
+
+<div class="mob-overlay" id="mob-overlay" onclick="closeMobMenu()"></div>
+<div class="mob-nav" id="mob-nav" style="display:none">
+  <a href="oportunia-integrado.html" class="mob-nav-logo">Oportu<span>nia</span></a>
+  <button class="mob-hamburger" onclick="toggleMobMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</div>
 <main class="main" id="ma" style="display:none">
 
   <div class="page active" id="page-ap">
@@ -439,7 +473,11 @@ async function init(u){
   prf=p;sks=p.habilidades||[];
   await loadExt();
   document.getElementById('lgate').classList.remove('show');
-  document.getElementById('sb').style.display='flex';
+  if(window.innerWidth > 900) {
+    document.getElementById('sb').style.display='flex';
+  } else {
+    document.getElementById('mob-nav').style.display='flex';
+  }
   document.getElementById('ma').style.display='block';
   fill();comp();rr();
 
