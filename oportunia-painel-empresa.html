@@ -1111,8 +1111,8 @@ async function iniciarPainel(user) {
 
   // Verificar status da empresa
   if (empresa.status === 'pendente' || !empresa.status) {
-    document.getElementById('lgate').classList.add('show');
-    document.getElementById('lgate').innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:1rem;font-family:'DM Sans',sans-serif;text-align:center;padding:2rem">
+    document.getElementById('login-gate').classList.add('show');
+    document.getElementById('login-gate').innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:1rem;font-family:'DM Sans',sans-serif;text-align:center;padding:2rem">
       <div style="font-size:2.5rem">⏳</div>
       <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.4rem;color:#0f1117">Conta aguardando aprovação</h2>
       <p style="color:#7a7f94;max-width:340px;font-size:0.9rem">Sua empresa está sendo analisada pela equipe Opportunia. Você receberá um e-mail quando for aprovada. Em caso de dúvidas, entre em contato pelo <a href="mailto:contato.opportunia@gmail.com" style="color:#e8440a">contato.opportunia@gmail.com</a>.</p>
@@ -1122,8 +1122,8 @@ async function iniciarPainel(user) {
   }
 
   if (empresa.status === 'bloqueada') {
-    document.getElementById('lgate').classList.add('show');
-    document.getElementById('lgate').innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:1rem;font-family:'DM Sans',sans-serif;text-align:center;padding:2rem">
+    document.getElementById('login-gate').classList.add('show');
+    document.getElementById('login-gate').innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:1rem;font-family:'DM Sans',sans-serif;text-align:center;padding:2rem">
       <div style="font-size:2.5rem">🚫</div>
       <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.4rem;color:#0f1117">Conta suspensa</h2>
       <p style="color:#7a7f94;max-width:340px;font-size:0.9rem">Sua conta foi suspensa pela equipe Opportunia. Entre em contato pelo e-mail <a href="mailto:contato.opportunia@gmail.com" style="color:#e8440a">contato.opportunia@gmail.com</a> para mais informações.</p>
