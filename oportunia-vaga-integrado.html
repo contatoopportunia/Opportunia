@@ -43,6 +43,8 @@
   .nav-dropdown-menu .logout:hover { background: #fde8e8; }
   .nav-cta { background: var(--ink); color: var(--white) !important; padding: 0.5rem 1.25rem; border-radius: var(--radius-pill); font-weight: 500 !important; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; }
   .nav-cta:hover { background: var(--accent) !important; }
+  #nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+  #nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--ink); border-radius: 2px; }
   #nav-user-area { display: flex; align-items: center; gap: 1rem; }
   .nav-user-name { font-size: 0.88rem; color: var(--ink-2); }
 
@@ -141,6 +143,18 @@
   @media (max-width: 768px) {
     nav { padding: 1rem 1.25rem; }
     .nav-links { display: none; }
+    .nav-links.open {
+      display: flex; flex-direction: column;
+      position: fixed; top: 57px; left: 0; right: 0;
+      background: rgba(245,244,240,0.98); backdrop-filter: blur(12px);
+      padding: 1.25rem; gap: 0.75rem;
+      border-bottom: 1px solid var(--border); z-index: 99;
+    }
+    .nav-links.open li { list-style: none; }
+    .nav-links.open a { font-size: 1rem; color: var(--ink-2); text-decoration: none; display: block; padding: 0.4rem 0; }
+    #nav-hamburger { display: flex !important; }
+    .nav-user-name { display: none; }
+    #nav-user-area { gap: 0.5rem; }
     .page-wrap { grid-template-columns: 1fr; padding: 6rem 1.25rem 3rem; }
     .sidebar { position: static; }
     .benefits-grid { grid-template-columns: 1fr; }
@@ -171,11 +185,15 @@
 
 <nav>
   <a href="oportunia-integrado.html" class="nav-logo">Opportu<span>nia</span><sup style="font-size:1rem;font-weight:500;vertical-align:super;letter-spacing:0;color:var(--ink-3);margin-left:1px">®</sup></a>
-  <ul class="nav-links">
+  <ul class="nav-links" id="nav-links">
     <li><a href="oportunia-vagas.html">Vagas</a></li>
     <li><a href="oportunia-integrado.html#como-funciona">Como funciona</a></li>
     <li><a href="oportunia-integrado.html#planos">Para empresas</a></li>
+    <li><a href="oportunia-sobre.html">Sobre nós</a></li>
   </ul>
+  <button id="nav-hamburger" onclick="toggleMenu()" aria-label="Menu" style="margin-left:auto">
+    <span></span><span></span><span></span>
+  </button>
   <div id="nav-user-area">
     <button class="nav-cta" onclick="window.location.href='oportunia-integrado.html'">Entrar</button>
   </div>
@@ -337,7 +355,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="nav-dropdown" id="nav-dropdown">
         <button class="nav-dropdown-btn" onclick="document.getElementById('nav-dropdown-menu').classList.toggle('open')">
           <div class="avatar">${iniciais}</div>
-          ${nome.split(' ')[0]}
+          <span class="nav-user-name">${nome.split(' ')[0]}</span>
           <span style="font-size:0.7rem;color:var(--ink-3)">▾</span>
         </button>
         <div class="nav-dropdown-menu" id="nav-dropdown-menu">
@@ -681,6 +699,10 @@ async function enviarCandidatura() {
   suc.textContent = '✓ Candidatura enviada! Boa sorte!';
   suc.classList.add('show');
   btn.textContent = 'Enviado! ✓';
+}
+
+function toggleMenu() {
+  document.getElementById('nav-links').classList.toggle('open');
 }
 </script>
 </body>
