@@ -320,6 +320,11 @@
     .cand-actions { flex-wrap: wrap; gap: 0.4rem; width: 100%; }
     .cand-info { width: 100%; }
     .cand-section { overflow-x: hidden; }
+    .dash-grid-3 { grid-template-columns: 1fr !important; }
+    .dash-card { max-width: 100%; overflow-x: hidden; }
+    .dash-hbar-scroll { overflow-x: auto; }
+    #dash-donut-chart { max-width: 100% !important; }
+    #dash-match-list { max-width: 100%; }
   }
 </style>
 <!-- Google tag (gtag.js) -->
@@ -437,7 +442,7 @@
     </div>
 
     <!-- LINHA DE GRÁFICOS -->
-    <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+    <div class="dash-grid-3" style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem">
 
       <!-- Candidatos por vaga -->
       <div class="dash-card">
