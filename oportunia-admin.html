@@ -1158,11 +1158,13 @@ async function acao(tipo, id, valor) {
     fecharModal();
     // Deleta do Auth via Edge Function (assíncrono, não bloqueia a UI)
     if (emp?.user_id) {
-      fetch(`${SB_URL}/functions/v1/delete-user`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SB_KEY}` },
-        body: JSON.stringify({ user_id: emp.user_id })
-      }).then(r => r.json()).then(r => console.log('delete-user:', r)).catch(e => console.error('delete-user erro:', e));
+      sb.auth.getSession().then(({ data: { session } }) => {
+        fetch(`${SB_URL}/functions/v1/delete-user`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ user_id: emp.user_id })
+        }).then(r => r.json()).then(r => console.log('delete-user:', r)).catch(e => console.error('delete-user erro:', e));
+      });
     }
     return;
   } else if (tipo === 'excluir_candidato') {
@@ -1181,11 +1183,13 @@ async function acao(tipo, id, valor) {
     fecharModal();
     // Deleta do Auth via Edge Function (assíncrono, não bloqueia a UI)
     if (cand?.user_id) {
-      fetch(`${SB_URL}/functions/v1/delete-user`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SB_KEY}` },
-        body: JSON.stringify({ user_id: cand.user_id })
-      }).then(r => r.json()).then(r => console.log('delete-user:', r)).catch(e => console.error('delete-user erro:', e));
+      sb.auth.getSession().then(({ data: { session } }) => {
+        fetch(`${SB_URL}/functions/v1/delete-user`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ user_id: cand.user_id })
+        }).then(r => r.json()).then(r => console.log('delete-user:', r)).catch(e => console.error('delete-user erro:', e));
+      });
     }
     return;
   } else if (tipo === 'excluir_vaga') {
