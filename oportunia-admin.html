@@ -214,6 +214,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink)
   .row-nome { font-size: .95rem; white-space: normal; }
   .row-sub { font-size: .78rem; white-space: normal; line-height: 1.5; }
   .data-row .pill { font-size: .75rem; }
+  .data-row .row-pills { display: flex; flex-direction: row; flex-wrap: wrap; gap: .35rem; }
   .row-actions {
     width: 100%;
     display: flex;
@@ -809,9 +810,11 @@ function renderEmpRow(e) {
         <div class="row-nome">${e.nome || '—'}</div>
         <div class="row-sub">${e.email} · ${vagsEmp} vaga${vagsEmp!==1?'s':''} · cadastrou ${tempo}${e.plano_pago_em ? ' · pago em ' + new Date(e.plano_pago_em + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</div>
       </div>
-      <span class="pill ${statusCls}">${status}</span>
-      <span class="pill ${planoCls}">${plano}</span>
-      ${vencBadge}
+      <div class="row-pills">
+        <span class="pill ${statusCls}">${status}</span>
+        <span class="pill ${planoCls}">${plano}</span>
+        ${vencBadge}
+      </div>
       <div class="row-actions">
         <button class="btn-sm btn-gray" onclick="verDadosCadastrais('${e.id}')">📄 Ver dados</button>
         ${plano !== 'gratuito' ? `<button class="btn-sm btn-blue" onclick="abrirModalRenovar('${e.id}','${e.nome}','${plano}')">💳 Renovar</button>` : ''}
