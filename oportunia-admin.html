@@ -148,7 +148,54 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink)
 
 @keyframes fup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:1024px){.metrics{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0;padding:1.25rem}}
+
+/* MOBILE TOPBAR */
+.mob-topbar {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; height: 56px;
+  background: var(--ink); z-index: 100;
+  align-items: center; justify-content: space-between;
+  padding: 0 1.25rem;
+}
+.mob-topbar .s-logo { font-size: 1.1rem; margin-bottom: 0; }
+.mob-hamburger {
+  background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; gap: 5px; padding: 4px;
+}
+.mob-hamburger span { display: block; width: 22px; height: 2px; background: #fff; border-radius: 2px; }
+
+/* OVERLAY */
+.mob-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.5); z-index: 98; backdrop-filter: blur(2px);
+}
+.mob-overlay.open { display: block; }
+
+@media(max-width:768px){
+  .mob-topbar { display: flex; }
+  body { padding-top: 56px; }
+
+  /* Sidebar vira drawer deslizante */
+  .sidebar {
+    display: flex !important;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    z-index: 99; top: 0;
+  }
+  .sidebar.open { transform: translateX(0); }
+
+  /* Main ocupa tudo */
+  .main { margin-left: 0 !important; padding: 1.25rem !important; }
+
+  /* Métricas em 2 colunas */
+  .metrics { grid-template-columns: repeat(2,1fr) !important; }
+
+  /* Grids de 4 colunas → 2 */
+  [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2,1fr) !important; }
+
+  /* Top bar de cada página */
+  .top-bar { flex-direction: column; align-items: flex-start; gap: .75rem; }
+}
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2W3WST0JQK"></script>
@@ -173,6 +220,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink)
     <button class="btn-login" onclick="loginAdmin()">Entrar no painel →</button>
   </div>
 </div>
+
+<!-- MOBILE TOPBAR -->
+<div class="mob-topbar" id="mob-topbar" style="display:none">
+  <a href="oportunia-integrado.html" class="s-logo">Opportu<span>nia</span><sup style="font-size:.9rem;font-weight:500;vertical-align:super;color:rgba(255,255,255,.35);margin-left:1px">®</sup></a>
+  <button class="mob-hamburger" onclick="toggleAdminSidebar()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+<div class="mob-overlay" id="mob-overlay" onclick="toggleAdminSidebar()"></div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sb" style="display:none">
@@ -443,7 +499,22 @@ async function iniciarAdmin(user) {
   document.getElementById('sb').style.display = 'flex';
   document.getElementById('ma').style.display = 'block';
   document.getElementById('su').textContent = user.email;
+  // Mostrar topbar mobile
+  if (window.innerWidth <= 768) {
+    document.getElementById('mob-topbar').style.display = 'flex';
+  }
+  window.addEventListener('resize', () => {
+    const topbar = document.getElementById('mob-topbar');
+    if (topbar) topbar.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+  });
   await carregarTudo();
+}
+
+function toggleAdminSidebar() {
+  const sb = document.getElementById('sb');
+  const overlay = document.getElementById('mob-overlay');
+  sb.classList.toggle('open');
+  overlay.classList.toggle('open');
 }
 
 async function logout() {
@@ -1114,6 +1185,11 @@ function showPage(p) {
   document.getElementById('page-' + p).classList.add('active');
   document.querySelectorAll('.s-nav li a').forEach(a => a.classList.remove('active'));
   if (event?.currentTarget) event.currentTarget.classList.add('active');
+  // Fechar sidebar no mobile ao navegar
+  if (window.innerWidth <= 768) {
+    document.getElementById('sb')?.classList.remove('open');
+    document.getElementById('mob-overlay')?.classList.remove('open');
+  }
 }
 
 // =============================================
