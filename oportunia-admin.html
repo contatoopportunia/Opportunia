@@ -22,7 +22,9 @@
   --radius:12px;--radius-sm:8px;--radius-pill:100px;
   --sw:240px;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);display:flex;min-height:100vh}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);display:flex;min-height:100vh;overflow-x:hidden}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
 
 /* SIDEBAR */
 .sidebar{width:var(--sw);background:var(--ink);min-height:100vh;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;padding:1.5rem 1rem;z-index:50}
@@ -190,11 +192,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink)
   /* Métricas em 2 colunas */
   .metrics { grid-template-columns: repeat(2,1fr) !important; }
 
-  /* Grids de 4 colunas → 2 */
-  [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2,1fr) !important; }
+  /* Grids de 4 colunas → 2 no mobile */
+  .grid-4 { grid-template-columns: repeat(2,1fr) !important; }
+  .metrics { grid-template-columns: repeat(2,1fr) !important; }
+
+  /* Grids de 2 colunas → 1 coluna no mobile */
+  .grid-2 { grid-template-columns: 1fr !important; }
 
   /* Top bar de cada página */
   .top-bar { flex-direction: column; align-items: flex-start; gap: .75rem; }
+
+  /* Garantir que main não ultrapasse a tela */
+  .main { max-width: 100vw; overflow-x: hidden; }
+  * { max-width: 100%; }
 }
 </style>
 <!-- Google tag (gtag.js) -->
@@ -269,7 +279,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink)
     </div>
 
     <!-- MÉTRICAS PRINCIPAIS -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem">
+    <div class="grid-4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem">
       <div class="metric alert">
         <div class="metric-lbl">Empresas pendentes</div>
         <div class="metric-val" id="m-pend">—</div>
@@ -293,7 +303,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink)
     </div>
 
     <!-- MÉTRICAS SECUNDÁRIAS -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem">
+    <div class="grid-4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem">
       <div class="metric">
         <div class="metric-lbl">Candidaturas</div>
         <div class="metric-val" id="m-cands">—</div>
@@ -317,7 +327,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink)
     </div>
 
     <!-- LINHA: Novos esta semana + Planos -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+    <div class="grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
 
       <!-- Novos esta semana -->
       <div class="table-card" style="margin-bottom:0">
@@ -349,7 +359,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink)
     </div>
 
     <!-- LINHA: Top vagas + Áreas em destaque -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+    <div class="grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
 
       <!-- Top vagas com mais candidaturas -->
       <div class="table-card" style="margin-bottom:0">
