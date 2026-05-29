@@ -1149,14 +1149,25 @@ async function acao(tipo, id, valor) {
     renderCandidatos();
     showToast(valor === 'ativo' ? '✓ Candidato desbloqueado.' : 'Candidato bloqueado.');
   } else if (tipo === 'excluir_empresa') {
+    const emp = empresas.find(e => e.id === id);
     await sb.from('vagas').delete().eq('empresa_id', id);
     await sb.from('empresas').delete().eq('id', id);
+    // Deleta do Auth via Edge Function
+    if (emp?.user_id) {
+      await fetch(`${SB_URL}/functions/v1/delete-user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SB_KEY}` },
+        body: JSON.stringify({ user_id: emp.user_id })
+      });
+    }
     empresas = empresas.filter(e => e.id !== id);
     renderEmpresas(); renderDashPendentes(); atualizarMetrics();
     showToast('Empresa excluída permanentemente.');
     fecharModal();
     return;
   } else if (tipo === 'excluir_candidato') {
+    // Busca user_id antes de deletar
+    const cand = candidatos.find(c => c.id === id);
     await sb.from('candidaturas').delete().eq('candidato_id', id);
     await sb.from('experiencias').delete().eq('candidato_id', id);
     await sb.from('formacoes').delete().eq('candidato_id', id);
@@ -1164,6 +1175,14 @@ async function acao(tipo, id, valor) {
     await sb.from('idiomas').delete().eq('candidato_id', id);
     await sb.from('premios').delete().eq('candidato_id', id);
     await sb.from('candidatos').delete().eq('id', id);
+    // Deleta do Auth via Edge Function
+    if (cand?.user_id) {
+      await fetch(`${SB_URL}/functions/v1/delete-user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SB_KEY}` },
+        body: JSON.stringify({ user_id: cand.user_id })
+      });
+    }
     candidatos = candidatos.filter(c => c.id !== id);
     renderCandidatos();
     atualizarMetrics();
