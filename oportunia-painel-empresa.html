@@ -1830,7 +1830,7 @@ async function calcularMatch(candidatura, vaga) {
 
   // Nível
   if (vaga && p.nivel && vaga.nivel) {
-    const niveis = ['Estágio','Júnior','Pleno','Sênior','Gestor / Líder'];
+    const niveis = ['Estágio','Júnior','Pleno','Sênior','Gestor'];
     const idxC = niveis.indexOf(p.nivel);
     const idxV = niveis.indexOf(vaga.nivel);
     if (idxC === idxV) { vagaScore += 8; reasons.push('Nível exatamente compatível'); }
