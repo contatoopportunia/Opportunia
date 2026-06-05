@@ -554,7 +554,7 @@ function fill(){
   sv('d-rua',p.rua);sv('d-num',p.numero);sv('d-bai',p.bairro);sv('d-cmp',p.complemento);
   sv('d-cpf',p.cpf);sv('d-li',p.linkedin);sv('d-po',p.portfolio);
   rSk();
-  sv('p-ar',p.area);sv('p-nv',p.nivel);sv('p-sm',p.salario_min);sv('p-sx',p.salario_max);sv('p-dv',p.disponibilidade);
+  sv('p-cd',p.cargo_desejado);sv('p-rs',p.resumo);sv('p-ar',p.area);sv('p-nv',p.nivel);sv('p-sm',p.salario_min);sv('p-sx',p.salario_max);sv('p-dv',p.disponibilidade);
   if(p.modalidade)sa('p-mod',p.modalidade);
   if(p.contrato)sa('p-con',p.contrato);
 }
@@ -812,7 +812,7 @@ async function savePref(){
   const btn=document.getElementById('bs-pf');btn.disabled=true;btn.textContent='Salvando…';
   const mod=document.querySelector('#p-mod .tgb.active')?.textContent.trim()||'';
   const con=document.querySelector('#p-con .tgb.active')?.textContent.trim()||'';
-  const u={area:gv('p-ar'),nivel:gv('p-nv'),salario_min:gv('p-sm')||null,salario_max:gv('p-sx')||null,modalidade:mod,contrato:con,disponibilidade:gv('p-dv')};
+  const u={cargo_desejado:gv('p-cd'),resumo:gv('p-rs'),area:gv('p-ar'),nivel:gv('p-nv'),salario_min:gv('p-sm')||null,salario_max:gv('p-sx')||null,modalidade:mod,contrato:con,disponibilidade:gv('p-dv')};
   const{error}=await sb.from('candidatos').update(u).eq('user_id',usr.id);
   if(error){showFb('fb-pf','Erro.','err');}else{prf={...prf,...u};comp();showFb('fb-pf','✓ Preferências salvas!','ok');te('pf');}
   btn.disabled=false;btn.textContent='Salvar';
@@ -906,7 +906,7 @@ function sp(p){
 }
 
 function te(s){
-  const idMap={dd:['d-nm','d-em','d-tel','d-dn','d-gen','d-pcd','d-cep','d-cid','d-est','d-rua','d-num','d-bai','d-cmp','d-cpf','d-li','d-po'],hb:[],pf:['p-ar','p-nv','p-sm','p-sx','p-dv']};
+  const idMap={dd:['d-nm','d-em','d-tel','d-dn','d-gen','d-pcd','d-cep','d-cid','d-est','d-rua','d-num','d-bai','d-cmp','d-cpf','d-li','d-po'],hb:[],pf:['p-cd','p-rs','p-ar','p-nv','p-sm','p-sx','p-dv']};
   const ids=idMap[s]||[];
   const bsv=document.getElementById('bs-'+s);
   const editing=bsv.style.display==='none';
