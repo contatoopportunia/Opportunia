@@ -359,7 +359,9 @@ async function doCad() {
     <button class="modal-close" onclick="fecharModal()">✕</button>
     <h2>Sua candidatura</h2>
     <div class="modal-vaga" id="modal-titulo"></div>
-    <div id="cand-perfil-resumo" style="background:var(--surface);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.88rem;color:var(--ink-2);line-height:1.6"></div>
+    <div class="form-group"><label>Nome completo</label><input type="text" id="cand-nome" placeholder="Seu nome completo" /></div>
+    <div class="form-group"><label>E-mail</label><input type="email" id="cand-email" placeholder="seu@email.com" /></div>
+    <div class="form-group"><label>WhatsApp</label><input type="tel" id="cand-tel" placeholder="(14) 99999-0000" /></div>
     <div class="form-group">
       <label>Por que você quer essa vaga? <span style="color:var(--ink-3);font-weight:400">(opcional)</span></label>
       <textarea id="cand-msg" placeholder="Conte brevemente sua experiência e motivação…"></textarea>
@@ -436,7 +438,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tipo = user.user_metadata?.tipo || 'candidato';
     const links = tipo === 'empresa'
       ? `<a href="oportunia-painel-empresa.html">📊 Painel da empresa</a>`
-      : `<a href="oportunia-perfil-candidato-v2.html">👤 Meu perfil</a><a href="oportunia-perfil-candidato-v2.html">📋 Minhas candidaturas</a>`;
+      : `<a href="oportunia-perfil-candidato-v2.html">👤 Meu perfil</a><a href="oportunia-perfil-candidato-v2.html?page=candidaturas">📋 Minhas candidaturas</a>`;
     document.getElementById('nav-user-area').innerHTML = `
       <div class="nav-dropdown" id="nav-dropdown">
         <button class="nav-dropdown-btn" onclick="document.getElementById('nav-dropdown-menu').classList.toggle('open')">
@@ -715,26 +717,17 @@ function mostrarErroVaga() {
   `;
 }
 
-async function abrirModal() {
+function abrirModal() {
   if (!usuarioLogado) {
-    openAuthModal('login');
+    alert('Faça login ou crie uma conta gratuita para se candidatar.');
     return;
   }
-  const { data: cand } = await sb.from('candidatos').select('id, nome, telefone').eq('user_id', usuarioLogado.id).single();
-  if (!cand?.telefone) {
-    alert('Complete seu WhatsApp no perfil antes de se candidatar — é o contato que a empresa vai usar para te chamar.');
-    window.location.href = 'oportunia-perfil-candidato-v2.html';
-    return;
-  }
-  document.getElementById('cand-perfil-resumo').innerHTML =
-    '👤 <strong>' + (cand.nome || usuarioLogado.email) + '</strong><br>' +
-    '📧 ' + usuarioLogado.email + '<br>' +
-    '📱 ' + cand.telefone;
   document.getElementById('modal-cand').classList.add('open');
   document.getElementById('cand-error').classList.remove('show');
   document.getElementById('cand-success').classList.remove('show');
   document.getElementById('btn-submit').disabled = false;
   document.getElementById('btn-submit').textContent = 'Enviar candidatura →';
+  document.getElementById('cand-email').value = usuarioLogado?.email || '';
 }
 
 function fecharModal() {
@@ -742,12 +735,26 @@ function fecharModal() {
 }
 
 async function enviarCandidatura() {
+  const nome = document.getElementById('cand-nome').value.trim();
+  const email = document.getElementById('cand-email').value.trim();
+  const tel = document.getElementById('cand-tel').value.trim();
   const msg = document.getElementById('cand-msg').value.trim();
   const btn = document.getElementById('btn-submit');
   const err = document.getElementById('cand-error');
   const suc = document.getElementById('cand-success');
 
-  if (!usuarioLogado) { return; }
+  // Verifica se está logado antes de qualquer coisa
+  if (!usuarioLogado) {
+    err.textContent = 'Você precisa estar logado para se candidatar.';
+    err.classList.add('show');
+    return;
+  }
+
+  if (!nome || !email) {
+    err.textContent = 'Nome e e-mail são obrigatórios.';
+    err.classList.add('show');
+    return;
+  }
 
   btn.disabled = true;
   btn.textContent = 'Enviando…';
@@ -756,9 +763,9 @@ async function enviarCandidatura() {
   const { error } = await sb.from('candidaturas').insert({
     vaga_id: vagaAtual.id,
     candidato_id: cand?.id || null,
-    nome: cand?.nome || '',
-    email: usuarioLogado.email,
-    telefone: cand?.telefone || '',
+    nome: cand?.nome || nome,
+    email,
+    telefone: cand?.telefone || tel,
     mensagem: msg
   });
 
