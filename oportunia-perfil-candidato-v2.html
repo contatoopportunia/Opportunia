@@ -134,6 +134,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .stag{display:flex;align-items:center;gap:.35rem;background:var(--white);border:1px solid var(--border);padding:.25rem .75rem;border-radius:var(--radius-pill);font-size:.82rem;color:var(--ink-2)}
 .stag button{background:none;border:none;cursor:pointer;color:var(--ink-3);font-size:.9rem;line-height:1;padding:0}
 .sinp{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--ink);min-width:140px;background:transparent;padding:.2rem 0}
+.sk-chip{background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:.3rem .75rem;font-size:.78rem;color:var(--ink-2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.sk-chip:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.sk-chip.usado{opacity:.35;pointer-events:none}
 .idrow{display:flex;align-items:center;gap:1rem;padding:.75rem 0;border-bottom:1px solid var(--border)}
 .idrow:last-child{border-bottom:none}
 .idnm{font-size:.9rem;font-weight:500;flex:1}
@@ -370,6 +373,52 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <input class="sinp" id="si" type="text" placeholder="Digite e pressione Enter…" onkeydown="addSk(event)" disabled />
       </div>
       <div style="font-size:.75rem;color:var(--ink-3);margin-top:.4rem">Ex: Excel, Google Ads, Liderança, Atendimento ao cliente…</div>
+      <div id="sk-suggestions" style="display:none;margin-top:.75rem">
+        <div style="font-size:.75rem;font-weight:500;color:var(--ink-3);margin-bottom:.4rem">Sugestões — clique para adicionar:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.4rem">
+          <!-- Ferramentas de escritório -->
+          <button class="sk-chip" onclick="addSkChip('Excel')">Excel</button>
+          <button class="sk-chip" onclick="addSkChip('Word')">Word</button>
+          <button class="sk-chip" onclick="addSkChip('PowerPoint')">PowerPoint</button>
+          <button class="sk-chip" onclick="addSkChip('Outlook')">Outlook</button>
+          <button class="sk-chip" onclick="addSkChip('Power BI')">Power BI</button>
+          <button class="sk-chip" onclick="addSkChip('Google Sheets')">Google Sheets</button>
+          <button class="sk-chip" onclick="addSkChip('Google Ads')">Google Ads</button>
+          <button class="sk-chip" onclick="addSkChip('Canva')">Canva</button>
+          <button class="sk-chip" onclick="addSkChip('SAP')">SAP</button>
+          <button class="sk-chip" onclick="addSkChip('Pacote Office')">Pacote Office</button>
+          <!-- Comportamentais -->
+          <button class="sk-chip" onclick="addSkChip('Liderança')">Liderança</button>
+          <button class="sk-chip" onclick="addSkChip('Comunicação')">Comunicação</button>
+          <button class="sk-chip" onclick="addSkChip('Trabalho em equipe')">Trabalho em equipe</button>
+          <button class="sk-chip" onclick="addSkChip('Proatividade')">Proatividade</button>
+          <button class="sk-chip" onclick="addSkChip('Resolução de problemas')">Resolução de problemas</button>
+          <button class="sk-chip" onclick="addSkChip('Gestão de tempo')">Gestão de tempo</button>
+          <button class="sk-chip" onclick="addSkChip('Negociação')">Negociação</button>
+          <button class="sk-chip" onclick="addSkChip('Atendimento ao cliente')">Atendimento ao cliente</button>
+          <button class="sk-chip" onclick="addSkChip('Vendas')">Vendas</button>
+          <button class="sk-chip" onclick="addSkChip('Gestão de projetos')">Gestão de projetos</button>
+          <!-- TI -->
+          <button class="sk-chip" onclick="addSkChip('SQL')">SQL</button>
+          <button class="sk-chip" onclick="addSkChip('Python')">Python</button>
+          <button class="sk-chip" onclick="addSkChip('JavaScript')">JavaScript</button>
+          <button class="sk-chip" onclick="addSkChip('Excel Avançado')">Excel Avançado</button>
+          <button class="sk-chip" onclick="addSkChip('CRM')">CRM</button>
+          <button class="sk-chip" onclick="addSkChip('ERP')">ERP</button>
+          <!-- RH / Operações -->
+          <button class="sk-chip" onclick="addSkChip('Recrutamento e Seleção')">Recrutamento e Seleção</button>
+          <button class="sk-chip" onclick="addSkChip('Treinamento e Desenvolvimento')">Treinamento e Desenvolvimento</button>
+          <button class="sk-chip" onclick="addSkChip('Gestão de pessoas')">Gestão de pessoas</button>
+          <button class="sk-chip" onclick="addSkChip('Logística')">Logística</button>
+          <button class="sk-chip" onclick="addSkChip('Controle de estoque')">Controle de estoque</button>
+          <button class="sk-chip" onclick="addSkChip('Finanças')">Finanças</button>
+          <button class="sk-chip" onclick="addSkChip('Contabilidade')">Contabilidade</button>
+          <button class="sk-chip" onclick="addSkChip('Marketing Digital')">Marketing Digital</button>
+          <button class="sk-chip" onclick="addSkChip('Mídias sociais')">Mídias sociais</button>
+          <button class="sk-chip" onclick="addSkChip('Inglês')">Inglês</button>
+          <button class="sk-chip" onclick="addSkChip('Espanhol')">Espanhol</button>
+        </div>
+      </div>
       <div class="fb" id="fb-hb"></div>
     </div>
   </div>
@@ -915,12 +964,19 @@ function te(s){
   ids.forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=!editing;});
   document.getElementById('be-'+s).style.display=editing?'none':'inline-block';
   bsv.style.display=editing?'inline-block':'none';
-  if(s==='hb')document.getElementById('si').disabled=!editing;
+  if(s==='hb'){
+    document.getElementById('si').disabled=!editing;
+    const sugg = document.getElementById('sk-suggestions');
+    if(sugg) sugg.style.display = editing ? 'block' : 'none';
+    if(editing) atualizarChips();
+  }
   if(s==='pf')document.querySelectorAll('#p-mod .tgb,#p-con .tgb').forEach(b=>b.disabled=!editing);
 }
 
 function tgb(btn,g){if(btn.disabled)return;document.querySelectorAll('#'+g+' .tgb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
-function addSk(e){if(e.key!=='Enter')return;e.preventDefault();const v=e.target.value.trim();if(!v||sks.includes(v))return;sks.push(v);e.target.value='';rSk();}
+function addSk(e){if(e.key!=='Enter')return;e.preventDefault();const v=e.target.value.trim();if(!v||sks.includes(v))return;sks.push(v);e.target.value='';rSk();atualizarChips();}
+function addSkChip(v){if(sks.includes(v))return;sks.push(v);rSk();atualizarChips();}
+function atualizarChips(){document.querySelectorAll('.sk-chip').forEach(btn=>{const nome=btn.textContent.trim();btn.classList.toggle('usado',sks.includes(nome));});}
 function rmSk(i){sks.splice(i,1);rSk();}
 function showFb(id,msg,t){const el=document.getElementById(id);el.textContent=msg;el.className=`fb ${t} show`;setTimeout(()=>el.classList.remove('show'),3000);}
 function tr(d){const h=Math.floor((Date.now()-new Date(d))/36e5);if(h<1)return'agora';if(h<24)return`há ${h}h`;const dd=Math.floor(h/24);return dd===1?'há 1 dia':`há ${dd} dias`;}
