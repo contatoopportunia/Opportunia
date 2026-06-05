@@ -174,6 +174,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .cttl{font-size:.9rem;font-weight:500}
 .csub{font-size:.78rem;color:var(--ink-3);margin-top:2px}
 .sp{font-size:.72rem;font-weight:500;padding:.25rem .75rem;border-radius:var(--radius-pill);white-space:nowrap}
+.filtro-cand{background:var(--surface);border:1.5px solid var(--border-strong);border-radius:20px;padding:.3rem .9rem;font-size:.8rem;font-family:"DM Sans",sans-serif;color:var(--ink-2);cursor:pointer;transition:all .15s}
+.filtro-cand.active,.filtro-cand:hover{background:var(--ink);color:var(--white);border-color:var(--ink)}
 .sp-p{background:var(--gold-light);color:var(--gold)}
 .sp-v{background:var(--blue-light);color:var(--blue)}
 .sp-a{background:var(--green-light);color:var(--green)}
@@ -484,6 +486,12 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   <div class="page" id="page-ca">
     <div class="card">
       <div class="card-hdr"><div><div class="card-ttl">Minhas candidaturas</div><div class="card-sub">Acompanhe o status de cada vaga</div></div></div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+        <button class="filtro-cand active" onclick="filtrarCandidaturas('todas',this)">Todas</button>
+        <button class="filtro-cand" onclick="filtrarCandidaturas('analise',this)">⏳ Em análise</button>
+        <button class="filtro-cand" onclick="filtrarCandidaturas('aprovada',this)">✓ Aprovadas</button>
+        <button class="filtro-cand" onclick="filtrarCandidaturas('reprovada',this)">✕ Não selecionadas</button>
+      </div>
       <div id="cal"></div>
     </div>
   </div>
@@ -939,8 +947,21 @@ async function del(tb,id,fn){
   ext[tb]=ext[tb].filter(i=>i.id!==id);fn();comp();rr();
 }
 
+function filtrarCandidaturas(filtro, btn) {
+  document.querySelectorAll('.filtro-cand').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const data = window._todasCandidaturas || [];
+  const filtrados = filtro === 'todas' ? data
+    : filtro === 'analise' ? data.filter(c=>['pendente','visualizada','talvez'].includes(c.status))
+    : data.filter(c=>c.status===filtro);
+  renderCandidaturas(filtrados);
+}
 async function loadCands(){
   const{data}=await sb.from('candidaturas').select('*,vagas(titulo,area,salario_min,empresas(nome,email,telefone))').eq('email',prf.email).order('created_at',{ascending:false});
+  window._todasCandidaturas=data||[];
+  renderCandidaturas(data);
+}
+function renderCandidaturas(data){
   const el=document.getElementById('cal');
   if(!data||!data.length){el.innerHTML='<div class="emp">Nenhuma candidatura ainda. <a href="oportunia-integrado.html#vagas" style="color:var(--accent);text-decoration:none;font-weight:500">Ver vagas →</a></div>';return;}
   const cls={pendente:'sp-p',visualizada:'sp-p',talvez:'sp-p',aprovada:'sp-a',reprovada:'sp-r'};
