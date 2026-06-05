@@ -8,7 +8,95 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+function openAuthModal(tipo) {
+  switchAuthTab(tipo || 'login');
+  document.getElementById('modal-auth').classList.add('open');
+}
+function closeAuthModal() {
+  document.getElementById('modal-auth').classList.remove('open');
+}
+function switchAuthTab(tab) {
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-cadastro').style.display = tab === 'cadastro' ? 'block' : 'none';
+  document.getElementById('form-recuperar').style.display = 'none';
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-cadastro').classList.toggle('active', tab === 'cadastro');
+}
+function mostrarRecuperarSenha() {
+  document.getElementById('form-login').style.display = 'none';
+  document.getElementById('form-recuperar').style.display = 'block';
+  document.getElementById('recuperar-error').textContent = '';
+  document.getElementById('recuperar-success').style.display = 'none';
+  setTimeout(() => document.getElementById('recuperar-email').focus(), 100);
+}
+function voltarParaLogin() {
+  document.getElementById('form-recuperar').style.display = 'none';
+  document.getElementById('form-login').style.display = 'block';
+}
+async function enviarRecuperacao() {
+  const email = document.getElementById('recuperar-email').value.trim();
+  const btn = document.getElementById('btn-recuperar-submit');
+  const err = document.getElementById('recuperar-error');
+  const suc = document.getElementById('recuperar-success');
+  err.textContent = ''; suc.style.display = 'none';
+  if (!email) { err.textContent = 'Digite seu e-mail.'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/oportunia-integrado.html?reset=true'
+  });
+  btn.disabled = false; btn.textContent = 'Enviar link →';
+  if (error) { err.textContent = 'Erro ao enviar. Verifique o e-mail e tente novamente.'; err.classList.add('show'); }
+  else { suc.textContent = '✓ Link enviado! Verifique sua caixa de entrada (e o spam).'; suc.style.display = 'block'; err.classList.remove('show'); }
+}
+function mostrarErroAuth(el, msg) {
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const btn = document.getElementById('btn-login-submit');
+  const err = document.getElementById('login-error');
+  if (!email || !senha) { mostrarErroAuth(err, 'Preencha e-mail e senha.'); return; }
+  btn.disabled = true; btn.textContent = 'Entrando…';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+  if (error) {
+    mostrarErroAuth(err, 'E-mail ou senha incorretos.');
+    btn.disabled = false; btn.textContent = 'Entrar →';
+    return;
+  }
+  // Após login, recarrega a própria página de vaga
+  window.location.reload();
+}
+async function criarConta() {
+  const nome = document.getElementById('cad-nome').value.trim();
+  const email = document.getElementById('cad-email').value.trim();
+  const senha = document.getElementById('cad-senha').value;
+  const tipo = document.getElementById('tipo-conta').value;
+  const btn = document.getElementById('btn-cad-submit');
+  const err = document.getElementById('cad-error');
+  const suc = document.getElementById('cad-success');
+  if (!nome || !email || !senha) { mostrarErroAuth(err, 'Preencha todos os campos.'); return; }
+  if (senha.length < 6) { mostrarErroAuth(err, 'Senha deve ter no mínimo 6 caracteres.'); return; }
+  if (!document.getElementById('aceite-termos')?.checked) { mostrarErroAuth(err, 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.'); return; }
+  btn.disabled = true; btn.textContent = 'Criando conta…';
+  const { data, error } = await sb.auth.signUp({ email, password: senha, options: { data: { nome, tipo } } });
+  if (error) {
+    mostrarErroAuth(err, error.message === 'User already registered' ? 'Este e-mail já está cadastrado.' : 'Erro ao criar conta. Tente novamente.');
+    btn.disabled = false; btn.textContent = 'Criar conta grátis →';
+    return;
+  }
+  if (data.user) {
+    if (tipo === 'candidato') { await sb.from('candidatos').insert({ user_id: data.user.id, nome, email }); }
+    else { await sb.from('empresas').insert({ user_id: data.user.id, nome, email, tipo: 'empresa' }); }
+  }
+  err.classList.remove('show');
+  suc.textContent = '✓ Conta criada! Verifique seu e-mail para confirmar.';
+  suc.classList.add('show');
+  btn.textContent = 'Conta criada!';
+}
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -127,6 +215,12 @@
   /* MODAL CANDIDATURA */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,17,23,0.6); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
   .modal-overlay.open { display: flex; }
+  .modal-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+  .modal-tab { flex: 1; text-align: center; padding: 0.6rem; font-size: 0.88rem; color: var(--ink-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+  .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+  .btn-submit { width: 100%; padding: 0.85rem; background: var(--accent); color: var(--white); border: none; border-radius: var(--radius-pill); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
+  .btn-submit:hover { background: #c93a08; }
+  .btn-submit:disabled { background: var(--ink-3); cursor: not-allowed; }
   .modal { background: var(--white); border-radius: var(--radius-lg); padding: 2.5rem; max-width: 480px; width: 90%; animation: fadeUp 0.25s ease; position: relative; }
   .modal h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.4rem; margin-bottom: 0.25rem; }
   .modal-vaga { color: var(--accent); font-weight: 500; margin-bottom: 1.5rem; font-size: 0.95rem; }
@@ -204,7 +298,7 @@
     <span></span><span></span><span></span>
   </button>
   <div id="nav-user-area">
-    <button class="nav-cta" onclick="window.location.href='oportunia-integrado.html'">Entrar</button>
+    <button class="nav-cta" onclick="openAuthModal('login')">Entrar</button>
   </div>
 </nav>
 
@@ -275,6 +369,64 @@
 </div>
 
 <!-- MODAL CANDIDATURA -->
+
+<!-- MODAL AUTH -->
+<div class="modal-overlay" id="modal-auth" onclick="if(event.target===this)closeAuthModal()">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    <div class="modal-tabs">
+      <div class="modal-tab active" id="tab-login" onclick="switchAuthTab('login')">Entrar</div>
+      <div class="modal-tab" id="tab-cadastro" onclick="switchAuthTab('cadastro')">Criar conta</div>
+    </div>
+    <!-- LOGIN -->
+    <div id="form-login">
+      <h2>Bem-vindo de volta</h2>
+      <p>Entre na sua conta Opportunia</p>
+      <div class="form-group"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')document.getElementById('login-senha').focus()" /></div>
+      <div class="form-group"><label>Senha</label><input type="password" id="login-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()" /></div>
+      <div class="modal-error" id="login-error"></div>
+      <div id="login-success" style="display:none;background:#e8f5e9;color:#2e7d32;border-radius:8px;padding:.75rem 1rem;font-size:.88rem;margin-bottom:.75rem"></div>
+      <div style="text-align:right;margin-bottom:.75rem">
+        <button onclick="mostrarRecuperarSenha()" style="background:none;border:none;color:var(--accent);font-size:.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;text-decoration:underline">Esqueci minha senha</button>
+      </div>
+      <button class="btn-submit" id="btn-login-submit" onclick="fazerLogin()">Entrar →</button>
+    </div>
+    <!-- RECUPERAR SENHA -->
+    <div id="form-recuperar" style="display:none">
+      <h2>Recuperar senha</h2>
+      <p>Digite seu e-mail e enviaremos um link para redefinir sua senha.</p>
+      <div class="form-group"><label>E-mail</label><input type="email" id="recuperar-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')enviarRecuperacao()" /></div>
+      <div class="modal-error" id="recuperar-error"></div>
+      <div id="recuperar-success" style="display:none;background:#e8f5e9;color:#2e7d32;border-radius:8px;padding:.75rem 1rem;font-size:.88rem;margin-bottom:.75rem"></div>
+      <button class="btn-submit" id="btn-recuperar-submit" onclick="enviarRecuperacao()">Enviar link →</button>
+      <div style="text-align:center;margin-top:1rem">
+        <button onclick="voltarParaLogin()" style="background:none;border:none;color:var(--ink-3);font-size:.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0">← Voltar ao login</button>
+      </div>
+    </div>
+    <!-- CADASTRO -->
+    <div id="form-cadastro" style="display:none">
+      <h2>Criar sua conta</h2>
+      <p>Gratuito para candidatos · sempre</p>
+      <div class="form-group"><label>Tipo de conta</label>
+        <select id="tipo-conta">
+          <option value="candidato">Sou candidato</option>
+          <option value="empresa">Sou empresa</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Nome completo / Empresa</label><input type="text" id="cad-nome" placeholder="Seu nome ou nome da empresa" /></div>
+      <div class="form-group"><label>E-mail</label><input type="email" id="cad-email" placeholder="seu@email.com" /></div>
+      <div class="form-group"><label>Senha</label><input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres" /></div>
+      <div class="modal-error" id="cad-error"></div>
+      <div class="modal-success" id="cad-success"></div>
+      <label style="display:flex;align-items:flex-start;gap:0.6rem;font-size:0.82rem;color:var(--ink-3);cursor:pointer;margin-bottom:0.5rem">
+        <input type="checkbox" id="aceite-termos" style="margin-top:3px;flex-shrink:0;accent-color:var(--accent)" />
+        <span>Li e aceito os <a href="oportunia-termos.html" target="_blank" style="color:var(--accent)">Termos de Uso</a> e a <a href="oportunia-privacidade.html" target="_blank" style="color:var(--accent)">Política de Privacidade</a></span>
+      </label>
+      <button class="btn-submit" id="btn-cad-submit" onclick="criarConta()">Criar conta grátis →</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-cand" onclick="if(event.target===this)fecharModal()">
   <div class="modal">
     <button class="modal-close" onclick="fecharModal()">✕</button>
@@ -640,7 +792,7 @@ function mostrarErroVaga() {
 
 function abrirModal() {
   if (!usuarioLogado) {
-    alert('Faça login ou crie uma conta gratuita para se candidatar.');
+    openAuthModal('login');
     return;
   }
   document.getElementById('modal-cand').classList.add('open');
@@ -725,5 +877,22 @@ function toggleMenu() {
 </footer>
 
 
+<div id="toast-login" style="
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);
+  background:#0f1117;color:#fff;
+  padding:1rem 1.5rem;border-radius:12px;
+  box-shadow:0 4px 24px rgba(0,0,0,.25);
+  display:none;align-items:center;gap:1rem;
+  font-family:'DM Sans',sans-serif;font-size:.9rem;
+  z-index:9999;white-space:nowrap;
+">
+  <span>🔒 Crie uma conta gratuita ou faça login para se candidatar</span>
+  <a href="oportunia-integrado.html" style="
+    background:#e8440a;color:#fff;border-radius:8px;
+    padding:.4rem .9rem;font-weight:500;text-decoration:none;font-size:.85rem;
+    white-space:nowrap;
+  ">Entrar →</a>
+</div>
+<style>#toast-login.show{display:flex!important;}</style>
 </body>
 </html>
