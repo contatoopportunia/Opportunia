@@ -640,9 +640,9 @@ function mostrarErroVaga() {
 
 function abrirModal() {
   if (!usuarioLogado) {
-    // Salva vaga para abrir após login
-    sessionStorage.setItem('vagaPendente', window.location.href);
-    window.location.href = 'oportunia-integrado.html';
+    const toast = document.getElementById('toast-login');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 5000);
     return;
   }
   document.getElementById('modal-cand').classList.add('open');
@@ -726,5 +726,24 @@ function toggleMenu() {
   <div style="font-size:0.8rem;text-align:center"><div>© 2026 Opportunia® · Bauru, SP</div><div>Todos os direitos reservados.</div></div>
 </footer>
 
+
+<div id="toast-login" style="
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);
+  background:#0f1117;color:#fff;
+  padding:1rem 1.5rem;border-radius:12px;
+  box-shadow:0 4px 24px rgba(0,0,0,.25);
+  display:flex;align-items:center;gap:1rem;
+  font-family:'DM Sans',sans-serif;font-size:.9rem;
+  z-index:9999;opacity:0;pointer-events:none;
+  transition:opacity .3s;white-space:nowrap;
+">
+  <span>🔒 Crie uma conta gratuita ou faça login para se candidatar</span>
+  <a href="oportunia-integrado.html" style="
+    background:#e8440a;color:#fff;border-radius:8px;
+    padding:.4rem .9rem;font-weight:500;text-decoration:none;font-size:.85rem;
+    white-space:nowrap;
+  ">Entrar →</a>
+</div>
+<style>#toast-login.show{opacity:1;pointer-events:auto;}</style>
 </body>
 </html>
