@@ -940,12 +940,25 @@ async function del(tb,id,fn){
 }
 
 async function loadCands(){
-  const{data}=await sb.from('candidaturas').select('*,vagas(titulo,area,salario_min)').eq('email',prf.email).order('created_at',{ascending:false});
+  const{data}=await sb.from('candidaturas').select('*,vagas(titulo,area,salario_min,empresas(nome,email,telefone))').eq('email',prf.email).order('created_at',{ascending:false});
   const el=document.getElementById('cal');
   if(!data||!data.length){el.innerHTML='<div class="emp">Nenhuma candidatura ainda. <a href="oportunia-integrado.html#vagas" style="color:var(--accent);text-decoration:none;font-weight:500">Ver vagas →</a></div>';return;}
   const cls={pendente:'sp-p',visualizada:'sp-v',aprovada:'sp-a',reprovada:'sp-r'};
   const lbl={pendente:'⏳ Pendente',visualizada:'👁 Visualizada',aprovada:'✓ Aprovado!',reprovada:'✕ Não selecionado'};
-  el.innerHTML=data.map(c=>`<div class="citem"><div class="cico">💼</div><div style="flex:1"><div class="cttl">${c.vagas?.titulo||'Vaga'}</div><div class="csub">${c.vagas?.area||''} · ${c.vagas?.salario_min?'R$ '+Number(c.vagas.salario_min).toLocaleString('pt-BR'):'A combinar'} · ${tr(c.created_at)}</div></div><span class="sp ${cls[c.status]||'sp-p'}">${lbl[c.status]||c.status}</span></div>`).join('');
+  el.innerHTML=data.map(c=>{
+    const emp=c.vagas?.empresas||{};
+    const aprovado=c.status==='aprovada';
+    const contato=aprovado?`<div style="margin-top:.75rem;padding:.75rem 1rem;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:.83rem;color:#166534;line-height:1.7">
+      🎉 <strong>Parabéns! Você foi selecionado.</strong> A empresa entrará em contato com você em breve pelo seu WhatsApp ou e-mail cadastrado.<br>
+      ${emp.email||emp.telefone?`<span style="color:#15803d">Você também pode entrar em contato com <strong>${emp.nome||'a empresa'}</strong>: `+[emp.email?`<a href="mailto:${emp.email}" style="color:#15803d">${emp.email}</a>`:'',emp.telefone?`<a href="https://wa.me/55${emp.telefone.replace(/\D/g,'')}" target="_blank" style="color:#15803d">WhatsApp</a>`:''].filter(Boolean).join(' · ')+'</span>':''}
+    </div>`:'';
+    return `<div class="citem" style="flex-direction:column;align-items:stretch;gap:.25rem">
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <div class="cico">💼</div>
+        <div style="flex:1"><div class="cttl">${c.vagas?.titulo||'Vaga'}</div><div class="csub">${c.vagas?.area||''} · ${c.vagas?.salario_min?'R$ '+Number(c.vagas.salario_min).toLocaleString('pt-BR'):'A combinar'} · ${tr(c.created_at)}</div></div>
+        <span class="sp ${cls[c.status]||'sp-p'}">${lbl[c.status]||c.status}</span>
+      </div>${contato}</div>`;
+  }).join('');
 }
 
 function sp(p){
