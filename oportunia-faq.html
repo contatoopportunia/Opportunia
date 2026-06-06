@@ -146,7 +146,7 @@
     <li><a href="oportunia-sobre.html">Sobre nós</a></li>
   </ul>
   <div id="nav-user-area" style="visibility:hidden">
-    <a href="oportunia-integrado.html?login=true" class="nav-cta" id="btn-entrar">Entrar</a>
+    <button onclick="openAuthModal('candidato')" class="nav-cta" id="btn-entrar">Entrar</button>
   </div>
 </nav>
 
@@ -322,6 +322,66 @@
 
 </div>
 
+<div class="modal-overlay" id="modal-auth" onclick="if(event.target===this)closeAuthModal()">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    <div class="modal-tabs">
+      <div class="modal-tab active" id="tab-login" onclick="switchAuthTab('login')">Entrar</div>
+      <div class="modal-tab" id="tab-cadastro" onclick="switchAuthTab('cadastro')">Criar conta</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="form-login">
+      <h2>Bem-vindo de volta</h2>
+      <p>Entre na sua conta Opportunia</p>
+      <div class="form-group"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')document.getElementById('login-senha').focus()" /></div>
+      <div class="form-group"><label>Senha</label><input type="password" id="login-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()" /></div>
+      <div class="modal-error" id="login-error"></div>
+      <div id="login-success" style="display:none;background:#e8f5e9;color:#2e7d32;border-radius:8px;padding:.75rem 1rem;font-size:.88rem;margin-bottom:.75rem"></div>
+      <div style="text-align:right;margin-bottom:.75rem">
+        <button onclick="mostrarRecuperarSenha()" style="background:none;border:none;color:var(--accent);font-size:.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;text-decoration:underline">Esqueci minha senha</button>
+      </div>
+      <button class="btn-submit" id="btn-login-submit" onclick="fazerLogin()">Entrar →</button>
+    </div>
+
+    <!-- RECUPERAR SENHA -->
+    <div id="form-recuperar" style="display:none">
+      <h2>Recuperar senha</h2>
+      <p>Digite seu e-mail e enviaremos um link para redefinir sua senha.</p>
+      <div class="form-group"><label>E-mail</label><input type="email" id="recuperar-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')enviarRecuperacao()" /></div>
+      <div class="modal-error" id="recuperar-error"></div>
+      <div id="recuperar-success" style="display:none;background:#e8f5e9;color:#2e7d32;border-radius:8px;padding:.75rem 1rem;font-size:.88rem;margin-bottom:.75rem"></div>
+      <button class="btn-submit" id="btn-recuperar-submit" onclick="enviarRecuperacao()">Enviar link →</button>
+      <div style="text-align:center;margin-top:1rem">
+        <button onclick="voltarParaLogin()" style="background:none;border:none;color:var(--ink-3);font-size:.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0">← Voltar ao login</button>
+      </div>
+    </div>
+
+    <!-- CADASTRO -->
+    <div id="form-cadastro" style="display:none">
+      <h2>Criar sua conta</h2>
+      <p>Gratuito para candidatos · sempre</p>
+      <div class="form-group"><label>Tipo de conta</label>
+        <select id="tipo-conta">
+          <option value="candidato">Sou candidato</option>
+          <option value="empresa">Sou empresa</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Nome completo / Empresa</label><input type="text" id="cad-nome" placeholder="Seu nome ou nome da empresa" /></div>
+      <div class="form-group"><label>E-mail</label><input type="email" id="cad-email" placeholder="seu@email.com" /></div>
+      <div class="form-group"><label>Senha</label><input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres" /></div>
+      <div class="modal-error" id="cad-error"></div>
+      <div class="modal-success" id="cad-success"></div>
+      <label style="display:flex;align-items:flex-start;gap:0.6rem;font-size:0.82rem;color:var(--ink-3);cursor:pointer;margin-bottom:0.5rem">
+        <input type="checkbox" id="aceite-termos" style="margin-top:3px;flex-shrink:0;accent-color:var(--accent)" />
+        <span>Li e aceito os <a href="oportunia-termos.html" target="_blank" style="color:var(--accent)">Termos de Uso</a> e a <a href="oportunia-privacidade.html" target="_blank" style="color:var(--accent)">Política de Privacidade</a></span>
+      </label>
+      <button class="btn-submit" id="btn-cad-submit" onclick="criarConta()">Criar conta grátis →</button>
+    </div>
+  </div>
+</div>
+
+
 <footer>
   <div class="footer-logo">Opportu<span>nia</span><sup style="font-size:0.95rem;font-weight:500;vertical-align:super;letter-spacing:0;color:rgba(255,255,255,0.35);margin-left:2px">®</sup></div>
   <div class="footer-links">
@@ -356,7 +416,7 @@ function toggleMenu() {
 
 async function fazerLogout() {
   await sb.auth.signOut();
-  window.location.href = 'oportunia-integrado.html';
+  window.location.reload();
 }
 
 async function iniciarNav() {
@@ -370,7 +430,7 @@ async function iniciarNav() {
     if (session) {
       atualizarNavUsuario(session.user);
     } else {
-      document.getElementById('nav-user-area').innerHTML = `<a href="oportunia-integrado.html?login=true" class="nav-cta">Entrar</a>`;
+      document.getElementById('nav-user-area').innerHTML = `<button onclick="openAuthModal('candidato')" class="nav-cta">Entrar</button>`;
       document.getElementById('nav-user-area').style.visibility = 'visible';
       const mobileLink = document.getElementById('nav-mobile-entrar-li');
       if (mobileLink) mobileLink.style.display = 'list-item';
@@ -425,6 +485,109 @@ async function atualizarNavUsuario(user) {
 }
 
 iniciarNav();
+function openAuthModal(tipo) {
+  document.getElementById('modal-auth').classList.add('open');
+  if (tipo === 'empresa') {
+    switchAuthTab('cadastro');
+    document.getElementById('tipo-conta').value = 'empresa';
+  } else {
+    switchAuthTab('login');
+  }
+}
+
+function closeAuthModal() {
+  document.getElementById('modal-auth').classList.remove('open');
+}
+
+function switchAuthTab(tab) {
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-recuperar').style.display = 'none';
+  document.getElementById('form-cadastro').style.display = tab === 'cadastro' ? 'block' : 'none';
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-cadastro').classList.toggle('active', tab === 'cadastro');
+}
+
+function mostrarRecuperarSenha() {
+  document.getElementById('form-login').style.display = 'none';
+  document.getElementById('form-recuperar').style.display = 'block';
+}
+
+function voltarParaLogin() {
+  document.getElementById('form-recuperar').style.display = 'none';
+  document.getElementById('form-login').style.display = 'block';
+}
+
+function mostrarErro(el, msg) {
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+async function enviarRecuperacao() {
+  const email = document.getElementById('recuperar-email').value.trim();
+  const btn = document.getElementById('btn-recuperar-submit');
+  const err = document.getElementById('recuperar-error');
+  const suc = document.getElementById('recuperar-success');
+  err.textContent = ''; suc.style.display = 'none';
+  if (!email) { err.textContent = 'Digite seu e-mail.'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://www.opportunia.com.br/oportunia-integrado.html?reset=true'
+  });
+  btn.disabled = false; btn.textContent = 'Enviar link →';
+  if (error) { err.textContent = 'Erro ao enviar. Verifique o e-mail e tente novamente.'; err.classList.add('show'); }
+  else { suc.textContent = '✓ Link enviado! Verifique sua caixa de entrada (e o spam).'; suc.style.display = 'block'; err.classList.remove('show'); }
+}
+
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const btn = document.getElementById('btn-login-submit');
+  const err = document.getElementById('login-error');
+  if (!email || !senha) { mostrarErro(err, 'Preencha e-mail e senha.'); return; }
+  btn.disabled = true; btn.textContent = 'Entrando…';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+  if (error) {
+    mostrarErro(err, 'E-mail ou senha incorretos.');
+    btn.disabled = false; btn.textContent = 'Entrar →';
+    return;
+  }
+  const user = data.user;
+  const tipo = user.user_metadata?.tipo || 'candidato';
+  const isAdmin = user.email === 'caueokiyama.adm@gmail.com';
+  if (isAdmin) window.location.href = 'oportunia-admin.html';
+  else if (tipo === 'empresa') window.location.href = 'oportunia-painel-empresa.html';
+  else window.location.href = 'oportunia-perfil-candidato-v2.html';
+}
+
+async function criarConta() {
+  const nome = document.getElementById('cad-nome').value.trim();
+  const email = document.getElementById('cad-email').value.trim();
+  const senha = document.getElementById('cad-senha').value;
+  const tipo = document.getElementById('tipo-conta').value;
+  const btn = document.getElementById('btn-cad-submit');
+  const err = document.getElementById('cad-error');
+  const suc = document.getElementById('cad-success');
+  if (!nome || !email || !senha) { mostrarErro(err, 'Preencha todos os campos.'); return; }
+  if (senha.length < 6) { mostrarErro(err, 'Senha deve ter no mínimo 6 caracteres.'); return; }
+  if (!document.getElementById('aceite-termos')?.checked) { mostrarErro(err, 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.'); return; }
+  btn.disabled = true; btn.textContent = 'Criando conta…';
+  const { data, error } = await sb.auth.signUp({ email, password: senha, options: { data: { nome, tipo } } });
+  if (error) {
+    mostrarErro(err, error.message === 'User already registered' ? 'Este e-mail já está cadastrado.' : 'Erro ao criar conta. Tente novamente.');
+    btn.disabled = false; btn.textContent = 'Criar conta grátis →';
+    return;
+  }
+  if (data.user) {
+    if (tipo === 'candidato') await sb.from('candidatos').insert({ user_id: data.user.id, nome, email });
+    else await sb.from('empresas').insert({ user_id: data.user.id, nome, email, tipo: 'empresa' });
+  }
+  err.classList.remove('show');
+  suc.textContent = '✓ Conta criada! Verifique seu e-mail para confirmar.';
+  suc.classList.add('show');
+  btn.textContent = 'Conta criada!';
+}
+
+
 </script>
 </body>
 </html>
