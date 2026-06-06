@@ -390,7 +390,7 @@ function renderTopicos(texto) {
   return texto.split('\n').map(linha => {
     const l = linha.trim();
     if (!l) return '';
-    if (l.startsWith('*')) return `<li>${l.substring(1).trim()}</li>`;
+    if (l.startsWith('*') || l.startsWith('-')) return `<li>${l.substring(1).trim()}</li>`;
     return `<p style="margin-bottom:0.5rem;color:var(--ink-2);font-size:0.95rem">${l}</p>`;
   }).join('');
 }
@@ -398,7 +398,7 @@ function renderTopicos(texto) {
 function wrapTopicos(texto) {
   if (!texto) return '';
   const linhas = texto.split('\n').map(l => l.trim()).filter(Boolean);
-  const temTopicos = linhas.some(l => l.startsWith('*'));
+  const temTopicos = linhas.some(l => l.startsWith('*') || l.startsWith('-'));
   if (temTopicos) {
     return '<ul class="req-list">' + renderTopicos(texto) + '</ul>';
   }
