@@ -8,19 +8,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-function renderDesc(txt){
-  if(!txt)return'';
-  const linhas=txt.split('\n');
-  const temTopicos=linhas.some(l=>/^[\-\*]\s/.test(l.trim()));
-  if(!temTopicos)return`<p style="font-size:.85rem;color:var(--ink-2);line-height:1.7;margin-top:.4rem">${txt.replace(/\n/g,'<br>')}</p>`;
-  const items=linhas.filter(l=>l.trim()).map(l=>{
-    const clean=l.trim().replace(/^[\-\*]\s*/,'');
-    return`<li style="font-size:.85rem;color:var(--ink-2);line-height:1.6">${clean}</li>`;
-  });
-  return`<ul style="margin:.4rem 0 0 1rem;padding:0">${items.join('')}</ul>`;
-}
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
 </script>
+
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--ink:#0f1117;--ink-2:#3a3d4a;--ink-3:#7a7f94;--surface:#f5f4f0;--white:#fff;--accent:#e8440a;--accent-light:#fff0eb;--blue:#1a3c6e;--blue-light:#e8eef8;--green:#0f6b3a;--green-light:#e6f4ed;--gold:#c9920a;--gold-light:#fdf3dc;--red:#b91c1c;--red-light:#fde8e8;--border:rgba(15,17,23,.1);--border-strong:rgba(15,17,23,.18);--radius:12px;--radius-sm:8px;--radius-lg:20px;--radius-pill:100px}
@@ -133,6 +125,17 @@ const NC={Básico:'nb-bas',Intermediário:'nb-int',Avançado:'nb-ava',Fluente:'n
 let candidaturaId=null;
 let candidatoId=null;
 
+function renderDesc(txt){
+  if(!txt)return'';
+  const linhas=txt.split('\n');
+  const temTopicos=linhas.some(l=>/^[\-\*]\s/.test(l.trim()));
+  if(!temTopicos)return`<p style="font-size:.85rem;color:var(--ink-2);line-height:1.7;margin-top:.4rem">${txt.replace(/\n/g,'<br>')}</p>`;
+  const items=linhas.filter(l=>l.trim()).map(l=>{
+    const clean=l.trim().replace(/^[\-\*]\s*/,'');
+    return`<li style="font-size:.85rem;color:var(--ink-2);line-height:1.6">${clean}</li>`;
+  });
+  return`<ul style="margin:.4rem 0 0 1rem;padding:0">${items.join('')}</ul>`;
+}
 document.addEventListener('DOMContentLoaded',async()=>{
   const params=new URLSearchParams(window.location.search);
   candidaturaId=params.get('candidatura');
