@@ -1558,7 +1558,7 @@ function renderVagasTable() {
                     : `<button class="action-btn success" onclick="mudarStatus('${v.id}','ativa')">Ativar</button><button class="action-btn danger" onclick="mudarStatus('${v.id}','encerrada')">Encerrar</button>`
                   : v.encerrada_admin
                     ? `<span style="font-size:.78rem;color:#ef4444;font-weight:500;padding:.3rem .6rem">🔒 Encerrada pelo admin</span>`
-                    : `<button class="action-btn success" onclick="mudarStatus('${v.id}','ativa')">Reativar</button>`}
+                    : `<button class="action-btn" onclick="mudarStatus('${v.id}','pausada')">Pausar</button><button class="action-btn success" onclick="mudarStatus('${v.id}','ativa')">Reativar</button>`}
             </div>
           </div>
         `;
