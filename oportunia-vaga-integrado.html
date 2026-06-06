@@ -656,6 +656,7 @@ function renderizarEmpresa(emp){
 async function salvarVaga(){
   const { data: { session } } = await sb.auth.getSession();
   if(!session){ alert('Faça login para salvar vagas.'); return; }
+  if(session.user.user_metadata?.tipo === 'empresa'){ alert('Empresas não podem salvar vagas.'); return; }
   const vagaId = new URLSearchParams(window.location.search).get('id');
   if(!vagaId) return;
   const btn = document.getElementById('btn-salvar-vaga');
