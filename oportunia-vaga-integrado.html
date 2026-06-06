@@ -412,7 +412,7 @@ function tempoRelativo(dateStr) {
 function formatSalario(min, max) {
   if (min && max && min === max) return `R$ ${Number(min).toLocaleString('pt-BR')}`;
   if (min && max && min !== max) return `R$ ${Number(min).toLocaleString('pt-BR')} – R$ ${Number(max).toLocaleString('pt-BR')}`;
-  if (min) return `A partir de R$ ${Number(min).toLocaleString('pt-BR')}`;
+  if (min) return `R$ ${Number(min).toLocaleString('pt-BR')}`;
   return 'A combinar';
 }
 
