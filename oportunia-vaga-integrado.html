@@ -472,9 +472,7 @@ async function carregarVaga(id) {
   vagaAtual = vaga;
   renderizarVaga(vaga);
   carregarSimilares(vaga.area, id);
-  // Renderiza empresa já com dados do join
   if(vaga.empresas) renderizarEmpresa(vaga.empresas);
-  // Verifica se vaga já está salva
   sb.auth.getSession().then(({data:{session}})=>{
     if(!session) return;
     sb.from('vagas_salvas').select('id').eq('candidato_id',session.user.id).eq('vaga_id',id).single().then(({data})=>{
@@ -712,9 +710,9 @@ function mostrarErroVaga() {
   `;
 }
 
-async function abrirModal() {
+function abrirModal() {
   if (!usuarioLogado) {
-    openAuthModal('login');
+    alert('Faça login ou crie uma conta gratuita para se candidatar.');
     return;
   }
   const { data: cand } = await sb.from('candidatos').select('id, nome, telefone').eq('user_id', usuarioLogado.id).single();
