@@ -1131,6 +1131,19 @@ async function iniciarPainel(user) {
     </div>`;
     return;
   }
+
+  // Verificar vencimento do plano
+  if (empresa.plano !== 'gratuito' && empresa.plano_vencimento) {
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const venc = new Date(empresa.plano_vencimento); venc.setHours(0,0,0,0);
+    if (venc < hoje) {
+      // Pausar todas as vagas ativas automaticamente
+      await sb.from('vagas').update({ status: 'pausada' }).eq('empresa_id', empresa.id).eq('status', 'ativa');
+      // Marcar empresa com plano vencido
+      empresaData = empresa;
+      empresaData._plano_vencido = true;
+    }
+  }
   document.getElementById('s-empresa-nome').textContent = empresa.nome || '';
   // Preenche campos de sobre
   if(empresa.descricao) document.getElementById('sb-descricao').value = empresa.descricao;
@@ -1629,6 +1642,10 @@ function setToggle(groupId, value) {
 }
 
 async function publicarVaga() {
+  if (empresaData?._plano_vencido) {
+    alert('Seu plano venceu. Renove para publicar novas vagas. Entre em contato: contato.opportunia@gmail.com');
+    return;
+  }
   const titulo = document.getElementById('f-titulo').value.trim();
   const area = document.getElementById('f-area').value;
   const nivel = document.getElementById('f-nivel').value;
@@ -2443,7 +2460,7 @@ function renderPlanosPage() {
     const dias = Math.round((vencDate - hoje) / (1000 * 60 * 60 * 24));
     if (dias < 0) {
       banner.style.cssText = 'display:flex;margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:var(--radius);align-items:center;gap:1rem;flex-wrap:wrap;background:#FCEBEB;border:1px solid #F09595';
-      banner.innerHTML = '<span style="font-size:1.2rem">⚠️</span><div style="flex:1"><strong style="color:#A32D2D">Plano vencido</strong><div style="font-size:0.82rem;color:#A32D2D;margin-top:2px">Seu plano venceu em ' + new Date(venc).toLocaleDateString('pt-BR') + '. Renove para continuar publicando vagas.</div></div><button onclick="entrarEmContato()" style="background:#A32D2D;color:#fff;border:none;border-radius:100px;padding:0.5rem 1.25rem;font-size:0.85rem;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif">Renovar agora →</button>';
+      banner.innerHTML = '<span style="font-size:1.2rem">⚠️</span><div style="flex:1"><strong style="color:#A32D2D">Plano vencido</strong><div style="font-size:0.82rem;color:#A32D2D;margin-top:2px">Seu plano venceu em ' + new Date(venc).toLocaleDateString('pt-BR') + '. Suas vagas foram pausadas automaticamente. Renove para reativar.</div></div><button onclick="entrarEmContato()" style="background:#A32D2D;color:#fff;border:none;border-radius:100px;padding:0.5rem 1.25rem;font-size:0.85rem;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif">Renovar agora →</button>';
     } else if (dias <= 7) {
       banner.style.cssText = 'display:flex;margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:var(--radius);align-items:center;gap:1rem;flex-wrap:wrap;background:#FAEEDA;border:1px solid #EF9F27';
       banner.innerHTML = '<span style="font-size:1.2rem">⏰</span><div style="flex:1"><strong style="color:#854F0B">Plano vencendo em ' + dias + ' dia' + (dias !== 1 ? 's' : '') + '</strong><div style="font-size:0.82rem;color:#854F0B;margin-top:2px">Renove antes de ' + new Date(venc).toLocaleDateString('pt-BR') + ' para não perder o acesso às suas vagas.</div></div><button onclick="entrarEmContato()" style="background:#854F0B;color:#fff;border:none;border-radius:100px;padding:0.5rem 1.25rem;font-size:0.85rem;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif">Renovar agora →</button>';
