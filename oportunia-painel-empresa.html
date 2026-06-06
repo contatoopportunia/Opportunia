@@ -1768,7 +1768,7 @@ async function carregarCandidaturas() {
   if (!vagas || vagas.length === 0) { candsData = []; return; }
   
   const vagaIds = vagas.map(v => v.id);
-  const { data } = await sb.from('candidaturas').select('*').in('vaga_id', vagaIds).order('created_at', { ascending: false });
+  const { data } = await sb.from('candidaturas').select('*').in('vaga_id', vagaIds).eq('arquivada_empresa', false).order('created_at', { ascending: false });
   candsData = data || [];
 }
 
@@ -2031,7 +2031,7 @@ async function calcularMatch(candidatura, vaga) {
   }
 
   // 12. HISTÓRICO (3 pts) — candidato ativo na plataforma
-  const { count } = await sb.from('candidaturas').select('*', { count: 'exact', head: true }).eq('candidato_id', candidatura.candidato_id);
+  const { count } = await sb.from('candidaturas').select('*', { count: 'exact', head: true }).eq('candidato_id', candidatura.candidato_id).eq('arquivada_empresa', false);
   if (count >= 3) { score += 3; }
   else if (count >= 1) { score += 1; }
 
@@ -2240,7 +2240,7 @@ function confirmarExcluirCand(candId, nome) {
 }
 
 async function excluirCand(candId) {
-  await sb.from('candidaturas').delete().eq('id', candId);
+  await sb.from('candidaturas').update({ arquivada_empresa: true }).eq('id', candId);
   await carregarCandidaturas();
   atualizarMetrics();
   renderDashCandidatos();
