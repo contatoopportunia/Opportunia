@@ -2240,7 +2240,7 @@ function confirmarExcluirCand(candId, nome) {
 }
 
 async function excluirCand(candId) {
-  await sb.from('candidaturas').update({ arquivada_empresa: true }).eq('id', candId);
+  await sb.from('candidaturas').update({ arquivada_empresa: true, status: 'reprovada' }).eq('id', candId);
   await carregarCandidaturas();
   atualizarMetrics();
   renderDashCandidatos();
