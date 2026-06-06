@@ -34,7 +34,8 @@
     --surface: #f5f4f0; --white: #ffffff;
     --accent: #e8440a; --accent-light: #fff0eb;
     --border: rgba(15,17,23,0.1); --border-strong: rgba(15,17,23,0.2);
-    --radius: 12px; --radius-pill: 100px;
+    --radius: 12px; --radius-lg: 20px; --radius-pill: 100px;
+    --green: #0f6b3a; --green-light: #e6f4ed;
   }
   body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); font-size: 16px; line-height: 1.7; }
   nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1rem 2.5rem; background: rgba(245,244,240,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
@@ -88,6 +89,28 @@
     footer { flex-direction: column; align-items: center; text-align: center; padding: 2rem 1.25rem; }
     .footer-links { justify-content: center; flex-wrap: wrap; }
   }
+  /* MODAL AUTH */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,17,23,0.6); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: var(--radius-lg); padding: 2.5rem; max-width: 420px; width: 90%; animation: fadeUp 0.25s ease; }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+  .modal-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+  .modal-tab { flex: 1; text-align: center; padding: 0.6rem; font-size: 0.88rem; color: var(--ink-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+  .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+  .modal h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.4rem; margin-bottom: 0.25rem; }
+  .modal p { font-size: 0.85rem; color: var(--ink-3); margin-bottom: 1.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 500; margin-bottom: 0.35rem; color: var(--ink-2); }
+  .form-group input, .form-group select { width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-strong); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--ink); background: var(--white); outline: none; transition: border-color 0.15s; }
+  .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+  .btn-submit { width: 100%; padding: 0.85rem; border-radius: var(--radius-pill); border: none; background: var(--accent); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
+  .btn-submit:hover { background: #c73508; }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+  .modal-close { position: absolute; top: 1rem; right: 1rem; background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; color: var(--ink-3); }
+  .modal-error { color: #b91c1c; font-size: 0.82rem; margin-top: 0.5rem; background: #fde8e8; padding: 0.6rem 0.75rem; border-radius: 8px; display: none; }
+  .modal-error.show { display: block; }
+  .modal-success { color: var(--green); font-size: 0.82rem; margin-top: 0.5rem; background: var(--green-light); padding: 0.6rem 0.75rem; border-radius: 8px; display: none; }
+  .modal-success.show { display: block; }
 </style>
 </head>
 <body>
