@@ -1572,6 +1572,11 @@ async function filtrarVagas(status, el) {
 }
 
 async function mudarStatus(vagaId, novoStatus) {
+  // Bloquear reativação se plano vencido
+  if (novoStatus === 'ativa' && empresaData?._plano_vencido) {
+    alert('Seu plano está vencido. Renove para reativar vagas. Entre em contato: contato.opportunia@gmail.com');
+    return;
+  }
   await sb.from('vagas').update({ status: novoStatus }).eq('id', vagaId);
   await carregarVagas();
   renderVagasTable();
