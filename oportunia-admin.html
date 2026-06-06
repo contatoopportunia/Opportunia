@@ -908,10 +908,13 @@ async function salvarRenovacao(empId) {
 
   if (error) { fb.innerHTML = '<span style="color:var(--red)">Erro ao salvar.</span>'; return; }
 
+  // Reativar vagas que foram pausadas automaticamente pelo vencimento
+  await sb.from('vagas').update({ status: 'ativa', pausada_por_vencimento: false }).eq('empresa_id', empId).eq('pausada_por_vencimento', true);
+
   empresas = empresas.map(e => e.id === empId ? { ...e, plano_pago_em: pagoDem, plano_vencimento: vencimento, plano_valor: valor } : e);
   document.getElementById('modal-renovar').remove();
   renderEmpresas();
-  showToast('✓ Pagamento registrado com sucesso!');
+  showToast('✓ Pagamento registrado! Vagas reativadas automaticamente.');
 }
 
 async function verificarVencimentos() {

@@ -1138,7 +1138,7 @@ async function iniciarPainel(user) {
     const venc = new Date(empresa.plano_vencimento); venc.setHours(0,0,0,0);
     if (venc < hoje) {
       // Pausar todas as vagas ativas automaticamente
-      await sb.from('vagas').update({ status: 'pausada' }).eq('empresa_id', empresa.id).eq('status', 'ativa');
+      await sb.from('vagas').update({ status: 'pausada', pausada_por_vencimento: true }).eq('empresa_id', empresa.id).eq('status', 'ativa');
       // Marcar empresa com plano vencido
       empresaData = empresa;
       empresaData._plano_vencido = true;
