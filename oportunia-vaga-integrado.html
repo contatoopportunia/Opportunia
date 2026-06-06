@@ -466,12 +466,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function carregarVaga(id) {
-  const { data: vaga, error } = await sb.from('vagas').select('*').eq('id', id).single();
+  const { data: vaga, error } = await sb.from('vagas').select('*, empresas(nome, logo, descricao, site, instagram, tamanho, fundacao, setor, sede)').eq('id', id).single();
 
   if (error || !vaga) { mostrarErroVaga(); return; }
   vagaAtual = vaga;
   renderizarVaga(vaga);
   carregarSimilares(vaga.area, id);
+  // Renderiza empresa já com dados do join
+  if(vaga.empresas) renderizarEmpresa(vaga.empresas);
   // Verifica se vaga já está salva
   sb.auth.getSession().then(({data:{session}})=>{
     if(!session) return;
@@ -479,11 +481,6 @@ async function carregarVaga(id) {
       if(data){ const btn=document.getElementById('btn-salvar-vaga');if(btn){btn.textContent='♥ Vaga salva!';btn.style.opacity='.7';} }
     });
   });
-  if(vaga.empresa_id){
-    sb.from('empresas').select('nome, logo, descricao, site, instagram, tamanho, fundacao, setor, sede').eq('id', vaga.empresa_id).single().then(({data:emp})=>{
-      renderizarEmpresa(emp);
-    });
-  }
 }
 
 function renderizarVaga(v) {
