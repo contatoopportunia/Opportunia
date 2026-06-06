@@ -7,7 +7,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+async function encerrarAdminVaga(id, encerrar) {
+  await sb.from('vagas').update({
+    encerrada_admin: encerrar,
+    status: encerrar ? 'encerrada' : 'pausada'
+  }).eq('id', id);
+  showToast(encerrar ? '🔒 Vaga encerrada pelo admin.' : '↩ Vaga liberada.');
+  carregarVagas();
+}
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -988,10 +997,16 @@ function renderVagas() {
       const btnDestaque = !v.destaque
         ? '<button class="btn-sm btn-blue" onclick="toggleDestaque(\'' + v.id + '\',true)">⭐ Destacar</button>'
         : '<button class="btn-sm btn-gray" onclick="toggleDestaque(\'' + v.id + '\',false)">Remover destaque</button>';
+      const btnEncerrar = v.encerrada_admin
+        ? '<button class="btn-sm btn-gray" style="margin-left:4px" onclick="encerrarAdminVaga(\'' + v.id + '\',false)">↩ Liberar</button>'
+        : '<button class="btn-sm btn-red" style="margin-left:4px" onclick="encerrarAdminVaga(\'' + v.id + '\',true)">🔒 Encerrar</button>';
       const btnStatus = v.status === 'ativa'
         ? '<button class="btn-sm btn-gray" onclick="confirmar(\'Pausar vaga\',\'Deseja pausar esta vaga? Ela ficará invisível para candidatos.\',\'vaga\',\'' + v.id + '\',\'pausada\')">⏸ Pausar</button>'
         + '<button class="btn-sm btn-red" style="margin-left:4px" onclick="confirmar(\'Excluir permanentemente\',\'Esta ação é irreversível. Deseja excluir esta vaga?\',\'excluir_vaga\',\'' + v.id + '\',\'\')">🗑 Excluir</button>'
-        : '<button class="btn-sm btn-green" onclick="acao(\'vaga\',\'' + v.id + '\',\'ativa\')">Reativar</button>';
+        + btnEncerrar
+        : v.encerrada_admin
+          ? '<span style="font-size:.78rem;color:#ef4444;font-weight:500;padding:.3rem .6rem">🔒 Encerrada pelo admin</span>' + btnEncerrar
+          : '<button class="btn-sm btn-green" onclick="acao(\'vaga\',\'' + v.id + '\',\'ativa\')">Reativar</button>' + btnEncerrar;
       vagasHtml += '<div class="data-row" style="padding-left:2rem">'
         + '<div class="row-info">'
         + '<div class="row-nome">' + v.titulo + (v.destaque ? ' ⭐' : '') + '</div>'
