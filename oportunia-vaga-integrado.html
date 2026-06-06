@@ -616,9 +616,7 @@ function renderizarVaga(v) {
   document.getElementById('apply-status').textContent = 'Processo seletivo aberto';
   document.getElementById('modal-titulo').textContent = v.titulo;
 
-  if (usuarioLogado) {
-    document.getElementById('cand-email').value = usuarioLogado.email || '';
-  }
+
 }
 
 function renderizarEmpresa(emp){
