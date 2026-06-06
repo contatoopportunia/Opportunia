@@ -15,7 +15,7 @@ async function encerrarAdminVaga(id, encerrar) {
     status: encerrar ? 'encerrada' : 'pausada'
   }).eq('id', id);
   showToast(encerrar ? '🔒 Vaga encerrada pelo admin.' : '↩ Vaga liberada.');
-  carregarVagas();
+  await carregarTudo();
 }
 </script>
 <style>
