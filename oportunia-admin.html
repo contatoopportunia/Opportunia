@@ -1162,6 +1162,21 @@ async function acao(tipo, id, valor) {
     document.getElementById('cnt-pend').style.display = pend > 0 ? 'inline' : 'none';
     renderEmpresas(); renderDashPendentes(); atualizarMetrics();
     showToast(valor === 'aprovada' ? '✓ Empresa aprovada!' : valor === 'bloqueada' ? 'Empresa bloqueada.' : 'Status atualizado.');
+    // Email de boas-vindas quando empresa é aprovada
+    if (valor === 'aprovada') {
+      const emp = empresas.find(e => e.id === id);
+      if (emp?.email) {
+        fetch(`${SB_URL}/functions/v1/send-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
+          body: JSON.stringify({
+            to: emp.email,
+            subject: 'Sua empresa foi aprovada na Opportunia!',
+            html: `<p>Olá, ${emp.nome}!</p><p>Boa notícia: sua empresa foi aprovada na <strong>Opportunia</strong> e já está apta para publicar vagas e encontrar os melhores candidatos.</p><p>Acesse o painel da empresa e comece agora:</p><p><a href="https://opportunia.com.br/oportunia-painel-empresa.html">Acessar painel da empresa →</a></p><p>Qualquer dúvida, é só responder este email.</p><p>Equipe Opportunia</p>`
+          })
+        }).catch(e => console.error('Erro ao enviar email de aprovação:', e));
+      }
+    }
   } else if (tipo === 'candidato') {
     await sb.from('candidatos').update({ status: valor }).eq('id', id);
     candidatos = candidatos.map(c => c.id === id ? { ...c, status: valor } : c);

@@ -852,6 +852,16 @@ async function criarConta() {
       await sb.from('candidatos').insert({ user_id: data.user.id, nome, email });
     } else {
       await sb.from('empresas').insert({ user_id: data.user.id, nome, email, tipo: 'empresa' });
+      // Notifica admin sobre novo cadastro de empresa
+      fetch(`${SB_URL}/functions/v1/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
+        body: JSON.stringify({
+          to: 'caueokiyama.adm@gmail.com',
+          subject: 'Nova empresa aguardando aprovação — Opportunia',
+          html: `<p>Olá, Cauê!</p><p>A empresa <strong>${nome}</strong> (${email}) acabou de se cadastrar na Opportunia e está aguardando sua aprovação.</p><p><a href="https://opportunia.com.br/oportunia-admin.html">Acessar painel admin →</a></p>`
+        })
+      }).catch(e => console.error('Erro ao notificar admin:', e));
     }
   }
 
