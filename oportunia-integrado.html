@@ -853,9 +853,9 @@ async function criarConta() {
     } else {
       await sb.from('empresas').insert({ user_id: data.user.id, nome, email, tipo: 'empresa' });
       // Notifica admin sobre novo cadastro de empresa
-      fetch(`${SB_URL}/functions/v1/send-email`, {
+      fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
         body: JSON.stringify({
           to: 'caueokiyama.adm@gmail.com',
           subject: 'Nova empresa aguardando aprovação — Opportunia',
