@@ -866,7 +866,7 @@ async function criarConta() {
   }
 
   err.classList.remove('show');
-  suc.innerHTML = '✓ Conta criada com sucesso!<br>Enviamos um link de confirmação para o seu e-mail. Clique nele antes de fazer login.';
+  suc.textContent = '✓ Conta criada! Verifique seu e-mail para confirmar.';
   suc.classList.add('show');
   btn.textContent = 'Conta criada!';
 }
