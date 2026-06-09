@@ -1132,7 +1132,7 @@ async function iniciarPainel(user) {
     document.getElementById('login-gate').innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:1rem;font-family:'DM Sans',sans-serif;text-align:center;padding:2rem">
       <div style="font-size:2.5rem">⏳</div>
       <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.4rem;color:#0f1117">Conta aguardando aprovação</h2>
-      <p style="color:#7a7f94;max-width:340px;font-size:0.9rem">Sua empresa está sendo analisada pela equipe Opportunia. Você receberá um e-mail quando for aprovada. Em caso de dúvidas, entre em contato pelo <a href="mailto:contato.opportunia@gmail.com" style="color:#e8440a">contato.opportunia@gmail.com</a>.</p>
+      <p style="color:#7a7f94;max-width:340px;font-size:0.9rem">Sua empresa está sendo analisada pela equipe Opportunia. Você receberá um e-mail quando for aprovada. Em caso de dúvidas, entre em contato pelo <a href="mailto:contato@opportunia.com.br" style="color:#e8440a">contato@opportunia.com.br</a>.</p>
       <a href="oportunia-integrado.html" onclick="event.preventDefault();sb.auth.signOut().then(()=>window.location.href='oportunia-integrado.html')" style="margin-top:0.5rem;padding:0.65rem 1.5rem;background:#e8440a;color:#fff;border-radius:100px;text-decoration:none;font-size:0.9rem;font-weight:500;cursor:pointer">Voltar ao início</a>
     </div>`;
     return;
@@ -1143,7 +1143,7 @@ async function iniciarPainel(user) {
     document.getElementById('login-gate').innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:1rem;font-family:'DM Sans',sans-serif;text-align:center;padding:2rem">
       <div style="font-size:2.5rem">🚫</div>
       <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.4rem;color:#0f1117">Conta suspensa</h2>
-      <p style="color:#7a7f94;max-width:340px;font-size:0.9rem">Sua conta foi suspensa pela equipe Opportunia. Entre em contato pelo e-mail <a href="mailto:contato.opportunia@gmail.com" style="color:#e8440a">contato.opportunia@gmail.com</a> para mais informações.</p>
+      <p style="color:#7a7f94;max-width:340px;font-size:0.9rem">Sua conta foi suspensa pela equipe Opportunia. Entre em contato pelo e-mail <a href="mailto:contato@opportunia.com.br" style="color:#e8440a">contato@opportunia.com.br</a> para mais informações.</p>
       <a href="oportunia-integrado.html" onclick="event.preventDefault();sb.auth.signOut().then(()=>window.location.href='oportunia-integrado.html')" style="margin-top:0.5rem;padding:0.65rem 1.5rem;background:#e8440a;color:#fff;border-radius:100px;text-decoration:none;font-size:0.9rem;font-weight:500;cursor:pointer">Voltar ao início</a>
     </div>`;
     return;
@@ -1594,7 +1594,7 @@ async function filtrarVagas(status, el) {
 async function mudarStatus(vagaId, novoStatus) {
   // Bloquear reativação se plano vencido
   if (novoStatus === 'ativa' && empresaData?._plano_vencido) {
-    alert('Seu plano está vencido. Renove para reativar vagas. Entre em contato: contato.opportunia@gmail.com');
+    alert('Seu plano está vencido. Renove para reativar vagas. Entre em contato: contato@opportunia.com.br');
     return;
   }
   await sb.from('vagas').update({ status: novoStatus }).eq('id', vagaId);
@@ -1668,7 +1668,7 @@ function setToggle(groupId, value) {
 
 async function publicarVaga() {
   if (empresaData?._plano_vencido) {
-    alert('Seu plano venceu. Renove para publicar novas vagas. Entre em contato: contato.opportunia@gmail.com');
+    alert('Seu plano venceu. Renove para publicar novas vagas. Entre em contato: contato@opportunia.com.br');
     return;
   }
   const titulo = document.getElementById('f-titulo').value.trim();
@@ -2603,7 +2603,7 @@ function fecharModalLimite() {
 }
 
 function entrarEmContato() {
-  window.location.href = 'mailto:contato.opportunia@gmail.com?subject=Interesse em plano Opportunia';
+  window.location.href = 'mailto:contato@opportunia.com.br?subject=Interesse em plano Opportunia';
 }
 
 
